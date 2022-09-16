@@ -5,6 +5,7 @@ from enum import Status, ShipAccessPrivilege
 
 
 class Company(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     name = models.CharField(max_length=255)
     link = models.UrlField()
     status = models.IntegerField(choices=Status.choices)
@@ -16,6 +17,7 @@ class Company(models.Model):
 
 
 class Profile(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     user = models.OneToOneField(User, on_delete=models.PROTECT,
         primary_key=True)
     company = models.ForeignKey(Company, on_delete=models.PROTECT)
@@ -29,18 +31,18 @@ class Profile(models.Model):
 
 
 class Ship(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     name = models.CharField(max_length=255)
     imo_reg = models.IntegerField()
     company = models.ForeignKey(Company, on_delete=models.PROTECT)
     status = models.IntegerField(choices=Status.choices)
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
-    
     assigned_users = models.ManyToManyField(
         Person,
         through = 'ShipUser',
         through_fields = ('ship', 'user')
     )
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "ships"
