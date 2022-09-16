@@ -7,6 +7,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
+from zappa.asynchronous import task
+
 """ The following 2 functions are adopted from Auth0's Quickstart for Django APIs
 """
 
@@ -47,6 +49,7 @@ def requires_scope(required_scope):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def public(request):
+    test_fn()
     return JsonResponse({'message': 'Hello from a public endpoint! You don\'t need to be authenticated to see this.'})
 
 
@@ -59,3 +62,7 @@ def private(request):
 @requires_scope('read:messages')
 def private_scoped(request):
     return JsonResponse({'message': 'Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.'})
+
+@task
+def test_fn():
+    print("ASYNC INVOCATIONNNNNNNNN")

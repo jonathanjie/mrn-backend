@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
-from marinachain.secrets import DJANGO_SECRET_KEY, DB_USER, DB_PASSWORD, JWT_AUDIENCE, JWT_ISSUER
+from marinachain.secrets import DJANGO_SECRET_KEY, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, JWT_AUDIENCE, JWT_ISSUER
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +27,7 @@ SECRET_KEY = DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -80,11 +80,11 @@ WSGI_APPLICATION = "marinachain.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "marinanet",
+        "NAME": DB_NAME,
         "USER": DB_USER,
         "PASSWORD": DB_PASSWORD,
-        "HOST": "localhost",
-        "PORT": "5432",
+        "HOST": DB_HOST, #"localhost",
+        "PORT": DB_PORT,
     }
 }
 
