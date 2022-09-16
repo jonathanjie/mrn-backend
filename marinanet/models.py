@@ -35,6 +35,12 @@ class Ship(models.Model):
     status = models.IntegerField(choices=Status.choices)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    
+    assigned_users = models.ManyToManyField(
+        Person,
+        through = 'ShipUser',
+        through_fields = ('ship', 'user')
+    )
 
     class Meta:
         db_table = "ships"
