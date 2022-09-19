@@ -1,9 +1,11 @@
+from decimal import Decimal
 import uuid
 
-from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.gis.db import models
 
 from auth0.models import User
-from marinanet.enums import ShipAccessPrivilege, ShipTypes, Status
+from marinanet.enums import ReportTypes, ShipAccessPrivilege, ShipTypes, Status
 
 
 ### USERS ###
@@ -56,7 +58,8 @@ class Ship(models.Model):
 class ShipUser(models.Model):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
-    privilege = models.PositiveSmallIntegerField(choices=ShipAccessPrivilege.choices)
+    privilege = models.PositiveSmallIntegerField(
+        choices=ShipAccessPrivilege.choices)
     status = models.PositiveSmallIntegerField(choices=Status.choices)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -67,101 +70,158 @@ class ShipUser(models.Model):
 ### REPORTS ###
 
 
-# class Voyage(models.model):
-#     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
-#     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
-#     voyage_num = models.IntegerField()
-#     departure_date = models.DateTimeField()
-#     departure_port = models.CharField(max_length=64)
-#     arrival_date = models.DateTimeField()
-#     arrival_port = models.CharField(max_length=64)
-#     status = models.PositiveSmallIntegerField(choices=Status.choices)
-#     date_created = models.DateTimeField(auto_now_add=True)
-#     date_modified = models.DateTimeField(auto_now=True)
+class Voyage(models.model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+    ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
+    voyage_num = models.PositiveIntegerField()
+    departure_date = models.DateTimeField()
+    departure_port = models.CharField(max_length=6)
+    arrival_date = models.DateTimeField()
+    arrival_port = models.CharField(max_length=6)
+    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "voyages"
 
 
-# class ReportHeader(models.model):
-#     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
-#     voyage = models.ForeignKey(Voyage, on_delete=models.PROTECT)
-#     report_type = models.ChoiceField(choices=ReportTypes.choices)
-#     report_num = models.IntegerField()
-#     cargo_presence = models.BooleanField()
-#     timezone = models.IntegerField()
-#     datetime = models.DateTimeField(auto_now_add=True)
-#     summer_time = models.BooleanField()
-#     # position = models.PointField() TODO
-#     status = models.PositiveSmallIntegerField(choices=Status.choices)
-#     date_created = models.DateTimeField(auto_now_add=True)
-#     date_modified = models.DateTimeField(auto_now=True)
+class ReportHeader(models.model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)
+    voyage = models.ForeignKey(Voyage, on_delete=models.PROTECT)
+    report_type = models.ChoiceField(choices=ReportTypes.choices)
+    report_num = models.IntegerField()
+    cargo_presence = models.BooleanField()
+    timezone = models.IntegerField()
+    datetime = models.DateTimeField()
+    summer_time = models.BooleanField()
+    position = models.PointField(srid=4326)
+    # Note that for position, X is Longitude, Y is Lattitude
+    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "report_headers"
 
 
-# class NoonReportHeader(models.model):
-#     report_header = models.OneToOneField(
-#         ReportHeader, on_delete=models.PROTECT, primary_key=True)
-#     noon_report_type = models.ChoiceField(choices=NoonReportTypes.choices)
-#     date_created = models.DateTimeField(auto_now_add=True)
-#     date_modified = models.DateTimeField(auto_now=True)
+class ReportData(models.Model):
+    report_header = models.OneToOneField(
+        ReportHeader, on_delete=models.PROTECT, primary_key=True)
+
+    class Meta:
+        abstract = True
 
 
-# class NoonReportAtSea(models.model):
-#     noon_report_header = models.OneToOneField(
-#         NoonReportHeader, on_delete=models.PROTECT, primary_key=True)
-#     distance_to_standby = models.FloatField(min=0.0)
-#     hours_since_noon = models.FloatField(min=0.0)
-#     hours_total = models.FloatField(min=0.0)
-#     distance_obs_since_noon = models.FloatField(min=0.0)
-#     distance_eng_since_noon = models.FloatField(min=0.0)
-#     distance_eng_total = models.FloatField(min=0.0)
-#     revolution_count = models.IntField(min=0.0)
-#     since_noon_speed = models.FloatField(min=0.0)
-#     since_noom_rpm = models.FloatField(min=0.0)
-#     since_noon_slip = models.FloatField(min=0.0)
-#     avg_speed = models.FloatField(min=0.0)
-#     avg_rpm = models.FloatField(min=0.0)
-#     avg_slip = models.FloatField(min=0.0)
-#     weather = models.CharField()
-#     sea_state = models.IntField(min=0)
-#     wind_direction = models.FloatField(min=0.0, max=359.99)
-#     wind_speed = models.FloatField()
-#     heavy_weather_hours = models.FloatField(min=0.0)
-#     heavy_weather_dist = models.FloatField(min=0.0)
-#     heavy_weather_foc = models.FloatField(min=0.0)
-#     heavy_weather_wind_direction = models.FloatField(min=0.0, max=359.99)
-#     heavy_weather_wind_speed = models.FloatField(min=0.0)
-#     heavy_weather_max_wave_ht = models.FloatField(min=0.0)
-#     changed_speed = models.FloatField()
-#     changed_foc = models.FloatField()
-#     changed_rpm = models.FloatField()
-#     changed_date = models.FloatField()
-#     bunker_details = models., primary_key = True(BunkerDetails, on_delete=models.PROTECT, primary_key=False)
-#     date_created = models.DateTimeField(auto_now_add=True)
-#     date_modified = models.DateTimeField(auto_now=True)
+class NoonReportAtSea(ReportData):
+    distance_to_standby = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    hours_since_noon = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    hours_total = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    distance_obs_since_noon = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    distance_eng_since_noon = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    distance_eng_total = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    revolution_count = models.IntField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    speed_since_noon = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rpm_since_noon = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    slip_since_noon = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    speed_avg = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rpm_avg = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    slip_avg = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    weather = models.CharField(max_length=255)
+    sea_state = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(0)])
+    wind_direction = models.DecimalField(
+        validators=[
+            MinValueValidator(Decimal("0.0")),
+            MaxValueValidator(Decimal("360"))
+            ])
+    wind_speed = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    heavy_weather_hours = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    heavy_weather_dist = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    heavy_weather_foc = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    heavy_weather_wind_direction = models.DecimalField(
+        validators=[
+            MinValueValidator(Decimal("0.0")),
+            MaxValueValidator(Decimal("360"))
+            ])
+    heavy_weather_wind_speed = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    heavy_weather_max_wave_ht = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    changed_speed = models.DecimalField()
+    changed_foc = models.DecimalField()
+    changed_rpm = models.DecimalField()
+    changed_date = models.DecimalField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "noon_reports_at_sea"
 
 
-# class BunkerDetails(models.model):
-#     consumed_lsfo = models.FloatField(min=0.0)
-#     consumed_mgo = models.FloatField(min=0.0)
-#     consumed_correction = models.CharField()
-#     consumed_remarks = models.CharField()
-#     received_lsfo = models.FloatField(min=0.0)
-#     received_lsfo_time = models.DateTimeField()
-#     received_mgo = models.FloatField(min=0.0)
-#     received_mgo_time = models.DateTimeField()
-#     received_meslo = models.FloatField(min=0.0)
-#     received_meclo = models.FloatField(min=0.0)
-#     received_geslo = models.FloatField(min=0.0)
-#     received_freshwater = models.FloatField(min=0.0)
-#     received_correction = models.CharField()
-#     received_remark = models.CharField()
-#     rob_lsfo = models.FloatField(min=0.0)
-#     rob_mgo = models.FloatField(min=0.0)
-#     rob_freshwater = models.FloatField(min=0.0)
-#     rob_meslo = models.FloatField(min=0.0)
-#     rob_mest = models.FloatField(min=0.0)
-#     rob_meslo = models.FloatField(min=0.0)
-#     rob_ meclo = models.FloatField(min=0.0)
-#     rob_ geslo = models.FloatField(min=0.0)
-#     evaporated_freshwater = models.FloatField(min=0.0)
-#     consumed_freshwater = models.FloatField(min=0.0)
-#     date_created = models.DateTimeField(auto_now_add=True)
-#     date_modified = models.DateTimeField(auto_now=True)
+class BunkerDetails(models.model):
+    report_data = models.OneToOneField(ReportData, on_delete=models.PROTECT)
+    consumed_lsfo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    consumed_mgo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    consumed_correction = models.CharField()
+    consumed_remarks = models.CharField()
+    received_lsfo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    received_lsfo_time = models.DateTimeField()
+    received_mgo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    received_mgo_time = models.DateTimeField()
+    received_meslo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    received_meclo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    received_geslo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    received_freshwater = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    received_correction = models.CharField()
+    received_remark = models.CharField()
+    rob_lsfo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rob_mgo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rob_freshwater = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rob_meslo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rob_mest = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rob_meslo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rob_ meclo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rob_ geslo = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    evaporated_freshwater = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    consumed_freshwater = models.DecimalField(
+        validators=[MinValueValidator(Decimal("0.0"))])
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "report_data_bunker_details"
