@@ -20,14 +20,14 @@ class ShipTypes(models.TextChoices):
     RORO = "RORO", _("Roll-On Roll-Off Ships")
 
 
-# class ReportTypes(models.TextChoices):
-#     NOON = "NOON", _("Noon")
-#     DEPARTURE = "DEP", _("Departure")
-#     ARRIVAL = "ARR", _("Arrival")
-#     BDN = "BDN", _("Bunker Delivery Note")
+class ReportTypes(models.TextChoices):
+    NOON = "NOON", _("Noon")
+    DEPARTURE = "DEP", _("Departure")
+    ARRIVAL = "ARR", _("Arrival")
+    BDN = "BDN", _("Bunker Delivery Note")
 
 
-# class NoonReportTypes(models.TextChoices):
-#     NOON_SEA = "SEA", _("Noon at Sea")
-#     NOON_WAITING = "WAIT", _("Noon Waiting")
-#     NOON_IN_PORT = "PORT", _("Noon in Port")
+class NoonReportTypes(models.TextChoices):
+    NOON_SEA = "SEA", _("Noon at Sea")
+    NOON_WAITING = "WAIT", _("Noon Waiting")
+    NOON_IN_PORT = "PORT", _("Noon in Port")
