@@ -24,11 +24,14 @@ $ cd marinachain
 $ pip install -r requirements.txt
 ```
 
-## Install and setup PostgreSQL
+## Install and setup PostgreSQL and PostGIS
 1. If you are on MacOS, make sure you have the [Homebrew](https://brew.sh/) package manager installed.
 2. Using Homebrew, install and start Postgres:
 ```
 $ brew install postgresql
+$ brew install postgis
+$ brew install gdal
+$ brew install libgeoip
 $ brew services start postgresql
 ```
 3. Start the Postgres interactive terminal:
@@ -42,6 +45,13 @@ $ psql postgres
 # GRANT ALL PRIVILEGES ON DATABASE marinanet TO 'marinanet';
 ```
 4. `CTRL-D` to exit the Postgres shell.
+5. Enable PostGIS functionality on Postgres:
+```
+$ psql mariananet
+
+# CREATE EXTENSION postgis;
+```
+6. `CTRL-D` to exit the Postgres shell.
 
 ## Setup and run the Django Backend
 1. Get a copy of `secrets.py` from another team member. This file contains all all the secrets related to the project, such as usernames, passwords, and API Keys. **DO NOT CIRCULATE THIS FILE!**
