@@ -39,6 +39,7 @@ $ psql postgres
 ```
 # CREATE DATABASE marinanet;
 # CREATE USER marinanet WITH PASSWORD 'correcthorsebatterystaple';
+# GRANT ALL PRIVILEGES ON DATABASE marinanet TO 'marinanet';
 ```
 4. `CTRL-D` to exit the Postgres shell.
 
