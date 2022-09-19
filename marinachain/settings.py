@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "auth0",
+    "marinanet",
 ]
 
 MIDDLEWARE = [
@@ -130,7 +132,7 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = 'auth.User'
+AUTH_USER_MODEL = 'auth0.User'
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
