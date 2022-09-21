@@ -2,7 +2,8 @@ from decimal import Decimal
 import uuid
 
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.contrib.gis.db import models
+# from django.contrib.gis.db import models
+from django.db import models
 
 from auth0.models import User
 from marinanet.enums import (
