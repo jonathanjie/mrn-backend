@@ -9,7 +9,7 @@ from auth0.models import User
 from marinanet.enums import (
     Beaufort,
     CargoPresence,
-    FuelType
+    FuelType,
     ReportTypes,
     ShipAccessPrivilege,
     ShipTypes,
@@ -84,7 +84,7 @@ class ShipUser(models.Model):
 """
 
 
-class Voyage(models.model):
+class Voyage(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     voyage_num = models.PositiveIntegerField()
@@ -100,15 +100,15 @@ class Voyage(models.model):
         db_table = "voyages"
 
 
-class ReportHeader(models.model):
+class ReportHeader(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     voyage = models.ForeignKey(Voyage, on_delete=models.PROTECT)
-    report_type = models.ChoiceField(choices=ReportTypes.choices)
+    report_type = models.CharField(choices=ReportTypes.choices)
     report_num = models.IntegerField()
     cargo_presence = models.TextField(max_length=4, choices=CargoPresence)
     summer_time = models.BooleanField()
-    position = models.PointField(srid=4326)
-    # Note that for position, X is Longitude, Y is Lattitude
+    # position = models.PointField(srid=4326)
+    # Note that for position, X is Longitude, Y is Latitude
     status = models.PositiveSmallIntegerField(choices=Status.choices)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -152,7 +152,7 @@ class NoonReportAtSea(ReportData):
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    revolution_count = models.IntField(
+    revolution_count = models.IntegerField(
         validators=[MinValueValidator(0)])
     speed_since_noon = models.DecimalField(
         max_digits=4,

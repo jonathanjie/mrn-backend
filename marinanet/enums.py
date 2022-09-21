@@ -52,7 +52,7 @@ class Weather(models.TextChoices):
     RAIN = "R", _("Rain")
     SNOW = "S", _("Snow")
     THUNDER = "T", _("Thunder")
-    UGLY "U", _("Ugly threatening weather")
+    UGLY = "U", _("Ugly threatening weather")
     DEW = "W", _("Dew")
     HAZE = "Z", _("Haze")
 
@@ -75,7 +75,7 @@ class Beaufort(models.IntegerChoices):
 
 class FuelType(models.TextChoices):
     HFO = "HFO", _("HFO")
-    LSFO = "LSFO" _("LSFO")
+    LSFO = "LSFO", _("LSFO")
     MDO = "MDO", _("MDO")
     MGO = "MGO", _("MGO")
     LPG_PROPANE = "LPGP", _("LPG (Propane)")

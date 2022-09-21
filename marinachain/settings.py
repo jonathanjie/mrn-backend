@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.gis",
+    # "django.contrib.gis",
     "rest_framework",
     "auth0",
     "marinanet",
@@ -82,9 +82,10 @@ WSGI_APPLICATION = "marinachain.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgis",
-        # "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "marinanet",
+        "ENGINE": "django.db.backends.postgresql",
+        # "ENGINE": "django.db.backends.postgis",  # <-- this is the wrong one I think
+        # "ENGINE": "django.contrib.gis.db.backends.postgis", # <-- should be the correct backend (see https://stackoverflow.com/questions/53437263/django-2-1-3-django-db-backends-postgis-isnt-an-available-database-backend)
+        "NAME": "marinanet_dev",
         "USER": DB_USER,
         "PASSWORD": DB_PASSWORD,
         "HOST": "localhost",
