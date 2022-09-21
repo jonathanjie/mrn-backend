@@ -83,6 +83,7 @@ WSGI_APPLICATION = "marinachain.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgis",
+        # "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": "marinanet",
         "USER": DB_USER,
         "PASSWORD": DB_PASSWORD,
@@ -138,12 +139,12 @@ AUTH_USER_MODEL = 'auth0.User'
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
-        ),
+    ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_jwt.authentication.JSONWebTokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
-        )
+    )
 }
 
 
