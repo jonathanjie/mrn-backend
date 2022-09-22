@@ -166,3 +166,6 @@ JWT_AUTH = {
     "JWT_ISSUER": JWT_ISSUER,
     "JWT_AUTH_HEADER_PREFIX": "Bearer",
 }
+
+
+SILENCED_SYSTEM_CHECKS = ['fields.E300', 'fields.E307']

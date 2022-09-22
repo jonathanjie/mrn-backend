@@ -104,9 +104,10 @@ class Voyage(models.Model):
 class ReportHeader(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     voyage = models.ForeignKey(Voyage, on_delete=models.PROTECT)
-    report_type = models.CharField(choices=ReportTypes.choices)
+    report_type = models.CharField(max_length=4, choices=ReportTypes.choices)
     report_num = models.IntegerField()
-    cargo_presence = models.TextField(max_length=4, choices=CargoPresence)
+    cargo_presence = models.TextField(
+        max_length=4, choices=CargoPresence.choices)
     summer_time = models.BooleanField()
     # position = models.PointField(srid=4326)
     # Note that for position, X is Longitude, Y is Latitude
@@ -124,9 +125,10 @@ class ReportData(models.Model):
 
     class Meta:
         abstract = True
+        db_table = "report_data"
 
 
-class NoonReportAtSea(ReportData):
+class NoonReportAtSea(ReportData, models.Model):
     distance_to_go = models.DecimalField(
         max_digits=5,
         decimal_places=0,
