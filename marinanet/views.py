@@ -1,3 +1,5 @@
+from ./models import Author
+from django.forms import modelformset_factory
 from functools import wraps
 
 from django.http import JsonResponse
@@ -90,3 +92,20 @@ def validate_noon_report(report=""):
 """
 - DB INSERTION
 """
+
+"""
+FORMS
+"""
+
+
+def create_voyage(request):
+    VoyageFormSet = modelformset_factory(
+        Voyage, exclude=['uuid', 'ship', 'status', 'date_created', 'date_modified'])
+    if request.method == 'POST':
+        formset = VoyageFormSet(request.POST, request.FILES)
+        if formset.is_valid():
+            formset.save()
+            # do something.
+    else:
+        formset = VoyageFormSet()
+    return render(request, 'create_voyage.html', {'formset': formset})

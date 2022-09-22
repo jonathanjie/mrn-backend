@@ -5,4 +5,5 @@ from . import views
 urlpatterns = [
     path('marinanet/test', views.test),
     path('marinanet/reports/noon/submit', views.submit_noon_report)
+    path('marinanet/reports/forms/voyage', views.create_voyage)
 ]
