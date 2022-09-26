@@ -2,8 +2,8 @@ from decimal import Decimal
 import uuid
 
 from django.core.validators import MaxValueValidator, MinValueValidator
-# from django.contrib.gis.db import models
-from django.db import models
+from django.contrib.gis.db import models
+# from django.congrib. import models
 from django.forms import ModelForm
 
 from auth0.models import User
@@ -109,7 +109,7 @@ class ReportHeader(models.Model):
     cargo_presence = models.TextField(
         max_length=4, choices=CargoPresence.choices)
     summer_time = models.BooleanField()
-    # position = models.PointField(srid=4326)
+    position = models.PointField(srid=4326)
     # Note that for position, X is Longitude, Y is Latitude
     status = models.PositiveSmallIntegerField(choices=Status.choices)
     date_created = models.DateTimeField(auto_now_add=True)

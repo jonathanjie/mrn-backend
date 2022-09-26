@@ -46,7 +46,7 @@ class Weather(models.TextChoices):
     HAIL = "H", _("Hail")
     LIGHTNING = "L", _("Lightning")
     MIST = "M", _("Mist")
-    OVERCAST = "O", ("Overcast (Cloud 10)")
+    OVERCAST = "O", _("Overcast (Cloud 10)")
     PASSING_SHOWERS = "P", _("Passing showers")
     SQUALLS = "Q", _("Squalls")
     RAIN = "R", _("Rain")
