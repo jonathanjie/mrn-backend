@@ -12,7 +12,13 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
-from marinachain.secrets import DJANGO_SECRET_KEY, DB_USER, DB_PASSWORD, JWT_AUDIENCE, JWT_ISSUER
+from marinachain.secrets import (
+    DJANGO_SECRET_KEY,
+    DB_NAME,
+    DB_USER,
+    DB_PASSWORD,
+    JWT_AUDIENCE,
+    JWT_ISSUER)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -82,10 +88,9 @@ WSGI_APPLICATION = "marinachain.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        # "ENGINE": "django.db.backends.postgis",  # <-- this is the wrong one I think
-        # "ENGINE": "django.contrib.gis.db.backends.postgis", # <-- should be the correct backend (see https://stackoverflow.com/questions/53437263/django-2-1-3-django-db-backends-postgis-isnt-an-available-database-backend)
-        "NAME": "marinanet_dev",
+        # "ENGINE": "django.db.backends.postgresql",    # Default Postgres
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": DB_NAME,
         "USER": DB_USER,
         "PASSWORD": DB_PASSWORD,
         "HOST": "localhost",
