@@ -8,9 +8,18 @@ from marinanet.models import (
     ReportHeader,
     WeatherData
 )
+from marinanet.utils import parse_dm
 
 
 class ReportHeaderSerializer(serializers.ModelSerializer):
+    latitude = serializers.CharField(max_length=10)
+    longitude = serializers.CharField(max_length=10)
+
+    def validate_position(self, value):
+        if not value:
+            value = parse_dm(latitude, longitude)
+        return value
+
     class Meta:
         model = ReportHeader
         read_only_fields = ['uuid', 'date_created', 'date_modified']
