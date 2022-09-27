@@ -125,10 +125,9 @@ class ReportData(models.Model):
 
     class Meta:
         abstract = True
-        db_table = "report_data"
 
 
-class NoonReportAtSea(ReportData, models.Model):
+class NoonReportAtSea(ReportData):
     distance_to_go = models.DecimalField(
         max_digits=5,
         decimal_places=0,
@@ -194,7 +193,7 @@ class NoonReportAtSea(ReportData, models.Model):
 
 class WeatherData(models.Model):
     report_data = models.OneToOneField(
-        ReportData, on_delete=models.PROTECT, primary_key=True)
+        ReportHeader, on_delete=models.PROTECT, primary_key=True)
     weather = models.TextField(max_length=2, choices=Weather.choices)
     sea_state = models.PositiveSmallIntegerField(
         validators=[
@@ -221,7 +220,7 @@ class WeatherData(models.Model):
 
 class HeavyWeatherData(models.Model):
     report_data = models.OneToOneField(
-        ReportData, on_delete=models.PROTECT, primary_key=True)
+        ReportHeader, on_delete=models.PROTECT, primary_key=True)
     heavy_weather_hours = models.DecimalField(
         max_digits=3,
         decimal_places=1,
@@ -259,7 +258,7 @@ class HeavyWeatherData(models.Model):
 
 class BunkerData(models.Model):
     report_data = models.ForeignKey(
-        ReportData, on_delete=models.PROTECT)
+        ReportHeader, on_delete=models.PROTECT)
     fuel_type = models.TextField(max_length=4, choices=FuelType.choices)
     rob = models.DecimalField(
         max_digits=7,
@@ -300,7 +299,7 @@ class BunkerData(models.Model):
 
 class FreshWaterData(models.Model):
     report_data = models.OneToOneField(
-        ReportData, on_delete=models.PROTECT, primary_key=True)
+        ReportHeader, on_delete=models.PROTECT, primary_key=True)
     rob = models.PositiveIntegerField()
     consumed = models.PositiveIntegerField()
     evaporated = models.PositiveIntegerField()
