@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # "django.contrib.gis",
+    "django.contrib.gis",
     "rest_framework",
     "auth0",
     "marinanet",
@@ -88,7 +88,6 @@ WSGI_APPLICATION = "marinachain.wsgi.application"
 
 DATABASES = {
     "default": {
-        # "ENGINE": "django.db.backends.postgresql",    # Default Postgres
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": DB_NAME,
         "USER": DB_USER,

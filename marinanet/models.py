@@ -3,7 +3,6 @@ import uuid
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.gis.db import models
-# from django.congrib. import models
 from django.forms import ModelForm
 
 from auth0.models import User
@@ -310,25 +309,3 @@ class FreshWaterData(models.Model):
 
     class Meta:
         db_table = "fresh_water_data"
-
-
-""" MODEL FORMS
-"""
-
-
-# class VoyageForm(ModelForm):
-#     class Meta:
-#         model = Voyage
-#         exclude = ['uuid', 'ship', 'status', 'date_created', 'date_modified']
-
-
-# class ReportHeaderForm(ModelForm):
-#     class Meta:
-#         model = ReportHeader
-#         exclude = ['uuid', 'status', 'date_created', 'date_modified']
-
-
-# class NoonReportForm(ModelForm):
-#     class Meta:
-#         model = NoonReportAtSea
-#         exclude = ['uuid', 'status', 'date_created', 'date_modified']
