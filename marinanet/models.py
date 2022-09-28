@@ -32,6 +32,7 @@ class Company(models.Model):
 
     class Meta:
         db_table = "companies"
+        verbose_name_plural = "companies"
 
 
 class Profile(models.Model):
