@@ -2,13 +2,42 @@ from rest_framework import serializers
 
 from marinanet.models import (
     BunkerData,
+    Company,
     FreshWaterData,
     HeavyWeatherData,
     NoonReportAtSea,
+    Profile,
     ReportHeader,
+    Ship,
+    ShipUser,
     WeatherData
 )
 from marinanet.utils import parse_dm
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        read_only_fields = ['uuid']
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        read_only_fields = ['uuid']
+
+
+class ShipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ship
+        fields='__all__'
+        read_only_fields = ['uuid']
+
+
+class ShipUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShipUser
+        read_only_fields = ['uuid']
 
 
 class ReportHeaderSerializer(serializers.ModelSerializer):

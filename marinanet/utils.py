@@ -10,3 +10,4 @@ def parse_dm(lat: str, lon: str) -> Point:
     lat, lon = lat_lon.to_string("%D")
     pnt = Point(float(lat), float(lon), srid=4326)
     return pnt
+# Usage: parse_dm("1°15.1'N", "103°51.1'E")
