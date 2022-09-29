@@ -34,6 +34,9 @@ class Company(models.Model):
         db_table = "companies"
         verbose_name_plural = "companies"
 
+    def __str__(self):
+        return self.name
+
 
 class Profile(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
@@ -66,6 +69,9 @@ class Ship(models.Model):
 
     class Meta:
         db_table = "ships"
+
+    def __str__(self):
+        return self.name
 
 
 class ShipUser(models.Model):

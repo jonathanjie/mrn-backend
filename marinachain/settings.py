@@ -162,9 +162,9 @@ AUTHENTICATION_BACKENDS = [
 
 JWT_AUTH = {
     "JWT_PAYLOAD_GET_USERNAME_HANDLER":
-        "auth.utils.jwt_get_username_from_payload_handler",
+        "auth0.utils.jwt_get_username_from_payload_handler",
     "JWT_DECODE_HANDLER":
-        "auth.utils.jwt_decode_token",
+        "auth0.utils.jwt_decode_token",
     "JWT_ALGORITHM": "RS256",
     "JWT_AUDIENCE": JWT_AUDIENCE,
     "JWT_ISSUER": JWT_ISSUER,

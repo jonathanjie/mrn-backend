@@ -15,10 +15,19 @@ from marinanet.models import (
     WeatherData
 )
 
+
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+
+class ShipAdmin(admin.ModelAdmin):
+    list_display = ('company', 'name', 'imo_reg')
+
+
 # User and Company models
-admin.site.register(Company)
+admin.site.register(Company, CompanyAdmin)
 admin.site.register(Profile)
-admin.site.register(Ship)
+admin.site.register(Ship, ShipAdmin)
 admin.site.register(ShipUser)
 
 # Report Models
