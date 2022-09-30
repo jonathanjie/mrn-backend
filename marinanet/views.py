@@ -6,13 +6,27 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from marinanet.models import (
-    Ship
+    BunkerData,
+    FreshWaterData,
+    HeavyWeatherData,
+    NoonReportAtSea,
+    ReportHeader,
+    Ship,
+    Voyage,
+    WeatherData,
 )
 from marinanet.permissions import (
     IsShipUser
 )
 from marinanet.serializers import (
-    ShipSerializer
+    BunkerDataSerializer,
+    FreshWaterDataSerializer,
+    HeavyWeatherDataSerializer,
+    NoonReportAtSeaSerializer,
+    ReportHeaderSerializer,
+    ShipSerializer,
+    VoyageSerializer,
+    WeatherDataSerializer,
 )
 
 # Ship
@@ -52,10 +66,38 @@ class ShipDetail(APIView):
 
 
 class NoonReport(APIView):
-    permission_classes = []
+    permission_classes = [IsShipUser]
+
+    def get_report_header(self, pk):
+        try:
+            report_header = ReportHeader.objects.select_related().get(pk=pk)
+            return report_header
+        except ReportHeader.DoesNotExist:
+            raise Http404
 
     def get(self, request, pk):
-        pass
+        header = self.get_report_header(pk)
+        voyage = header.voyage
+        ship = voyage.ship
+        self.check_object_permissions(request, ship)
+
+        header_serializer = ReportHeaderSerializer(header)
+        voyage_serializer = VoyageSerializer(voyage)
+        ship_serializer = ShipSerializer(ship)
+
+        noon_report = header.noonreportatsea
+        noon_report_serializer = NoonReportAtSeaSerializer(noon_report)
+        # weather = header.weatherdata
+        # TODO: heavy weather data
+        # bunker = header.bunkerdata
+        # freshwater = header.freshwaterdata
+
+        response = {
+            'report_header': header_serializer.data,
+            'voyage': voyage_serializer.data,
+            'ship': ship_serializer.data,
+        }
+        return Response(response)
 
     def post(self, request):
         pass
