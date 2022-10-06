@@ -1,5 +1,6 @@
 from django.http import Http404
-from rest_framework import status
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, mixins, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -29,40 +30,86 @@ from marinanet.serializers import (
     WeatherDataSerializer,
 )
 
-# Ship
-@api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
-def ship_list(request):
+
+""" SHIP VIEWS
+"""
+
+
+class ShipList(generics.ListAPIView):
     """
-    List all ships, or create new ship
+    List all Ships that a user can view
     """
-    if request.method == "GET":
-        ships = Ship.objects.all()
-        serializer = ShipSerializer(ships, many=True)
-        return Response(serializer.data)
-
-    elif request.method == "POST":
-        serializer = ShipSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ShipDetail(APIView):
     permission_classes = [IsShipUser]
+    serializer_class = ShipSerializer
 
-    def get_object(self, pk):
-        try:
-            return Ship.objects.get(id=pk)
-        except Ship.DoesNotExist:
-            raise Http404
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Ship.objects.filter(assigned_users=user)
+        return queryset
 
-    def get(self, request, pk):
-        ship = self.get_object(pk)
-        self.check_object_permissions(request, ship)
-        serializer = ShipSerializer(ship)
-        return Response(serializer.data)
+
+class ShipDetail(generics.RetrieveUpdateAPIView):
+    """
+    Displays details for a single ship
+    User must have permission to view the ship
+    """
+    permission_classes = [IsShipUser]
+    serializer_class = ShipSerializer
+    lookup_field = 'imo_reg'
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        queryset = Ship.objects.filter(imo_reg=imo_reg)
+        return queryset
+
+
+class ShipVoyageList(generics.ListAPIView):
+    """
+    List all Voyages from a single ship
+    """
+    serializer_class = VoyageSerializer
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        ship = Ship.objects.get(imo_reg=imo_reg)
+        queryset = Voyage.objects.filter(ship=ship)
+        return queryset
+
+
+class VoyageList(generics.ListCreateAPIView):
+    """
+    List all voyages that a user can view
+    Creates voyage based on Ship UUID
+    """
+    serializer_class = VoyageSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Voyage.objects.filter(ship__assigned_users=user)
+        return queryset
+
+    def create(self, request):
+        ship = get_object_or_404(Ship, uuid=request.data.get('ship_uuid'))
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(ship=ship)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
+
+class VoyageDetail(generics.RetrieveAPIView):
+    """
+    Displays details for a single voyage based on UUID
+    User must have permission to view ship that voyage is associated with
+    """
+    serializer_class = VoyageSerializer
+    lookup_field = 'uuid'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Voyage.objects.filter(ship__assigned_users=user)
+        return queryset
 
 
 class NoonReport(APIView):

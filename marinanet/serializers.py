@@ -35,8 +35,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 class ShipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ship
-        fields = '__all__'
-        read_only_fields = ['uuid']
+        fields = ['uuid', 'name', 'company', 'imo_reg', 'ship_type']
+        read_only_fields = ['uuid', 'name', 'company', 'imo_reg']
 
 
 class ShipUserSerializer(serializers.ModelSerializer):
@@ -49,10 +49,12 @@ class ShipUserSerializer(serializers.ModelSerializer):
 # Report Model Serializers
 
 class VoyageSerializer(serializers.ModelSerializer):
+    ship = ShipSerializer(read_only=True)
+
     class Meta:
         model = Voyage
         fields = '__all__'
-        read_only_fields = ['uuid', 'ship', 'date_created', 'date_modified']
+        read_only_fields = ['uuid', 'ship']
 
 
 class ReportHeaderSerializer(serializers.ModelSerializer):
