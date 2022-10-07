@@ -21,7 +21,7 @@ from marinanet.utils import parse_dm
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = '__all__'
+        fields = ['uuid', 'name', 'link']
         read_only_fields = ['uuid']
 
 
@@ -33,10 +33,12 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class ShipSerializer(serializers.ModelSerializer):
+    company = CompanySerializer()
+
     class Meta:
         model = Ship
-        fields = ['uuid', 'name', 'company', 'imo_reg', 'ship_type']
-        read_only_fields = ['uuid', 'name', 'company', 'imo_reg']
+        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type']
+        read_only_fields = ['uuid', 'name', 'imo_reg', 'company']
 
 
 class ShipUserSerializer(serializers.ModelSerializer):
@@ -53,7 +55,9 @@ class VoyageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Voyage
-        fields = '__all__'
+        fields = ['uuid', 'ship', 'voyage_num',
+                  'departure_date', 'departure_port',
+                  'arrival_date', 'arrival_port']
         read_only_fields = ['uuid', 'ship']
 
 
@@ -105,3 +109,8 @@ class FreshWaterDataSerializer(serializers.ModelSerializer):
         model = FreshWaterData
         fields = '__all__'
         read_only_fields = ['report_header', 'date_created', 'date_modified']
+
+
+class NoonReportSerializer(serializers.Serializer):
+    voyage = VoyageSerializer(read_only=True)
+
