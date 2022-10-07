@@ -197,6 +197,15 @@ class NoonReportAtSea(ReportData):
         db_table = "noon_reports_at_sea"
 
 
+class NoonReportStandby(ReportData):
+    # operation = <multi-select field: ["Waiting", "Cargo Operation", "Bunkering/De-bunkering", "Others"]>
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "noon_reports_at_sea"
+
+
 class WeatherData(models.Model):
     report_data = models.OneToOneField(
         ReportHeader, on_delete=models.PROTECT, primary_key=True)
