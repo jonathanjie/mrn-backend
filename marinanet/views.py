@@ -1,6 +1,6 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, mixins, status
+from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -90,6 +90,7 @@ class VoyageList(generics.ListCreateAPIView):
 
     def create(self, request):
         ship = get_object_or_404(Ship, uuid=request.data.get('ship_uuid'))
+        # TODO: CHECK PERMISSIONS
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(ship=ship)
@@ -109,6 +110,16 @@ class VoyageDetail(generics.RetrieveAPIView):
     def get_queryset(self):
         user = self.request.user
         queryset = Voyage.objects.filter(ship__assigned_users=user)
+        return queryset
+
+
+class VoyageReportsList(generics.ListAPIView):
+    serializer_class = ReportHeaderSerializer
+
+    def get_queryset(self):
+        voyage_uuid = self.kwargs['uuid']
+        voyage = Voyage.objects.get(uuid=voyage_uuid)
+        queryset = ReportHeader.objects.filter(voyage=voyage)
         return queryset
 
 
