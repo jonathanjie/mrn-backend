@@ -114,6 +114,7 @@ class ReportHeader(models.Model):
     report_num = models.IntegerField()
     cargo_presence = models.TextField(
         max_length=4, choices=CargoPresence.choices)
+    datetime = models.DateTimeField()
     summer_time = models.BooleanField()
     position = models.PointField(srid=4326)
     # Note that for position, X is Longitude, Y is Latitude
@@ -197,6 +198,15 @@ class NoonReportAtSea(ReportData):
         db_table = "noon_reports_at_sea"
 
 
+class NoonReportInPort(ReportData):
+    # operation = <multi-select field: ["Waiting", "Cargo Operation", "Bunkering/De-bunkering", "Others"]>
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "noon_reports_at_sea"
+
+
 class NoonReportStandby(ReportData):
     # operation = <multi-select field: ["Waiting", "Cargo Operation", "Bunkering/De-bunkering", "Others"]>
     date_created = models.DateTimeField(auto_now_add=True)
@@ -204,6 +214,17 @@ class NoonReportStandby(ReportData):
 
     class Meta:
         db_table = "noon_reports_standby"
+
+
+class NoonReportStandbyEvents(models.Model):
+    datetime = models.DateTimeField()
+    is_at_sea = models.BooleanField()
+    # operation = <multi-select field: ["Waiting", "Cargo Operation", "Bunkering/De-bunkering", "Others"]>
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "noon_reports_at_sea"
 
 
 class WeatherData(models.Model):
