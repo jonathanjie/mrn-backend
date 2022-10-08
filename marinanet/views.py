@@ -23,6 +23,7 @@ from marinanet.serializers import (
     BunkerDataSerializer,
     FreshWaterDataSerializer,
     HeavyWeatherDataSerializer,
+    NoonReportAtSeaViewSerializer,
     NoonReportAtSeaSerializer,
     ReportHeaderSerializer,
     ShipSerializer,
@@ -114,6 +115,10 @@ class VoyageDetail(generics.RetrieveAPIView):
 
 
 class VoyageReportsList(generics.ListAPIView):
+    """
+    Lists all reports from a single voyage
+    TODO: User must have permission to view ship
+    """
     serializer_class = ReportHeaderSerializer
 
     def get_queryset(self):
@@ -123,39 +128,35 @@ class VoyageReportsList(generics.ListAPIView):
         return queryset
 
 
-class NoonReport(APIView):
-    permission_classes = [IsShipUser]
+class ReportsList(generics.ListAPIView):
+    """
+    Lists all reports that a user can view
+    """
+    serializer_class = ReportHeaderSerializer
 
-    def get_report_header(self, pk):
-        try:
-            report_header = ReportHeader.objects.select_related().get(pk=pk)
-            return report_header
-        except ReportHeader.DoesNotExist:
-            raise Http404
+    def get_queryset(self):
+        user = self.request.user
+        queryset = ReportHeader.objects.filter(voyage__ship__assigned_users=user)
+        return queryset
 
-    def get(self, request, pk):
-        header = self.get_report_header(pk)
-        voyage = header.voyage
-        ship = voyage.ship
-        self.check_object_permissions(request, ship)
 
-        header_serializer = ReportHeaderSerializer(header)
-        voyage_serializer = VoyageSerializer(voyage)
-        ship_serializer = ShipSerializer(ship)
+class NoonReport(generics.RetrieveAPIView):
+    """
+    Displays details for a single Noon Report At Sea based on UUID
+    TODO: User must have permission to view ship
+    """
+    serializer_class = NoonReportAtSeaViewSerializer
+    lookup_field = 'uuid'
 
-        noon_report = header.noonreportatsea
-        noon_report_serializer = NoonReportAtSeaSerializer(noon_report)
-        # weather = header.weatherdata
-        # TODO: heavy weather data
-        # bunker = header.bunkerdata
-        # freshwater = header.freshwaterdata
+    def get_queryset(self):
+        report_uuid = self.kwargs['uuid']
+        queryset = ReportHeader.objects.filter(uuid=report_uuid)
+        return queryset
 
-        response = {
-            'report_header': header_serializer.data,
-            'voyage': voyage_serializer.data,
-            'ship': ship_serializer.data,
-        }
-        return Response(response)
 
-    def post(self, request):
-        pass
+class NoonReportAtSea(generics.CreateAPIView):
+    """
+    Creates a new Noon Report At Sea
+    TODO: User must have permission to view ship
+    """
+    serializer_class = NoonReportAtSeaViewSerializer

@@ -203,7 +203,7 @@ class NoonReportStandby(ReportData):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "noon_reports_at_sea"
+        db_table = "noon_reports_standby"
 
 
 class WeatherData(models.Model):
