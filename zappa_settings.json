@@ -1,0 +1,11 @@
+{
+    "dev": {
+        "aws_region": "ap-southeast-1",
+        "django_settings": "marinachain.settings",
+        "profile_name": "default",
+        "project_name": "marinanet-backend",
+        "runtime": "python3.9",
+        "s3_bucket": "marinanet-dev-zappa",
+        "keep_warm": false
+    }
+}
