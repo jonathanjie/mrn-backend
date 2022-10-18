@@ -1,0 +1,143 @@
+# Deployment Guide
+___
+This guide has been tested on Ubuntu 22.04.
+
+___
+## Update Packages
+1. Update package repository, upgrade existing packages, and reboot.
+```
+$ sudo apt update
+$ sudo apt upgrade
+```
+2. Install PIP, the Python package manager and Virtual Environment module.
+```
+$ sudo apt install python3-pip python3-venv
+```
+3. Install Git.
+```
+$ sudo apt install git
+```
+4. Configure Git.
+```
+$ git config --global user.name "Bobby Tables"
+$ git config --global user.email "bobby@marinachain.io"
+```
+
+## Install and setup PostgreSQL and PostGIS
+1. Import the PostgreSQL repository key, and add the repository.
+```
+$ sudo apt install curl ca-certificates gnupg
+$ curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null
+$ echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+$ sudo apt update
+```
+2. Install PostgreSQL 14.
+```
+$ sudo apt install postgresql-14 postgresql-client-14
+```
+3. Install PostGIS 3.
+```
+$ sudo apt install postgis postgresql-14-postgis-3
+```
+4. Install required control packages.
+```
+$ sudo apt-get install postgresql-14-postgis-3-scripts
+```
+5. Log in as the Postgres superuser.
+```
+$ sudo su - postgres
+```
+6. Start the Postgres interactive terminal:
+```
+$ psql postgres
+```
+7. Create a database called `marinanet` on Postgres, then create a user and grant it privileges to modify and write to the database:
+```
+# CREATE DATABASE marinanet;
+# CREATE USER marinanetuser WITH PASSWORD 'correcthorsebatterystaple';
+# GRANT ALL PRIVILEGES ON DATABASE marinanet TO 'marinanetuser';
+```
+8. `CTRL-D` to exit the Postgres shell.
+9. Enable PostGIS functionality on Postgres:
+```
+$ psql marinanet
+# CREATE EXTENSION postgis;
+```
+10. `CTRL-D` to exit the Postgres shell.
+11. `CTRL-D` to logout of the Postgres superuser.
+
+
+## Install Geospatial Libraries
+1. Install the required Geospatial libaries for GeoDjango.
+```
+$ sudo apt-get install binutils libproj-dev gdal-bin
+```
+2. Install the GEOS API.
+```
+$ sudo apt-get install libgeos++
+```
+3. Install Proj4.
+```
+$ sudo apt-get install proj-bin
+```
+4. Install the GDAL API.
+```
+$ sudo apt install gdal-bin
+```
+
+
+## Create a Virtual Environment and install requirements
+1. In your home directory, create a directory for the project:
+```
+$ cd
+$ mkdir marinachain
+```
+2. Create a [Python Virtual Environment](https://docs.python.org/3/library/venv.html):
+```
+$ python3 -m venv env
+```
+3. Activate the Virtual Environment:
+```
+$ source env/bin/activate
+```
+4. Clone the repository:
+```
+$ git clone ssh://git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/marinanet-backend
+```
+5. Intall the required packages:
+```
+$ cd marinachain
+$ pip install -r requirements.txt
+```
+
+
+## Setup and run the Django Backend
+1. Get a copy of `secrets.py` from another team member. This file contains all all the secrets related to the project, such as usernames, passwords, and API Keys. **DO NOT CIRCULATE THIS FILE!**
+2. Update your Postgres username and password in this file so Django can connect to your database.
+3. Run the database migrations needed for the project:
+```
+$ python manage.py migrate
+```
+4. Run the local Django development server:
+```
+$ python manage.py runserver
+```
+5. Using your browser or Postman, navigate to `localhost:8000/api/public` and see if it works.
+
+
+## Deploy site with Gunicorn and Nginx
+1. Install Gunicorn.
+```
+$ pip install gunicorn
+```
+2. Install Nginx.
+```
+$ sudo apt install Nginx.
+```
+
+## References
+- [PostgreSQL Ubuntu Download](https://www.postgresql.org/download/linux/ubuntu/)
+- [PostgreSQL Apt Repository](https://wiki.postgresql.org/wiki/Apt)
+- [PostGIS Installation](https://www.vultr.com/docs/install-the-postgis-extension-for-postgresql-on-ubuntu-linux/)
+- [GeoDjango Installation](https://kitcharoenp.github.io/gis/2018/06/12/geodjango_installation.html)
+- [Gunicorn and Nginx Setup](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04)
