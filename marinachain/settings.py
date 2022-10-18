@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
+import os
+import glob
+
 from marinachain.secrets import (
     DJANGO_SECRET_KEY,
     DB_HOST,
@@ -175,3 +178,10 @@ JWT_AUTH = {
 
 
 SILENCED_SYSTEM_CHECKS = ['fields.E300', 'fields.E307']
+
+print("CAN YOU HEAR MEEEEEEE")
+print(glob.glob("/opt/*"))
+print(glob.glob("/opt/lib/*"))
+
+GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
+GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')

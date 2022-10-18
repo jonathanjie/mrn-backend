@@ -47,7 +47,7 @@ $ psql postgres
 4. `CTRL-D` to exit the Postgres shell.
 5. Enable PostGIS functionality on Postgres:
 ```
-$ psql mariananet
+$ psql marinanet
 
 # CREATE EXTENSION postgis;
 ```
