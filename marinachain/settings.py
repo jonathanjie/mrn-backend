@@ -14,9 +14,11 @@ from pathlib import Path
 
 from marinachain.secrets import (
     DJANGO_SECRET_KEY,
+    DB_HOST,
     DB_NAME,
     DB_USER,
     DB_PASSWORD,
+    DB_PORT,
     JWT_AUDIENCE,
     JWT_ISSUER)
 
@@ -92,7 +94,7 @@ DATABASES = {
         "NAME": DB_NAME,
         "USER": DB_USER,
         "PASSWORD": DB_PASSWORD,
-        "HOST": DB_HOST, #"localhost",
+        "HOST": DB_HOST,
         "PORT": DB_PORT,
     }
 }
