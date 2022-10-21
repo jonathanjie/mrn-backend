@@ -56,9 +56,7 @@ class VoyageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Voyage
-        fields = ['uuid', 'ship', 'voyage_num',
-                  'departure_date', 'departure_port',
-                  'arrival_date', 'arrival_port']
+        fields = ['uuid', 'ship', 'voyage_num',]
         read_only_fields = ['uuid', 'ship']
 
 
