@@ -83,3 +83,11 @@ class FuelType(models.TextChoices):
     METHANOL = "METH", _("Methanol")
     ETHANOL = "ETH", _("Ethanol")
     LNG = "LNG", _("LNG")
+
+
+class GlacierIceCondition(models.TextChoices):
+    NONE = "NONE", _("NONE")
+    LOW = "LOW", _("LOW")
+    MODERATE = "MOD", _("MODERATE")
+    HIGH = "HIGH", _("HIGH")
+    EXTENSIVE = "EXT", _("EXTENSIVE")
