@@ -1,0 +1,19 @@
+{
+    "dev": {
+        "aws_region": "ap-southeast-1",
+        "django_settings": "marinachain.settings",
+        "profile_name": "default",
+        "project_name": "marinanet-backend",
+        "runtime": "python3.9",
+        "s3_bucket": "marinanet-dev-zappa",
+        "keep_warm": false,
+        "layers": ["arn:aws:lambda:ap-southeast-1:524387336408:layer:gdal35:2"],
+        "environment_variables": {
+            "GDAL_DATA": "/opt/share/gdal",
+            "PROJ_LIB": "/opt/share/proj"
+            "GDAL_LIBRARY_PATH" : "/opt/lib/libgdal.so.31",
+            "GEOS_LIBRARY_PATH" : "/opt/lib/libgeos_c.so.1",
+            "LD_LIBRARY_PATH" : "/opt/lib"
+        }
+    }
+}

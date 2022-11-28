@@ -1,111 +1,162 @@
-from ./models import Author
-from django.forms import modelformset_factory
-from functools import wraps
-
-from django.http import JsonResponse
-from django.shortcuts import render
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from marinanet.models import (
+    BunkerData,
+    FreshWaterData,
+    HeavyWeatherData,
+    NoonReportAtSea,
+    ReportHeader,
+    Ship,
+    Voyage,
+    WeatherData,
+)
+from marinanet.permissions import (
+    IsShipUser
+)
+from marinanet.serializers import (
+    BunkerDataSerializer,
+    FreshWaterDataSerializer,
+    HeavyWeatherDataSerializer,
+    NoonReportAtSeaViewSerializer,
+    NoonReportAtSeaSerializer,
+    ReportHeaderSerializer,
+    ShipSerializer,
+    VoyageSerializer,
+    WeatherDataSerializer,
+)
 
 
-"""
-TESTING FUNCTIONS
-"""
-
-
-@api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
-def test(request):
-    print("METHOD: " + request.method)
-    if request.method == 'POST':
-        print("DATA:")
-        print(request.data)
-        return JsonResponse({"message": "Got some data!", "data": request.data})
-    return JsonResponse({'message': 'TESTED'})
-
-
-"""
-REPORTS
-"""
-
-"""
-- SUBMISSIONS
-"""
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def submit_noon_report(request):
-    """Sends noon report for validation then into DB"""
-    report = request.data['report']
-
-    print("REPORT:")
-    print(report)
-
-    validation = validate_noon_report(report)
-
-    if (validation['has_error']):
-        return JsonResponse({'message': 'VALIDATION ERROR'})
-
-    return JsonResponse({'message': 'SUBMITTED'})
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def submit_departure_report(request):
-    """Sends departure report for validation then into DB"""
-
-    return JsonResponse({'message': 'SUBMITTED'})
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def submit_arrival_report(request):
-    """Sends arrival report for validation then into DB"""
-
-    return JsonResponse({'message': 'SUBMITTED'})
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def submit_bdn(request):
-    """Sends bunker delivery for validation then into DB"""
-
-    return JsonResponse({'message': 'SUBMITTED'})
-
-
-"""
-- VALIDATIONS
+""" SHIP VIEWS
 """
 
 
-def validate_noon_report(report=""):
-    """Validates noon report"""
+class ShipList(generics.ListAPIView):
+    """
+    List all Ships that a user can view
+    """
+    permission_classes = [IsShipUser]
+    serializer_class = ShipSerializer
 
-    return {
-        "has_error": False,
-        "errors": []
-    }
-
-
-"""
-- DB INSERTION
-"""
-
-"""
-FORMS
-"""
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Ship.objects.filter(assigned_users=user)
+        return queryset
 
 
-def create_voyage(request):
-    VoyageFormSet = modelformset_factory(
-        Voyage, exclude=['uuid', 'ship', 'status', 'date_created', 'date_modified'])
-    if request.method == 'POST':
-        formset = VoyageFormSet(request.POST, request.FILES)
-        if formset.is_valid():
-            formset.save()
-            # do something.
-    else:
-        formset = VoyageFormSet()
-    return render(request, 'create_voyage.html', {'formset': formset})
+class ShipDetail(generics.RetrieveUpdateAPIView):
+    """
+    Displays details for a single ship
+    User must have permission to view the ship
+    """
+    permission_classes = [IsShipUser]
+    serializer_class = ShipSerializer
+    lookup_field = 'imo_reg'
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        queryset = Ship.objects.filter(imo_reg=imo_reg)
+        return queryset
+
+
+class ShipVoyageList(generics.ListAPIView):
+    """
+    List all Voyages from a single ship
+    """
+    serializer_class = VoyageSerializer
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        ship = Ship.objects.get(imo_reg=imo_reg)
+        queryset = Voyage.objects.filter(ship=ship)
+        return queryset
+
+
+class VoyageList(generics.ListCreateAPIView):
+    """
+    List all voyages that a user can view
+    Creates voyage based on Ship UUID
+    """
+    serializer_class = VoyageSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Voyage.objects.filter(ship__assigned_users=user)
+        return queryset
+
+    def create(self, request):
+        ship = get_object_or_404(Ship, uuid=request.data.get('ship_uuid'))
+        # TODO: CHECK PERMISSIONS
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(ship=ship)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
+
+class VoyageDetail(generics.RetrieveAPIView):
+    """
+    Displays details for a single voyage based on UUID
+    User must have permission to view ship that voyage is associated with
+    """
+    serializer_class = VoyageSerializer
+    lookup_field = 'uuid'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Voyage.objects.filter(ship__assigned_users=user)
+        return queryset
+
+
+class VoyageReportsList(generics.ListAPIView):
+    """
+    Lists all reports from a single voyage
+    TODO: User must have permission to view ship
+    """
+    serializer_class = ReportHeaderSerializer
+
+    def get_queryset(self):
+        voyage_uuid = self.kwargs['uuid']
+        voyage = Voyage.objects.get(uuid=voyage_uuid)
+        queryset = ReportHeader.objects.filter(voyage=voyage)
+        return queryset
+
+
+class ReportsList(generics.ListAPIView):
+    """
+    Lists all reports that a user can view
+    """
+    serializer_class = ReportHeaderSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = ReportHeader.objects.filter(voyage__ship__assigned_users=user)
+        return queryset
+
+
+class NoonReport(generics.RetrieveAPIView):
+    """
+    Displays details for a single Noon Report At Sea based on UUID
+    TODO: User must have permission to view ship
+    """
+    serializer_class = NoonReportAtSeaViewSerializer
+    lookup_field = 'uuid'
+
+    def get_queryset(self):
+        report_uuid = self.kwargs['uuid']
+        queryset = ReportHeader.objects.filter(uuid=report_uuid)
+        return queryset
+
+
+class NoonReportAtSea(generics.CreateAPIView):
+    """
+    Creates a new Noon Report At Sea
+    TODO: User must have permission to view ship
+    """
+    serializer_class = NoonReportAtSeaViewSerializer

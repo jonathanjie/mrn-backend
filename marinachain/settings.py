@@ -12,11 +12,16 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
+import os
+import glob
+
 from marinachain.secrets import (
     DJANGO_SECRET_KEY,
+    DB_HOST,
     DB_NAME,
     DB_USER,
     DB_PASSWORD,
+    DB_PORT,
     JWT_AUDIENCE,
     JWT_ISSUER)
 
@@ -33,7 +38,7 @@ SECRET_KEY = DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["testapi.marinachain.io", "194.233.91.95", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -92,8 +97,8 @@ DATABASES = {
         "NAME": DB_NAME,
         "USER": DB_USER,
         "PASSWORD": DB_PASSWORD,
-        "HOST": "localhost",
-        "PORT": "5432",
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
     }
 }
 
@@ -133,6 +138,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -162,9 +168,9 @@ AUTHENTICATION_BACKENDS = [
 
 JWT_AUTH = {
     "JWT_PAYLOAD_GET_USERNAME_HANDLER":
-        "auth.utils.jwt_get_username_from_payload_handler",
+        "auth0.utils.jwt_get_username_from_payload_handler",
     "JWT_DECODE_HANDLER":
-        "auth.utils.jwt_decode_token",
+        "auth0.utils.jwt_decode_token",
     "JWT_ALGORITHM": "RS256",
     "JWT_AUDIENCE": JWT_AUDIENCE,
     "JWT_ISSUER": JWT_ISSUER,
@@ -173,3 +179,6 @@ JWT_AUTH = {
 
 
 SILENCED_SYSTEM_CHECKS = ['fields.E300', 'fields.E307']
+
+GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
+GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')

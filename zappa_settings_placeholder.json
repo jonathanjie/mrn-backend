@@ -1,0 +1,41 @@
+{
+    "dev": {
+        "aws_region": "ap-southeast-1",
+        "django_settings": "marinachain.settings",
+        "profile_name": "default",
+        "project_name": "marinanet",
+        "runtime": "python3.9",
+        "lambda_description": "dev lambda",
+        
+        "memory_size": 128,
+        "timeout_seconds": 30,
+        "keep_warm": true,
+        "keep_warm_expression": "rate(4 minutes)",
+        
+        "events": [
+            {},
+            {}
+        ],
+        
+        "s3_bucket": "marinanet-dev-zappa",
+        "apigateway_enabled": true,
+        "async_resources": false,
+        
+        "cloudwatch_log_level": "ERROR",
+        "cloudwatch_data_trace": true,
+        "cloudwatch_metrics_enabled": true,
+        "log_level": "INFO",
+        
+        "aws_environment_variables" : {},
+        "environment_variables": {},
+        
+        "endpoint_configuration": ["PRIVATE"],
+        
+        "layers": [],
+        
+        "tags": {
+                "project": "marinanet",
+            }
+        }
+    
+}

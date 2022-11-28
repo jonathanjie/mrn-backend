@@ -3,7 +3,14 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('marinanet/test', views.test),
-    path('marinanet/reports/noon/submit', views.submit_noon_report)
-    path('marinanet/reports/forms/voyage', views.create_voyage)
+    path('marinanet/ships/', views.ShipList.as_view()),
+    path('marinanet/ships/<int:imo_reg>/', views.ShipDetail.as_view()),
+    path('marinanet/ships/<int:imo_reg>/voyages/',
+         views.ShipVoyageList.as_view()),
+    path('marinanet/voyages/', views.VoyageList.as_view()),
+    path('marinanet/voyages/<uuid:uuid>/', views.VoyageDetail.as_view()),
+    path('marinanet/voyages/<uuid:uuid>/reports', views.VoyageReportsList.as_view()),
+    path('marinanet/reports/', views.ReportsList.as_view()),
+    path('marinanet/reports/<uuid:uuid>/', views.NoonReport.as_view()),
+    path('marinanet/reports/new/', views.NoonReportAtSea.as_view()),
 ]

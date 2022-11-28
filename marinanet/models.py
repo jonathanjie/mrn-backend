@@ -10,6 +10,7 @@ from marinanet.enums import (
     Beaufort,
     CargoPresence,
     FuelType,
+    GlacierIceCondition,
     ReportTypes,
     ShipAccessPrivilege,
     ShipTypes,
@@ -26,12 +27,17 @@ class Company(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     name = models.CharField(max_length=255)
     link = models.URLField()
-    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    status = models.PositiveSmallIntegerField(
+        choices=Status.choices, default=Status.ACTIVE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "companies"
+        verbose_name_plural = "companies"
+
+    def __str__(self):
+        return self.name
 
 
 class Profile(models.Model):
@@ -40,7 +46,8 @@ class Profile(models.Model):
         User, on_delete=models.PROTECT, primary_key=True)
     company = models.ForeignKey(Company, on_delete=models.PROTECT)
     role = models.CharField(max_length=255)
-    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    status = models.PositiveSmallIntegerField(
+        choices=Status.choices, default=Status.ACTIVE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
@@ -59,12 +66,16 @@ class Ship(models.Model):
         through='ShipUser',
         through_fields=('ship', 'user')
     )
-    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    status = models.PositiveSmallIntegerField(
+        choices=Status.choices, default=Status.ACTIVE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "ships"
+
+    def __str__(self):
+        return self.name
 
 
 class ShipUser(models.Model):
@@ -72,7 +83,8 @@ class ShipUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     privilege = models.PositiveSmallIntegerField(
         choices=ShipAccessPrivilege.choices)
-    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    status = models.PositiveSmallIntegerField(
+        choices=Status.choices, default=Status.ACTIVE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
@@ -88,11 +100,8 @@ class Voyage(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     voyage_num = models.PositiveIntegerField()
-    departure_date = models.DateTimeField()
-    departure_port = models.CharField(max_length=6)
-    arrival_date = models.DateTimeField()
-    arrival_port = models.CharField(max_length=6)
-    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    status = models.PositiveSmallIntegerField(
+        choices=Status.choices, default=Status.ACTIVE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
@@ -107,10 +116,12 @@ class ReportHeader(models.Model):
     report_num = models.IntegerField()
     cargo_presence = models.TextField(
         max_length=4, choices=CargoPresence.choices)
+    report_date = models.DateTimeField()
     summer_time = models.BooleanField()
     position = models.PointField(srid=4326)
     # Note that for position, X is Longitude, Y is Latitude
-    status = models.PositiveSmallIntegerField(choices=Status.choices)
+    status = models.PositiveSmallIntegerField(
+        choices=Status.choices, default=Status.ACTIVE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
@@ -190,6 +201,35 @@ class NoonReportAtSea(ReportData):
         db_table = "noon_reports_at_sea"
 
 
+# class NoonReportInPort(ReportData):
+#     # operation = <multi-select field: ["Waiting", "Cargo Operation", "Bunkering/De-bunkering", "Others"]>
+#     date_created = models.DateTimeField(auto_now_add=True)
+#     date_modified = models.DateTimeField(auto_now=True)
+
+#     class Meta:
+#         db_table = "noon_reports_in_port"
+
+
+# class NoonReportStandby(ReportData):
+#     # operation = <multi-select field: ["Waiting", "Cargo Operation", "Bunkering/De-bunkering", "Others"]>
+#     date_created = models.DateTimeField(auto_now_add=True)
+#     date_modified = models.DateTimeField(auto_now=True)
+
+#     class Meta:
+#         db_table = "noon_reports_standby"
+
+
+# class NoonReportStandbyEvents(models.Model):
+#     datetime = models.DateTimeField()
+#     is_at_sea = models.BooleanField()
+#     # operation = <multi-select field: ["Waiting", "Cargo Operation", "Bunkering/De-bunkering", "Others"]>
+#     date_created = models.DateTimeField(auto_now_add=True)
+#     date_modified = models.DateTimeField(auto_now=True)
+
+#     class Meta:
+#         db_table = "noon_reports_standby_events"
+
+
 class WeatherData(models.Model):
     report_data = models.OneToOneField(
         ReportHeader, on_delete=models.PROTECT, primary_key=True)
@@ -210,6 +250,10 @@ class WeatherData(models.Model):
         validators=[
             MinValueValidator(Decimal("0.0"))])
     beaufort = models.PositiveSmallIntegerField(choices=Beaufort.choices)
+    ice_condiction = models.TextField(
+        max_length=4,
+        choices=GlacierIceCondition.choices,
+        default=GlacierIceCondition.NONE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
