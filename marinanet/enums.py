@@ -22,11 +22,12 @@ class ShipTypes(models.TextChoices):
 
 class ReportTypes(models.TextChoices):
     NOON = "NOON", _("Noon at Sea")
-    WAITING = "WAIT", _("Noon Waiting")
-    IN_PORT = "PORT", _("Noon in Port")
-    DEPARTURE = "DEP", _("Departure")
-    ARRIVAL = "ARR", _("Arrival")
+    DEP_SBY = "DSBY", _("Noon Waiting")
+    DEP_COSP = "DCSP", _("Noon in Port")
+    ARR_SBY = "ASBY", _("Departure")
+    ARR_FWE = "AFWE", _("Arrival")
     BDN = "BDN", _("Bunker Delivery Note")
+    EVENT = "EVNT", _("Event in Harbour")
 
 
 class CargoPresence(models.TextChoices):
@@ -34,6 +35,43 @@ class CargoPresence(models.TextChoices):
     LADEN = "LADN", _("Laden")
     EASTBOUND = "EAST", _("Eastbound")
     WESTBOUND = "WEST", _("Westbound")
+
+
+class Cardinal_4(models.TextChoices):
+    NORTH = "N", _("North")
+    EAST = "E", _("East")
+    SOUTH = "S", _("South")
+    WEST = "W", _("West")
+
+
+class Cardinal_8(models.TextChoices):
+    NORTH = "N", _("North")
+    EAST = "E", _("East")
+    SOUTH = "S", _("South")
+    WEST = "W", _("West")
+    NORTHEAST = "NE", _("Northeast")
+    SOUTHEAST = "SE", _("Southeast")
+    SOUTHWEST = "SW", _("Southwest")
+    NORTHWEST = "NW", _("Northwest")
+
+
+class Cardinal_16(models.TextChoices):
+    NORTH = "N", _("North")
+    EAST = "E", _("East")
+    SOUTH = "S", _("South")
+    WEST = "W", _("West")
+    NORTHEAST = "NE", _("Northeast")
+    SOUTHEAST = "SE", _("Southeast")
+    SOUTHWEST = "SW", _("Southwest")
+    NORTHWEST = "NW", _("Northwest")
+    NORTH_NORTHEAST = "NNE", _("North-Northeast")
+    EAST_NORTHEAST = "ENE", _("East-Northeast")
+    EAST_SOUTHEAST = "ESE", _("East-Southeast")
+    SOUTH_SOUTHEAST = "SSE", _("South-Southeast")
+    SOUTH_SOUTHWEST = "SSW", _("South-Southwest")
+    WEST_SOUTHWEST = "WSW", _("West-Southwest")
+    WEST_NORTHWEST = "WNW", _("West-Northwest")
+    NORTH_NORTHWEST = "NNW", _("North-Northwest")
 
 
 class Weather(models.TextChoices):
@@ -57,7 +95,7 @@ class Weather(models.TextChoices):
     HAZE = "Z", _("Haze")
 
 
-class Beaufort(models.IntegerChoices):
+class BeaufortScale(models.IntegerChoices):
     CALM = 0, _("Calm")
     LIGHT_AIR = 1, _("Light air")
     LIGHT_BREEZE = 2, _("Light breeze")
@@ -71,6 +109,42 @@ class Beaufort(models.IntegerChoices):
     STORM = 10, _("Storm")
     VIOLENT_STORM = 11, _("Violent storm")
     HURRICANE = 12, _("Hurricane")
+
+
+class DouglasScale(models.IntegerChoices):
+    CALM_GLASSY = 0, ("Calm (Glassy)")
+    CALM_RIPPLED = 1, ("Calm (Rippled)")
+    SMOOTH_WAVELETS = 2, ("Smooth (Wavelets)")
+    SLIGHT = 3, ("Slight")
+    MODERATE = 4, ("Moderate")
+    ROUGH = 5, ("Rough")
+    VERY_ROUGH = 6, ("Very Rough")
+    HIGH = 7, ("High")
+    VERY_HIGH = 8, ("Very High")
+    PHENOMENAL = 9, ("Phenomal")
+
+
+class SwellScale(models.IntegerChoices):
+    NO_SWELL = 0, ("No Swell")
+    LOW_SWELL_SHORT_AVE = 1, ("Low Swell (Short or Average)")
+    LOW_SWELL_LONG = 2, ("Low Swell (Long)")
+    MODERATE_SHORT = 3, ("Moderate Swell (Short)")
+    MODERATE_AVERAGE = 4, ("Moderate Swell (Average)")
+    MODERATE_LONG = 5, ("Moderate Swell (Long)")
+    HEAVY_SWELL_SHORT = 6, ("Heavy Swell (Short)")
+    HEAVY_SWELL_AVERAGE = 7, ("Heavy Swell (Moderate)")
+    HEAVY_SWELL_LONG = 8, ("Heavy Swell (Long)")
+    CONFUSED_SWELL = 9, ("Confused Swell")
+
+
+class ConsumptionType(models.TextChoices):
+    NOON_TO_NOON = "NTON", _("Noon to Noon")
+    LAST_TO_SBY = "LTOS", _("Last Report to Standby")
+    IN_HARBOUR_PORT = "INHP", _("In Harbour / In Port")
+    STANDBY_TO_RUNUP = "STOR", _("Standby to Run Up")
+    NOON_TO_STANDBY = "NTOS", _("Noon to Standby")
+    STANDBY_TO_FWE = "STOF", _("Standby to FWE")
+    LAST_TO_EVENT = "LTOE", _("Last Report to Event")
 
 
 class FuelType(models.TextChoices):

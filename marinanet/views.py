@@ -7,28 +7,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from marinanet.models import (
-    BunkerData,
-    FreshWaterData,
-    HeavyWeatherData,
-    NoonReportAtSea,
     ReportHeader,
     Ship,
     Voyage,
-    WeatherData,
 )
 from marinanet.permissions import (
     IsShipUser
 )
 from marinanet.serializers import (
-    BunkerDataSerializer,
-    FreshWaterDataSerializer,
-    HeavyWeatherDataSerializer,
-    NoonReportAtSeaViewSerializer,
-    NoonReportAtSeaSerializer,
+    NoonReportViewSerializer,
     ReportHeaderSerializer,
     ShipSerializer,
     VoyageSerializer,
-    WeatherDataSerializer,
 )
 
 
@@ -136,7 +126,8 @@ class ReportsList(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = ReportHeader.objects.filter(voyage__ship__assigned_users=user)
+        queryset = ReportHeader.objects.filter(
+            voyage__ship__assigned_users=user)
         return queryset
 
 
@@ -145,7 +136,7 @@ class NoonReport(generics.RetrieveAPIView):
     Displays details for a single Noon Report At Sea based on UUID
     TODO: User must have permission to view ship
     """
-    serializer_class = NoonReportAtSeaViewSerializer
+    serializer_class = NoonReportViewSerializer
     lookup_field = 'uuid'
 
     def get_queryset(self):
@@ -159,4 +150,4 @@ class NoonReportAtSea(generics.CreateAPIView):
     Creates a new Noon Report At Sea
     TODO: User must have permission to view ship
     """
-    serializer_class = NoonReportAtSeaViewSerializer
+    serializer_class = NoonReportViewSerializer
