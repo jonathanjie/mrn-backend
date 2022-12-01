@@ -10,6 +10,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.gis.db import models
 from django.db import models as dmodels
 from django.forms import ModelForm
+from timezone_field import TimeZoneField
 
 from auth0.models import User
 from marinanet.enums import (
@@ -121,7 +122,7 @@ class ReportHeader(BaseModel):
     report_type = models.CharField(max_length=4, choices=ReportTypes.choices)
     report_num = models.PositiveIntegerField()
     report_date = models.DateTimeField()
-    # TODO: Store Timezone
+    report_tz = TimeZoneField(use_pytz=False)
     summer_time = models.BooleanField()
     position = models.PointField(srid=4326)
     # Note that for position, X is Longitude, Y is Latitude
