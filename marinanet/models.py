@@ -288,14 +288,14 @@ class ConsumptionConditionData(ReportData):
         unique_together = ["report_header", "consumption_type"]
 
 
-# class ConsumptionDataCorrection(dmodels.Model):
+# class ConsumptionDataCorrection(models.Model):
 #     limit = models.Q(app_label="marinanet", model="fueloildata") | \
 #         models.Q(app_label="marinanet", model="lubricatingoildata")
 #     content_type = models.ForeignKey(
 #         ContentType, limit_choices_to=limit, on_delete=models.CASCADE)
 #     object_id = models.PositiveIntegerField()
-#     content_object = models.GenericForeignKey("content_type", "object_id")
-#     correction = models.DecimalField()
+#     content_object = GenericForeignKey("content_type", "object_id")
+#     correction = models.DecimalField(max_digits=7, decimal_places=2)
 #     remarks = models.TextField()
 
 #     class Meta:

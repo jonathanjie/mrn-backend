@@ -1,5 +1,8 @@
+import pytz
+
 from django.db import transaction
 from rest_framework import serializers
+from timezone_field.rest_framework import TimeZoneSerializerField
 
 from marinanet.models import (
     Company,
@@ -65,6 +68,7 @@ class VoyageSerializer(serializers.ModelSerializer):
 
 
 class ReportHeaderSerializer(serializers.ModelSerializer):
+    report_tz = TimeZoneSerializerField()
     # latitude = serializers.CharField(max_length=10)
     # longitude = serializers.CharField(max_length=10)
 
@@ -82,68 +86,68 @@ class ReportHeaderSerializer(serializers.ModelSerializer):
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = '__all__'
-        read_only_fields = ['report_header', 'created_at', 'modified_at']
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class WeatherDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeatherData
-        fields = '__all__'
-        read_only_fields = ['report_header', 'created_at', 'modified_at']
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class HeavyWeatherDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = HeavyWeatherData
-        fields = '__all__'
-        read_only_fields = ['report_header', 'created_at', 'modified_at']
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class DistancePerformanceDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = DistancePerformanceData
-        fields = '__all__'
-        read_only_fields = ['report_header', 'created_at', 'modified_at']
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class StoppageDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = StoppageData
-        fields = '__all__'
-        read_only_fields = ['report_header', 'created_at', 'modified_at']
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class FuelOilDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = FuelOilData
-        fields = '__all__'
-        read_only_fields = ['ccdata', 'created_at', 'modified_at']
+        exclude = ['ccdata', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class LubricatingOilDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = LubricatingOilData
-        fields = '__all__'
-        read_only_fields = ['ccdata', 'created_at', 'modified_at']
+        exclude = ['ccdata', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class FreshWaterDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = FreshWaterData
-        fields = '__all__'
-        read_only_fields = ['ccdata', 'created_at', 'modified_at']
+        exclude = ['ccdata', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class ConsumptionConditionDataSerializer(serializers.ModelSerializer):
     fueloildata_set = FuelOilDataSerializer(many=True)
     lubricatingoildata_set = LubricatingOilDataSerializer(many=True)
-    freshwaterdata = FreshWaterDataSerializer()
+    freshwaterdata_set = FreshWaterDataSerializer(many=True)
 
     class Meta:
         model = ConsumptionConditionData
-        fields = '__all__'
-        read_only_fields = ['report_header', 'created_at', 'modified_at']
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class NoonReportViewSerializer(serializers.ModelSerializer):
@@ -154,34 +158,42 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     stoppagedata = StoppageDataSerializer(required=False)
 
+    report_tz = TimeZoneSerializerField()
+
     class Meta:
         model = ReportHeader
         fields = '__all__'
+        exlude = ['report_tz']
 
     def create(self, validated_data):
         route = validated_data.pop('route')
         weather_data = validated_data.pop('weatherdata')
-        # heavy_weather = validated_data.pop('heavy_weather_data')
+        heavyweatherdata = validated_data.pop('heavyweatherdata', None)
         distanceperformancedata = validated_data.pop('distanceperformancedata')
         consumptionconditiondata = validated_data.pop('consumptionconditiondata')
-        # stoppagedata = validated_data.pop('stoppagedata')
+        stoppagedata = validated_data.pop('stoppagedata', None)
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            Route.objects.create(report_header=header, **report_data)
+            Route.objects.create(report_header=header, **route)
             WeatherData.objects.create(report_header=header, **weather_data)
+            if heavyweatherdata:
+                HeavyWeatherData.objects.create(report_header=header, **heavyweatherdata)
             DistancePerformanceData.objects.create(
                 report_header=header, **distanceperformancedata)
+            if stoppagedata:
+                StoppageData.objects.create(report_header=header, **stoppagedata)
 
             fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
             lubricatingoildata_set = consumptionconditiondata.pop('lubricatingoildata_set')
-            freshwaterdata = consumptionconditiondata.pop('freshwaterdata')
+            freshwaterdata_set = consumptionconditiondata.pop('freshwaterdata_set')
 
             ccdata = ConsumptionConditionData.objects.create(report_header=header, **consumptionconditiondata)
             for fueloildata in fueloildata_set:
                 FuelOilData.objects.create(ccdata=ccdata, **fueloildata)
             for lubricatingoildata in lubricatingoildata_set:
                 LubricatingOilData.objects.create(ccdata=ccdata, **lubricatingoildata)
-            FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
+            for freshwaterdata in freshwaterdata_set:
+                FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
 
         return header
