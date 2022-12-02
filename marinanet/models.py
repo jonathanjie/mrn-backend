@@ -288,27 +288,17 @@ class ConsumptionConditionData(ReportData):
         unique_together = ["report_header", "consumption_type"]
 
 
-# class ConsumptionDataCorrection(models.Model):
-#     limit = models.Q(app_label="marinanet", model="fueloildata") | \
-#         models.Q(app_label="marinanet", model="lubricatingoildata")
-#     content_type = models.ForeignKey(
-#         ContentType, limit_choices_to=limit, on_delete=models.CASCADE)
-#     object_id = models.PositiveIntegerField()
-#     content_object = GenericForeignKey("content_type", "object_id")
-#     correction = models.DecimalField(max_digits=7, decimal_places=2)
-#     remarks = models.TextField()
-
-#     class Meta:
-#         indexes = [
-#             models.Index(fields=["content_type", "object_id"]),
-#         ]
-#         db_table = "consumption_data_corrections"
-
-
 class ConsumptionData(BaseModel):
     ccdata = models.ForeignKey(
         ConsumptionConditionData, on_delete=models.PROTECT)
-    # correction = GenericRelation(ConsumptionDataCorrection)
+
+    class Meta:
+        abstract = True
+
+
+class ConsumptionDataCorrection(BaseModel):
+    correction = models.DecimalField(max_digits=7, decimal_places=2)
+    remarks = models.TextField()
 
     class Meta:
         abstract = True
@@ -338,6 +328,14 @@ class FuelOilData(ConsumptionData):
         db_table = "fuel_oil_data"
 
 
+class FuelOilDataCorrection(ConsumptionDataCorrection):
+    fuel_oil_data = models.OneToOneField(
+        FuelOilData, on_delete=models.PROTECT, primary_key=True)
+
+    class Meta:
+        db_table = "fuel_oil_data_corrections"
+
+
 class LubricatingOilData(ConsumptionData):
     fuel_oil_type = models.CharField(max_length=64)
     total_consumption = models.DecimalField(
@@ -361,7 +359,17 @@ class LubricatingOilData(ConsumptionData):
         db_table = "lubricating_oil_data"
 
 
-class FreshWaterData(ConsumptionData):
+class LubricatingOilDataCorrection(ConsumptionDataCorrection):
+    lubricating_oil_data = models.OneToOneField(
+        LubricatingOilData, on_delete=models.PROTECT, primary_key=True)
+
+    class Meta:
+        db_table = "lubricating_oil_data_corrections"
+
+
+class FreshWaterData(BaseModel):
+    ccdata = models.OneToOneField(
+        ConsumptionConditionData, on_delete=models.PROTECT, primary_key=True)
     consumed = models.PositiveIntegerField()
     evaporated = models.PositiveIntegerField()
     received = models.PositiveIntegerField()

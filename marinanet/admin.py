@@ -4,11 +4,14 @@ from django.contrib import admin
 from marinanet.models import (
     Company,
     ConsumptionConditionData,
+    ConsumptionDataCorrection,
     DistancePerformanceData,
     FreshWaterData,
     FuelOilData,
+    FuelOilDataCorrection,
     HeavyWeatherData,
     LubricatingOilData,
+    LubricatingOilDataCorrection,
     ReportHeader,
     Route,
     Ship,
@@ -43,6 +46,8 @@ admin.site.register(HeavyWeatherData)
 admin.site.register(DistancePerformanceData)
 admin.site.register(ConsumptionConditionData)
 admin.site.register(FuelOilData)
+admin.site.register(FuelOilDataCorrection)
 admin.site.register(LubricatingOilData)
+admin.site.register(LubricatingOilDataCorrection)
 admin.site.register(FreshWaterData)
 admin.site.register(StoppageData)
