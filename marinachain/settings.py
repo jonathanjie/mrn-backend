@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "auth0",
     "marinanet",
+    "drf_yasg"
 ]
 
 MIDDLEWARE = [
@@ -180,5 +181,23 @@ JWT_AUTH = {
 
 SILENCED_SYSTEM_CHECKS = ['fields.E300', 'fields.E307']
 
-GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
-GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
