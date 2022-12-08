@@ -92,6 +92,13 @@ class Ship(BaseModel):
     def __str__(self):
         return self.name
 
+class ShipSpecs(models.Model):
+    vessel_type = models.CharField(max_length=50)
+    cargo_unit = models.CharField(max_length=50)
+    fuel_options = models.JSONField()
+    lubricating_oil_options = models.JSONField()
+    machinery_options = models.JSONField()
+    propeller_pitch = models.DecimalField(max_digits=3, decimal_places=1)
 
 class ShipUser(BaseModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
