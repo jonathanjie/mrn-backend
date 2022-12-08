@@ -118,6 +118,7 @@ class Voyage(BaseModel):
 
     class Meta:
         db_table = "voyages"
+        unique_together = ["ship", "voyage_num"]
 
 
 class ReportHeader(BaseModel):
@@ -171,7 +172,7 @@ class WeatherData(ReportData):
     air_temperature_dry = models.DecimalField(max_digits=3, decimal_places=1)
     air_temperature_wet = models.DecimalField(max_digits=3, decimal_places=1)
     sea_temperature = models.DecimalField(max_digits=3, decimal_places=1)
-    ice_condiction = models.CharField(
+    ice_condition = models.CharField(
         max_length=4,
         choices=GlacierIceCondition.choices,
         default=GlacierIceCondition.NONE)

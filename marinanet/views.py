@@ -20,6 +20,7 @@ from marinanet.serializers import (
     NoonReportViewSerializer,
     ReportHeaderSerializer,
     ShipSerializer,
+    VoyageReportsSerializer,
     VoyageSerializer,
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
@@ -119,6 +120,19 @@ class VoyageReportsList(generics.ListAPIView):
         voyage = Voyage.objects.get(uuid=voyage_uuid)
         queryset = ReportHeader.objects.filter(voyage=voyage)
         return queryset
+
+
+class ShipReportsList(generics.ListAPIView):
+    """
+    """
+    serializer_class = VoyageReportsSerializer
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        ship = Ship.objects.get(imo_reg=imo_reg)
+        queryset = Voyage.objects.filter(ship=ship)
+        return queryset
+
 
 
 class ReportsList(generics.ListCreateAPIView):

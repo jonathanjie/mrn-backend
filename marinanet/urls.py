@@ -7,6 +7,7 @@ urlpatterns = [
     path('marinanet/ships/<int:imo_reg>/', views.ShipDetail.as_view()),
     path('marinanet/ships/<int:imo_reg>/voyages/',
          views.ShipVoyageList.as_view()),
+    path('marinanet/ships/<int:imo_reg>/reports/', views.ShipReportsList.as_view()),
     path('marinanet/voyages/', views.VoyageList.as_view()),
     path('marinanet/voyages/<uuid:uuid>/', views.VoyageDetail.as_view()),
     path('marinanet/voyages/<uuid:uuid>/reports',
