@@ -52,14 +52,16 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "rest_framework",
+    "corsheaders",
     "auth0",
-    "marinanet",
-    "drf_yasg"
+    "marinanet"
+    # "drf_yasg"
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -201,3 +203,15 @@ LOGGING = {
         },
     },
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8080',
+    'https://localhost:8080',
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8080',
+    'https://localhost:8080',
+]
