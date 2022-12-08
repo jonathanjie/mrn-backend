@@ -135,7 +135,7 @@ $ pip install gunicorn
 ```
 2. Install Nginx.
 ```
-$ sudo apt install Nginx.
+$ sudo apt install nginx
 ```
 3. Collect static files for deployment.
 ```
@@ -143,7 +143,7 @@ $ python manage.py collectstatic
 ```
 4. Create Gunicorn socket.
 ```
-$ sudo vim /etc/systemd/system/gunicron.socket
+$ sudo vim /etc/systemd/system/gunicorn.socket
 ```
 5. Enter the following in the file and save.
 ```
