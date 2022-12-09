@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.views import APIView
+from rest_framework import status
 
 from marinanet.enums import ReportTypes
 from marinanet.models import (
@@ -37,14 +38,11 @@ logger = logging.getLogger(__name__)
 
 class UserProfileView(APIView):
     def get(self, request):
-        # jwt_token = request.headers.get("Authorization").split(" ")[1]
-        # decoded_jwt = jwt.decode(jwt_token, verify=False)
-        # user_data = decoded_jwt.get("user")
-        # user_profile = UserProfile.objects.get(uuid=user_data["uuid"])
-        # return Response(user_profile)
-        user = self.request.user
-        logger.info("USERRRRR" + user)
-        return Response(user)
+        user = request.user
+        user_profile = get_object_or_404(UserProfile, user=user)
+        serializer = UserProfileSerializer(user_profile)
+        return Response(serializer.data)
+
 
 """ SHIP VIEWS
 """
@@ -63,19 +61,25 @@ class ShipList(generics.ListAPIView):
         return queryset
 
 
-class ShipDetail(generics.RetrieveUpdateAPIView):
-    """
-    Displays details for a single ship
-    User must have permission to view the ship
-    """
-    permission_classes = [IsShipUser]
-    serializer_class = ShipSerializer
-    lookup_field = 'imo_reg'
+class ShipDetail(APIView):
+    def get(self, request, imo_reg):
+        ship = get_object_or_404(Ship, imo_reg=imo_reg)
+        ship_serializer = ShipSerializer(ship)
+        ship_specs = ship.shipspecs
+        ship_specs_serializer = ShipSpecsSerializer(ship_specs)
+        data = ship_serializer.data
+        data['specs'] = ship_specs_serializer.data
+        return Response(data)
 
-    def get_queryset(self):
-        imo_reg = self.kwargs['imo_reg']
-        queryset = Ship.objects.filter(imo_reg=imo_reg)
-        return queryset
+        
+class ShipSpecsCreate(APIView):
+    def post(self, request, imo_reg):
+        ship = get_object_or_404(Ship, imo_reg=imo_reg)
+        serializer = ShipSpecsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(ship=ship)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ShipVoyageList(generics.ListAPIView):

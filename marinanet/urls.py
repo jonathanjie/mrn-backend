@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('marinanet/ships/', views.ShipList.as_view()),
     path('marinanet/ships/<int:imo_reg>/', views.ShipDetail.as_view()),
+    path('marinanet/ships/int:imo_reg/specs/', views.ShipSpecsCreate.as_view()),
     path('marinanet/ships/<int:imo_reg>/voyages/',
          views.ShipVoyageList.as_view()),
     path('marinanet/ships/<int:imo_reg>/reports/',
@@ -15,5 +16,5 @@ urlpatterns = [
          views.VoyageReportsList.as_view()),
     path('marinanet/reports/', views.ReportsList.as_view()),
     path('marinanet/reports/<uuid:uuid>/', views.ReportDetail.as_view()),
-    path('marinanet/user/', views.ProfileDetail.as_view()),
+    path('marinanet/user/', views.UserProfileView.as_view()),
 ]

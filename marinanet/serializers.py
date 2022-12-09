@@ -33,15 +33,15 @@ from marinanet.models import (
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = ['uuid', 'name', 'link']
-        read_only_fields = ['uuid']
+        fields = ('uuid', 'name', 'link')
+        read_only_fields = ('uuid')
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    company = CompanySerializer()
     class Meta:
         model = UserProfile
-        fields = '__all__'
-        read_only_fields = ['uuid']
+        fields = ('uuid', 'company', 'role', 'status')
 
 
 class ShipSerializer(serializers.ModelSerializer):
@@ -49,24 +49,21 @@ class ShipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ship
-        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type']
-        read_only_fields = ['uuid', 'name', 'imo_reg', 'company']
+        fields = ('uuid', 'name', 'imo_reg', 'company', 'ship_type')
+        read_only_fields = ('uuid', 'name', 'imo_reg', 'company')
 
 
 class ShipSpecsSerializer(serializers.ModelSerializer):
-    company = CompanySerializer()
-
     class Meta:
         model = ShipSpecs
-        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type']
-        read_only_fields = ['uuid', 'name', 'imo_reg', 'company']
+        fields = ('flag', 'deadweight_tonnage', 'cargo_unit', 'fuel_options', 'lubricating_oil_options', 'machinery_options', 'propeller_pitch')
 
 
 class ShipUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShipUser
         fields = '__all__'
-        read_only_fields = ['uuid']
+        read_only_fields = ('uuid')
 
 
 # Report Model Serializers
@@ -76,8 +73,8 @@ class VoyageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Voyage
-        fields = ['uuid', 'ship', 'voyage_num']
-        read_only_fields = ['uuid', 'ship']
+        fields = ('uuid', 'ship', 'voyage_num')
+        read_only_fields = ('uuid', 'ship')
 
 
 class ReportHeaderSerializer(serializers.ModelSerializer):
@@ -93,7 +90,7 @@ class ReportHeaderSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportHeader
         fields = '__all__'
-        read_only_fields = ['uuid', 'created_at', 'modified_at']
+        read_only_fields = ('uuid', 'created_at', 'modified_at')
 
 
 class VoyageReportsSerializer(serializers.ModelSerializer):
@@ -101,50 +98,50 @@ class VoyageReportsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Voyage
-        fields = ['uuid', 'ship', 'voyage_num', 'reports']
-        read_only_fields = ['uuid', 'ship']
+        fields = ('uuid', 'ship', 'voyage_num', 'reports')
+        read_only_fields = ('uuid', 'ship')
 
 
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        exclude = ['report_header', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('report_header', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class WeatherDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeatherData
-        exclude = ['report_header', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('report_header', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class HeavyWeatherDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = HeavyWeatherData
-        exclude = ['report_header', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('report_header', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class DistancePerformanceDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = DistancePerformanceData
-        exclude = ['report_header', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('report_header', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class StoppageDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = StoppageData
-        exclude = ['report_header', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('report_header', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class FuelOilDataCorrectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FuelOilDataCorrection
-        exclude = ['fuel_oil_data', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('fuel_oil_data', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class FuelOilDataSerializer(serializers.ModelSerializer):
@@ -152,15 +149,15 @@ class FuelOilDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FuelOilData
-        exclude = ['ccdata', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('ccdata', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class LubricatingOilDataCorrectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = LubricatingOilDataCorrection
-        exclude = ['lubricating_oil_data', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('lubricating_oil_data', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class LubricatingOilDataSerializer(serializers.ModelSerializer):
@@ -169,15 +166,15 @@ class LubricatingOilDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LubricatingOilData
-        exclude = ['ccdata', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('ccdata', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class FreshWaterDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = FreshWaterData
-        exclude = ['ccdata', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('ccdata', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class ConsumptionConditionDataSerializer(serializers.ModelSerializer):
@@ -187,8 +184,8 @@ class ConsumptionConditionDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConsumptionConditionData
-        exclude = ['report_header', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
+        exclude = ('report_header', 'created_at', 'modified_at')
+        read_only_fields = ('uuid')
 
 
 class NoonReportViewSerializer(serializers.ModelSerializer):
@@ -203,7 +200,7 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportHeader
         fields = '__all__'
-        exlude = ['report_tz']
+        exlude = ('report_tz')
 
     def create(self, validated_data):
         route = validated_data.pop('route')

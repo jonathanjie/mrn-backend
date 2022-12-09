@@ -95,7 +95,8 @@ class Ship(BaseModel):
 
 class ShipSpecs(models.Model):
     ship = models.OneToOneField(Ship, on_delete=models.PROTECT)
-    vessel_type = models.CharField(max_length=50)
+    flag = models.CharField(max_length=127)
+    deadweight_tonnage = models.DecimalField(max_digits=5, decimal_places=2)
     cargo_unit = models.CharField(max_length=50)
     fuel_options = models.JSONField()
     lubricating_oil_options = models.JSONField()
