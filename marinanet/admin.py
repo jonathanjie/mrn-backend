@@ -15,6 +15,7 @@ from marinanet.models import (
     ReportHeader,
     Route,
     Ship,
+    ShipSpecs,
     ShipUser,
     StoppageData,
     UserProfile,
@@ -35,6 +36,7 @@ class ShipAdmin(admin.ModelAdmin):
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(UserProfile)
 admin.site.register(Ship, ShipAdmin)
+admin.site.register(ShipSpecs)
 admin.site.register(ShipUser)
 
 # Report Models

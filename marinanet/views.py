@@ -80,6 +80,9 @@ class ShipDetail(APIView):
 class ShipSpecsCreate(APIView):
     def post(self, request, imo_reg):
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
+        ship.ship_type = request.data['ship_type']
+        ship.save()
+        
         try:
             ship_specs = ship.shipspecs
         except ShipSpecs.DoesNotExist:
@@ -98,7 +101,6 @@ class ShipSpecsCreate(APIView):
                 return Response(serializer.data)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class ShipVoyageList(generics.ListAPIView):
