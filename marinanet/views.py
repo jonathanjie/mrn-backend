@@ -11,6 +11,7 @@ from marinanet.enums import ReportTypes
 from marinanet.models import (
     ReportHeader,
     Ship,
+    UserProfile,
     Voyage,
 )
 from marinanet.permissions import (
