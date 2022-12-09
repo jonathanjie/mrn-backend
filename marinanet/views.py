@@ -34,6 +34,7 @@ class ProfileDetail(generics.RetrieveAPIView):
     Displays profile of a user based on UUID
     User must have permission to view ship that voyage is associated with
     """
+    logger.info("REQUESTING USER PROFILE")
     serializer_class = UserProfileSerializer
     # lookup_field = 'uuid'
 
