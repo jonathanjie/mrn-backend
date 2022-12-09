@@ -12,6 +12,7 @@ from marinanet.enums import ReportTypes
 from marinanet.models import (
     ReportHeader,
     Ship,
+    ShipSpecs,
     UserProfile,
     Voyage,
 )
@@ -58,12 +59,14 @@ class ShipList(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Ship.objects.filter(assigned_users=user)
+        queryset = Ship.objects.filter(assigned_users=user).select_related('ship_specs')
         return queryset
 
 
 class ShipDetail(APIView):
     def get(self, request, imo_reg):
+        print("REQUEST:")
+        print((request.body).decode('utf-8'))
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
         ship_serializer = ShipSerializer(ship)
         if hasattr(ship, 'specs'):
@@ -79,6 +82,8 @@ class ShipDetail(APIView):
         
 class ShipSpecsCreate(APIView):
     def post(self, request, imo_reg):
+        print("REQUEST:")
+        print((request.body).decode('utf-8'))
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
         ship.ship_type = request.data['ship_type']
         ship.save()

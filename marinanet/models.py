@@ -102,6 +102,10 @@ class ShipSpecs(models.Model):
     lubricating_oil_options = models.JSONField()
     machinery_options = models.JSONField()
     propeller_pitch = models.DecimalField(max_digits=3, decimal_places=1)
+    
+    class Meta:
+        db_table = "ship_specs"
+        verbose_name_plural = "ship_specs"
 
 
 class ShipUser(BaseModel):
