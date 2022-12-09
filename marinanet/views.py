@@ -25,6 +25,10 @@ from marinanet.serializers import (
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 """ USER VIEWS
 """
 
