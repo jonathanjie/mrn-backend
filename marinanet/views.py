@@ -27,6 +27,7 @@ from marinanet.serializers import (
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
+# import jwt
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,21 +35,16 @@ logger = logging.getLogger(__name__)
 """ USER VIEWS
 """
 
-
-class ProfileDetail(generics.RetrieveAPIView):
-    """
-    Displays profile of a user based on UUID
-    User must have permission to view ship that voyage is associated with
-    """
-    logger.info("REQUESTING USER PROFILE")
-    serializer_class = UserProfileSerializer
-    # lookup_field = 'uuid'
-
-    def get_queryset(self):
+class UserProfileView(APIView):
+    def get(self, request):
+        # jwt_token = request.headers.get("Authorization").split(" ")[1]
+        # decoded_jwt = jwt.decode(jwt_token, verify=False)
+        # user_data = decoded_jwt.get("user")
+        # user_profile = UserProfile.objects.get(uuid=user_data["uuid"])
+        # return Response(user_profile)
         user = self.request.user
-        queryset = UserProfile.objects.filter(user=user)
-        return queryset
-
+        logger.info("USERRRRR" + user)
+        return Response(user)
 
 """ SHIP VIEWS
 """
