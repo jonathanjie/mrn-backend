@@ -22,6 +22,7 @@ from marinanet.serializers import (
     NoonReportViewSerializer,
     ReportHeaderSerializer,
     ShipSerializer,
+    ShipSpecsSerializer,
     UserProfileSerializer,
     VoyageReportsSerializer,
     VoyageSerializer
@@ -73,18 +74,31 @@ class ShipDetail(APIView):
             return Response(data)
         else:
             data = ship_serializer.data
-            data['specs'] = {}
             return Response(data)
 
         
 class ShipSpecsCreate(APIView):
     def post(self, request, imo_reg):
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
-        serializer = ShipSpecsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(ship=ship)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            ship_specs = ship.shipspecs
+        except ShipSpecs.DoesNotExist:
+            # ShipSpecs object does not exist, so create it
+            serializer = ShipSpecsSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(ship=ship)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # ShipSpecs object exists, so update it
+            serializer = ShipSpecsSerializer(ship_specs, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class ShipVoyageList(generics.ListAPIView):

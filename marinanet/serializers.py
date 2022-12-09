@@ -41,7 +41,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     company = CompanySerializer()
     class Meta:
         model = UserProfile
-        fields = ('uuid', 'company', 'role', 'status')
+        fields = ('uuid', 'company', 'role')
 
 
 class ShipSerializer(serializers.ModelSerializer):
