@@ -20,8 +20,9 @@ from marinanet.serializers import (
     NoonReportViewSerializer,
     ReportHeaderSerializer,
     ShipSerializer,
+    UserProfileSerializer,
     VoyageReportsSerializer,
-    VoyageSerializer,
+    VoyageSerializer
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
