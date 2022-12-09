@@ -25,6 +25,23 @@ from marinanet.serializers import (
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
+""" USER VIEWS
+"""
+
+
+class ProfileDetail(generics.RetrieveAPIView):
+    """
+    Displays profile of a user based on UUID
+    User must have permission to view ship that voyage is associated with
+    """
+    serializer_class = UserProfileSerializer
+    # lookup_field = 'uuid'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = UserProfile.objects.filter(user=user)
+        return queryset
+
 
 """ SHIP VIEWS
 """
@@ -132,7 +149,6 @@ class ShipReportsList(generics.ListAPIView):
         ship = Ship.objects.get(imo_reg=imo_reg)
         queryset = Voyage.objects.filter(ship=ship)
         return queryset
-
 
 
 class ReportsList(generics.ListCreateAPIView):

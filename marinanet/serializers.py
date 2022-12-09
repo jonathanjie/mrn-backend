@@ -52,6 +52,14 @@ class ShipSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid', 'name', 'imo_reg', 'company']
 
 
+class ShipSpecsSerializer(serializers.ModelSerializer):
+    company = CompanySerializer()
+
+    class Meta:
+        model = ShipSpecs
+        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type']
+        read_only_fields = ['uuid', 'name', 'imo_reg', 'company']
+
 class ShipUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShipUser
