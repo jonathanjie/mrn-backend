@@ -65,11 +65,16 @@ class ShipDetail(APIView):
     def get(self, request, imo_reg):
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
         ship_serializer = ShipSerializer(ship)
-        ship_specs = ship.shipspecs
-        ship_specs_serializer = ShipSpecsSerializer(ship_specs)
-        data = ship_serializer.data
-        data['specs'] = ship_specs_serializer.data
-        return Response(data)
+        if hasattr(ship, 'specs'):
+            ship_specs = ship.specs
+            ship_specs_serializer = ShipSpecsSerializer(ship_specs)
+            data = ship_serializer.data
+            data['specs'] = ship_specs_serializer.data
+            return Response(data)
+        else:
+            data = ship_serializer.data
+            data['specs'] = {}
+            return Response(data)
 
         
 class ShipSpecsCreate(APIView):
