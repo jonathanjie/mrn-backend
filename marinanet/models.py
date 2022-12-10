@@ -93,6 +93,21 @@ class Ship(BaseModel):
         return self.name
 
 
+class ShipSpecs(models.Model):
+    ship = models.OneToOneField(Ship, on_delete=models.PROTECT)
+    flag = models.CharField(max_length=127)
+    deadweight_tonnage = models.DecimalField(max_digits=10, decimal_places=2)
+    cargo_unit = models.CharField(max_length=50)
+    fuel_options = models.JSONField()
+    lubricating_oil_options = models.JSONField()
+    machinery_options = models.JSONField()
+    propeller_pitch = models.DecimalField(max_digits=3, decimal_places=1)
+    
+    class Meta:
+        db_table = "ship_specs"
+        verbose_name_plural = "ship_specs"
+
+
 class ShipUser(BaseModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -402,10 +417,8 @@ class StoppageData(ReportData):
 
     class Meta:
         db_table = "stoppage_data"
-        
-        
-        
-        
+
+
 # ======== FOR LATER =========
 # class ShipSpecs(models.Model):
 #     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
@@ -438,7 +451,7 @@ class StoppageData(ReportData):
 #     avg_daily_fuel_consumption = models.DecimalField(max_digits=5, decimal_places=2)
 #     ballast_daily_fuel_consumption = models.DecimalField(max_digits=5, decimal_places=2)
 #     laden_daily_fuel_consumption = models.DecimalField(max_digits=5, decimal_places=2)
-    
+
 #     # Move to separate engine table
 #     main_engine_type = models.CharField(max_length=127)
 #     main_engine_manufacturer = models.CharField(max_length=127)
@@ -455,7 +468,7 @@ class StoppageData(ReportData):
 #     boiler_type = models.CharField(max_length=127)
 #     boiler_capacity = models.CharField(max_length=127)
 #     boiler_count = models.IntegerField()
-    
+
 #     propeller_type = models.CharField(max_length=127)
 #     propeller_blades = models.IntegerField()
 #     propeller_diameter = models.IntegerField()
@@ -468,7 +481,7 @@ class StoppageData(ReportData):
 #     caro_tank_specs = models.JSONField()
 #     cargo_pump = models.JSONField()
 #     cargo_tank_coating = models.CharField(max_length=127)
-    
+
 #     cargo_capacity = models.DecimalField(max_digits=5, decimal_places=2)
 #     cargo_pump_type = models.CharField(max_length=127)
 #     cargo_pump_capacity = models.DecimalField(max_digits=5, decimal_places=2)
@@ -481,6 +494,6 @@ class StoppageData(ReportData):
 #     freshwater_capacity = models.DecimalField(max_digits=5, decimal_places=2)
 #     eexi_rating = models.CharField(max_length=1)
 #     estimated_cii_rating = models.CharField(max_length=1)
-    
+
 #     class Meta:
 #         db_table = "ship_specs"

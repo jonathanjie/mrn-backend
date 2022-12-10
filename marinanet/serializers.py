@@ -18,6 +18,7 @@ from marinanet.models import (
     ReportHeader,
     Route,
     Ship,
+    ShipSpecs,
     ShipUser,
     StoppageData,
     UserProfile,
@@ -37,18 +38,23 @@ class CompanySerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    company = CompanySerializer()
     class Meta:
         model = UserProfile
-        fields = '__all__'
-        read_only_fields = ['uuid']
+        fields = ('uuid', 'company', 'role')
 
+class ShipSpecsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShipSpecs
+        fields = ('flag', 'deadweight_tonnage', 'cargo_unit', 'fuel_options', 'lubricating_oil_options', 'machinery_options', 'propeller_pitch')
 
 class ShipSerializer(serializers.ModelSerializer):
     company = CompanySerializer()
+    ship_specs = ShipSpecsSerializer()
 
     class Meta:
         model = Ship
-        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type']
+        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type', 'ship_specs']
         read_only_fields = ['uuid', 'name', 'imo_reg', 'company']
 
 

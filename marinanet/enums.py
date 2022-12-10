@@ -18,6 +18,13 @@ class ShipTypes(models.TextChoices):
     OIL_TANKER = "OIL", _("Oil Tanker")
     GAS_TANKER = "GAS", _("Gas/LNG Tanker")
     RORO = "RORO", _("Roll-On Roll-Off Ships")
+    GENERAL_CARGO = "GEN", _("General Cargo Ship")
+    REFRIGERATED_CARGO = "REFC", _("Refrigerated Cargo Carrier")
+    COMBINATION_CARRIER = "COMB", _("Combination Carrier")
+    LNG_CARRIER = "LNGC", _("LNG Carrier")
+    RORO_VEHICLE_CARRIER = "RORV", _("Ro-Ro Cargo Ship (Vehicle Carrier)")
+    RORO_PASSENGER_SHIP = "RORP", _("Ro-Ro Passenger Ship")
+    CRUISE_PASSENGER_SHIP = "CRUZ", _("Cruise Passenger Ship")
 
 
 class ReportTypes(models.TextChoices):
