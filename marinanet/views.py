@@ -59,7 +59,8 @@ class ShipList(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Ship.objects.filter(assigned_users=user).select_related('ship_specs')
+        queryset = Ship.objects.filter(assigned_users=user).select_related('shipspecs') # TODO: Why can't this be "ship_specs"?
+        print(queryset)
         return queryset
 
 
