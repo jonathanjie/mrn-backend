@@ -197,15 +197,49 @@ class ReportsList(generics.ListCreateAPIView):
         queryset = ReportHeader.objects.filter(
             voyage__ship__assigned_users=user)
         return queryset
+        
+    def determine_new_allowed_report_types(allowed_report_types, report_type):
+        
+        all_report_types = ['NOON', 'DSBY', 'DCSP', 'ASBY', 'AFWE', 'BDN', 'EVENT']
+        
+        if report_type in ['NOON', 'BDN', 'EVENT'] :
+            return allowed_report_types
+        elif report_type == 'DSBY':
+            return  all_report_types.remove('DSBY').remove('ASBY').remove('AFWE')
+        elif report_type == 'DCSP':
+            return  all_report_types.remove('DSBY').remove('DCSP')
+        elif report_type == 'ASBY':
+            return  all_report_types.remove('DSBY').remove('DCSP').remove('ASBY')
+        elif report_type == 'AFWE':
+            return  all_report_types.remove('ASBY').remove('AFWE')
+        else:
+            return allowed_report_types
+        # TODO: Check if these allows are correct
+
 
     def create(self, request, *args, **kwargs):
+        # Get the report type from the request data
         report_type = request.data.get('report_type')
+
         # Get serializer class based on report type
         serializer_class = get_serializer_from_report_type(report_type)
         serializer = serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # Save the newly created report header
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+
+        # Fetch the voyage associated with the newly created report header
+        voyage = serializer.instance.voyage
+
+        # Determine the new allowed_report_types array based on the report_type
+        new_allowed_report_types = determine_new_allowed_report_types(report_type)
+
+        # Update the voyage's allowed_report_types array
+        voyage.allowed_report_types = new_allowed_report_types
+        voyage.save()
+
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
