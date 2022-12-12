@@ -228,3 +228,33 @@ class ReportDetail(generics.RetrieveAPIView):
         serializer_class = get_serializer_from_report_type(report_type)
         serializer = serializer_class(instance)
         return Response(serializer.data)
+
+class LatestReportDetailByShip(generics.RetrieveAPIView):
+    """
+    Displays details for the latest report for a given ship.
+    """
+    lookup_field = 'imo_reg'
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        queryset = ReportHeader.objects.filter(
+            voyage__ship__imo_reg=imo_reg
+        ).order_by('-report_date')
+        print('Matching reports:', queryset.count())
+        return queryset.first()
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = None
+        if queryset:
+            obj = queryset
+        return obj
+
+    def retrieve(self, request, *args, **kwargs):
+        print('Retrieving report...')
+        instance = self.get_object()
+        print('Report:', instance)
+        report_type = instance.report_type
+        serializer_class = get_serializer_from_report_type(report_type)
+        serializer = serializer_class(instance)
+        return Response(serializer.data)
