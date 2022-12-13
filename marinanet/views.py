@@ -59,7 +59,8 @@ class ShipList(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Ship.objects.filter(assigned_users=user).select_related('ship_specs')
+        queryset = Ship.objects.filter(assigned_users=user).select_related('shipspecs') # TODO: Why can't this be "ship_specs"?
+        print(queryset)
         return queryset
 
 
@@ -196,15 +197,49 @@ class ReportsList(generics.ListCreateAPIView):
         queryset = ReportHeader.objects.filter(
             voyage__ship__assigned_users=user)
         return queryset
+        
+    def determine_new_allowed_report_types(allowed_report_types, report_type):
+        
+        all_report_types = ['NOON', 'DSBY', 'DCSP', 'ASBY', 'AFWE', 'BDN', 'EVENT']
+        
+        if report_type in ['NOON', 'BDN', 'EVENT'] :
+            return allowed_report_types
+        elif report_type == 'DSBY':
+            return  all_report_types.remove('DSBY').remove('ASBY').remove('AFWE')
+        elif report_type == 'DCSP':
+            return  all_report_types.remove('DSBY').remove('DCSP')
+        elif report_type == 'ASBY':
+            return  all_report_types.remove('DSBY').remove('DCSP').remove('ASBY')
+        elif report_type == 'AFWE':
+            return  all_report_types.remove('ASBY').remove('AFWE')
+        else:
+            return allowed_report_types
+        # TODO: Check if these allows are correct
+
 
     def create(self, request, *args, **kwargs):
+        # Get the report type from the request data
         report_type = request.data.get('report_type')
+
         # Get serializer class based on report type
         serializer_class = get_serializer_from_report_type(report_type)
         serializer = serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # Save the newly created report header
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+
+        # Fetch the voyage associated with the newly created report header
+        voyage = serializer.instance.voyage
+
+        # Determine the new allowed_report_types array based on the report_type
+        new_allowed_report_types = determine_new_allowed_report_types(report_type)
+
+        # Update the voyage's allowed_report_types array
+        voyage.allowed_report_types = new_allowed_report_types
+        voyage.save()
+
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -223,6 +258,36 @@ class ReportDetail(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        report_type = instance.report_type
+        serializer_class = get_serializer_from_report_type(report_type)
+        serializer = serializer_class(instance)
+        return Response(serializer.data)
+
+class LatestReportDetailByShip(generics.RetrieveAPIView):
+    """
+    Displays details for the latest report for a given ship.
+    """
+    lookup_field = 'imo_reg'
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        queryset = ReportHeader.objects.filter(
+            voyage__ship__imo_reg=imo_reg
+        ).order_by('-report_date')
+        print('Matching reports:', queryset.count())
+        return queryset.first()
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = None
+        if queryset:
+            obj = queryset
+        return obj
+
+    def retrieve(self, request, *args, **kwargs):
+        print('Retrieving report...')
+        instance = self.get_object()
+        print('Report:', instance)
         report_type = instance.report_type
         serializer_class = get_serializer_from_report_type(report_type)
         serializer = serializer_class(instance)

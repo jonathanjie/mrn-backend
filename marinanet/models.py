@@ -8,6 +8,7 @@ from django.contrib.contenttypes.fields import (
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.gis.db import models
+from django.contrib.postgres.fields import ArrayField
 from django.db import models as dmodels
 from django.forms import ModelForm
 from timezone_field import TimeZoneField
@@ -124,10 +125,14 @@ class ShipUser(BaseModel):
 """
 
 
+def get_default_allowed_report_types():
+    return ['DSBY']
+
 class Voyage(BaseModel):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     voyage_num = models.PositiveIntegerField()
+    allowed_report_types = ArrayField(base_field=models.CharField(max_length=4), default=get_default_allowed_report_types)
     status = models.PositiveSmallIntegerField(
         choices=Status.choices, default=Status.ACTIVE)
 

@@ -29,10 +29,10 @@ class ShipTypes(models.TextChoices):
 
 class ReportTypes(models.TextChoices):
     NOON = "NOON", _("Noon at Sea")
-    DEP_SBY = "DSBY", _("Noon Waiting")
-    DEP_COSP = "DCSP", _("Noon in Port")
-    ARR_SBY = "ASBY", _("Departure")
-    ARR_FWE = "AFWE", _("Arrival")
+    DEP_SBY = "DSBY", _("Departure: Standby")
+    DEP_COSP = "DCSP", _("Departure: COSP")
+    ARR_SBY = "ASBY", _("Arrival: Standby")
+    ARR_FWE = "AFWE", _("Arrival: FWE")
     BDN = "BDN", _("Bunker Delivery Note")
     EVENT = "EVNT", _("Event in Harbour")
 
