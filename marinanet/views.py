@@ -11,6 +11,7 @@ from rest_framework import status
 from marinanet.enums import ReportTypes
 from marinanet.models import (
     ReportHeader,
+    Route,
     Ship,
     ShipSpecs,
     UserProfile,
@@ -20,6 +21,7 @@ from marinanet.permissions import (
     IsShipUser
 )
 from marinanet.serializers import (
+    DistinctRoutesSerializer,
     NoonReportViewSerializer,
     ReportHeaderSerializer,
     ShipSerializer,
@@ -292,3 +294,31 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
         serializer_class = get_serializer_from_report_type(report_type)
         serializer = serializer_class(instance)
         return Response(serializer.data)
+        
+        
+class MostRecentDistinctRoutesList(generics.ListAPIView):
+    serializer_class = DistinctRoutesSerializer
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        ship = Ship.objects.get(imo_reg=imo_reg)
+
+        # Get the number of routes to query for from the request query parameters,
+        # or default to 10 if not provided
+        num_routes = self.request.query_params.get("num_routes", 10)
+
+        # Query for the most recent num_routes distinct Routes for the Ship,
+        # ordered by the report_date field in descending order
+        queryset = Route.objects.filter(
+            report_header__voyage__ship=ship
+        ).order_by("-report_header__report_date").values(
+            "departure_port", "arrival_port", "departure_date", "arrival_date"
+        ).distinct()
+
+        # If there are fewer than num_routes distinct routes for the Ship,
+        # only return the number of routes that are available
+        if queryset.count() < num_routes:
+            return queryset
+
+        # Otherwise, return the most recent num_routes routes
+        return queryset[:num_routes]
