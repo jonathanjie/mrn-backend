@@ -50,11 +50,11 @@ class ShipSpecsSerializer(serializers.ModelSerializer):
 
 class ShipSerializer(serializers.ModelSerializer):
     company = CompanySerializer()
-    ship_specs = ShipSpecsSerializer()
+    shipspecs = ShipSpecsSerializer()
 
     class Meta:
         model = Ship
-        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type', 'ship_specs']
+        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type', 'shipspecs']
         read_only_fields = ['uuid', 'name', 'imo_reg', 'company']
 
 
@@ -106,6 +106,12 @@ class RouteSerializer(serializers.ModelSerializer):
         model = Route
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
+        
+        
+class DistinctRoutesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Route
+        fields = ['departure_port', 'arrival_port', 'departure_date', 'arrival_date']
 
 
 class WeatherDataSerializer(serializers.ModelSerializer):
