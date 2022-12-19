@@ -264,3 +264,69 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
 
         return header
+
+class ArrivalStandByReportViewSerializer(serializers.ModelSerializer):
+    
+    route = RouteSerializer()
+    weatherdata = WeatherDataSerializer()
+    heavyweatherdata = HeavyWeatherDataSerializer(required=False)
+    distanceperformancedata = DistancePerformanceDataSerializer()
+    consumptionconditiondata = ConsumptionConditionDataSerializer()
+    stoppagedata = StoppageDataSerializer(required=False)
+    report_tz = TimeZoneSerializerField()
+
+    class Meta:
+        model = ReportHeader
+        fields = '__all__'
+        exlude = ['report_tz']
+
+    def create(self, validated_data):
+        route = validated_data.pop('route')
+        weather_data = validated_data.pop('weatherdata')
+        heavyweatherdata = validated_data.pop('heavyweatherdata', None)
+        distanceperformancedata = validated_data.pop('distanceperformancedata')
+        consumptionconditiondata = validated_data.pop(
+            'consumptionconditiondata')
+        stoppagedata = validated_data.pop('stoppagedata', None)
+
+        with transaction.atomic():
+            header = ReportHeader.objects.create(**validated_data)
+            Route.objects.create(report_header=header, **route)
+            WeatherData.objects.create(report_header=header, **weather_data)
+            if heavyweatherdata:
+                HeavyWeatherData.objects.create(
+                    report_header=header, **heavyweatherdata)
+            DistancePerformanceData.objects.create(
+                report_header=header, **distanceperformancedata)
+            if stoppagedata:
+                StoppageData.objects.create(
+                    report_header=header, **stoppagedata)
+
+            fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+            lubricatingoildata_set = consumptionconditiondata.pop(
+                'lubricatingoildata_set')
+            freshwaterdata = consumptionconditiondata.pop(
+                'freshwaterdata')
+
+            ccdata = ConsumptionConditionData.objects.create(
+                report_header=header, **consumptionconditiondata)
+            for fueloildata in fueloildata_set:
+                fueloildatacorrection = fueloildata.pop(
+                    'fueloildatacorrection', None)
+                fo_data = FuelOilData.objects.create(
+                    ccdata=ccdata, **fueloildata)
+                if fueloildatacorrection:
+                    FuelOilDataCorrection.objects.create(
+                        fuel_oil_data=fo_data, **fueloildatacorrection)
+            for lubricatingoildata in lubricatingoildata_set:
+                lubricatingoildatacorrection = lubricatingoildata.pop(
+                    'lubricatingoildatacorrection', None)
+                lo_data = LubricatingOilData.objects.create(
+                    ccdata=ccdata, **lubricatingoildata)
+                if lubricatingoildatacorrection:
+                    LubricatingOilDataCorrection.objects.create(
+                        lubricating_oil_data=lo_data,
+                        **lubricatingoildatacorrection)
+            FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
+
+        return header
