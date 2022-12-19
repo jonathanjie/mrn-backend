@@ -103,7 +103,7 @@ class ShipSpecs(models.Model):
     lubricating_oil_options = models.JSONField()
     machinery_options = models.JSONField()
     propeller_pitch = models.DecimalField(max_digits=3, decimal_places=1)
-    
+
     class Meta:
         db_table = "ship_specs"
         verbose_name_plural = "ship_specs"
@@ -128,11 +128,13 @@ class ShipUser(BaseModel):
 def get_default_allowed_report_types():
     return ['DSBY']
 
+
 class Voyage(BaseModel):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     voyage_num = models.PositiveIntegerField()
-    allowed_report_types = ArrayField(base_field=models.CharField(max_length=4), default=get_default_allowed_report_types)
+    allowed_report_types = ArrayField(base_field=models.CharField(
+        max_length=4), default=get_default_allowed_report_types)
     status = models.PositiveSmallIntegerField(
         choices=Status.choices, default=Status.ACTIVE)
 
@@ -230,11 +232,11 @@ class HeavyWeatherData(ReportData):
     sea_direction = models.CharField(
         max_length=2, choices=Cardinal_8.choices)
     sea_state = models.PositiveSmallIntegerField(choices=DouglasScale.choices)
-    max_wave_height = models.DecimalField(
-        max_digits=3,
-        decimal_places=1,
-        validators=[
-            MinValueValidator(Decimal("0.0"))])
+    # max_wave_height = models.DecimalField(
+    #     max_digits=3,
+    #     decimal_places=1,
+    #     validators=[
+    #         MinValueValidator(Decimal("0.0"))])
     remarks = models.TextField()
 
     class Meta:
@@ -364,18 +366,22 @@ class FuelOilDataCorrection(ConsumptionDataCorrection):
 class LubricatingOilData(ConsumptionData):
     fuel_oil_type = models.CharField(max_length=64)
     total_consumption = models.DecimalField(
+        blank=True,
         max_digits=7,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
     receipt = models.DecimalField(
+        blank=True,
         max_digits=7,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
     debunkering = models.DecimalField(
+        blank=True,
         max_digits=7,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
     rob = models.DecimalField(
+        blank=True,
         max_digits=7,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])

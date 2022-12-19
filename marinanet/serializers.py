@@ -39,14 +39,18 @@ class CompanySerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     company = CompanySerializer()
+
     class Meta:
         model = UserProfile
         fields = ('uuid', 'company', 'role')
 
+
 class ShipSpecsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShipSpecs
-        fields = ('flag', 'deadweight_tonnage', 'cargo_unit', 'fuel_options', 'lubricating_oil_options', 'machinery_options', 'propeller_pitch')
+        fields = ('flag', 'deadweight_tonnage', 'cargo_unit', 'fuel_options',
+                  'lubricating_oil_options', 'machinery_options', 'propeller_pitch')
+
 
 class ShipSerializer(serializers.ModelSerializer):
     company = CompanySerializer()
@@ -54,7 +58,8 @@ class ShipSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ship
-        fields = ['uuid', 'name', 'imo_reg', 'company', 'ship_type', 'shipspecs']
+        fields = ['uuid', 'name', 'imo_reg',
+                  'company', 'ship_type', 'shipspecs']
         read_only_fields = ['uuid', 'name', 'imo_reg', 'company']
 
 
@@ -78,6 +83,7 @@ class VoyageSerializer(serializers.ModelSerializer):
 
 class ReportHeaderSerializer(serializers.ModelSerializer):
     report_tz = TimeZoneSerializerField()
+    route = RouteSerializer(allow_null=True)
     # latitude = serializers.CharField(max_length=10)
     # longitude = serializers.CharField(max_length=10)
 
@@ -106,12 +112,13 @@ class RouteSerializer(serializers.ModelSerializer):
         model = Route
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
-        
-        
+
+
 class DistinctRoutesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
-        fields = ['departure_port', 'arrival_port', 'departure_date', 'arrival_date']
+        fields = ['departure_port', 'arrival_port',
+                  'departure_date', 'arrival_date']
 
 
 class WeatherDataSerializer(serializers.ModelSerializer):

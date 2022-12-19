@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 """ USER VIEWS
 """
 
+
 class UserProfileView(APIView):
     def get(self, request):
         user = request.user
@@ -61,7 +62,8 @@ class ShipList(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Ship.objects.filter(assigned_users=user).select_related('shipspecs') # TODO: Why can't this be "ship_specs"?
+        queryset = Ship.objects.filter(assigned_users=user).select_related(
+            'shipspecs')  # TODO: Why can't this be "ship_specs"?
         print(queryset)
         return queryset
 
@@ -82,7 +84,7 @@ class ShipDetail(APIView):
             data = ship_serializer.data
             return Response(data)
 
-        
+
 class ShipSpecsCreate(APIView):
     def post(self, request, imo_reg):
         print("REQUEST:")
@@ -90,7 +92,7 @@ class ShipSpecsCreate(APIView):
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
         ship.ship_type = request.data['ship_type']
         ship.save()
-        
+
         try:
             ship_specs = ship.shipspecs
         except ShipSpecs.DoesNotExist:
@@ -177,6 +179,7 @@ class VoyageReportsList(generics.ListAPIView):
 
 class ShipReportsList(generics.ListAPIView):
     """
+    Lists all reports from a single ship
     """
     serializer_class = VoyageReportsSerializer
 
@@ -199,25 +202,25 @@ class ReportsList(generics.ListCreateAPIView):
         queryset = ReportHeader.objects.filter(
             voyage__ship__assigned_users=user)
         return queryset
-        
+
     def determine_new_allowed_report_types(allowed_report_types, report_type):
-        
-        all_report_types = ['NOON', 'DSBY', 'DCSP', 'ASBY', 'AFWE', 'BDN', 'EVENT']
-        
-        if report_type in ['NOON', 'BDN', 'EVENT'] :
+
+        all_report_types = ['NOON', 'DSBY',
+                            'DCSP', 'ASBY', 'AFWE', 'BDN', 'EVENT']
+
+        if report_type in ['NOON', 'BDN', 'EVENT']:
             return allowed_report_types
         elif report_type == 'DSBY':
-            return  all_report_types.remove('DSBY').remove('ASBY').remove('AFWE')
+            return all_report_types.remove('DSBY').remove('ASBY').remove('AFWE')
         elif report_type == 'DCSP':
-            return  all_report_types.remove('DSBY').remove('DCSP')
+            return all_report_types.remove('DSBY').remove('DCSP')
         elif report_type == 'ASBY':
-            return  all_report_types.remove('DSBY').remove('DCSP').remove('ASBY')
+            return all_report_types.remove('DSBY').remove('DCSP').remove('ASBY')
         elif report_type == 'AFWE':
-            return  all_report_types.remove('ASBY').remove('AFWE')
+            return all_report_types.remove('ASBY').remove('AFWE')
         else:
             return allowed_report_types
         # TODO: Check if these allows are correct
-
 
     def create(self, request, *args, **kwargs):
         # Get the report type from the request data
@@ -236,7 +239,8 @@ class ReportsList(generics.ListCreateAPIView):
         voyage = serializer.instance.voyage
 
         # Determine the new allowed_report_types array based on the report_type
-        new_allowed_report_types = determine_new_allowed_report_types(report_type)
+        new_allowed_report_types = determine_new_allowed_report_types(
+            report_type)
 
         # Update the voyage's allowed_report_types array
         voyage.allowed_report_types = new_allowed_report_types
@@ -264,6 +268,7 @@ class ReportDetail(generics.RetrieveAPIView):
         serializer_class = get_serializer_from_report_type(report_type)
         serializer = serializer_class(instance)
         return Response(serializer.data)
+
 
 class LatestReportDetailByShip(generics.RetrieveAPIView):
     """
@@ -294,8 +299,8 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
         serializer_class = get_serializer_from_report_type(report_type)
         serializer = serializer_class(instance)
         return Response(serializer.data)
-        
-        
+
+
 class MostRecentDistinctRoutesList(generics.ListAPIView):
     serializer_class = DistinctRoutesSerializer
 
