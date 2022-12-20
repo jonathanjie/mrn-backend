@@ -445,6 +445,20 @@ class StoppageData(ReportData):
     class Meta:
         db_table = "stoppage_data"
 
+class PlannedOperation(BaseModel):
+    planned_operation_berth = models.BooleanField()
+    planned_operation_stsstb = models.BooleanField()
+    planned_operation_bunkering = models.BooleanField()
+    planned_operation_drydocking = models.BooleanField()
+    planned_operation_crewchange = models.BooleanField()
+    planned_operation_provisions = models.BooleanField()
+    planned_operation_survey = models.BooleanField()
+    planned_operation_others = models.BooleanField()
+    planned_operation_othersdetails = models.TextField()
+
+    class Meta:
+        db_table = "planned_operation"
+
 
 # ======== FOR LATER =========
 # class ShipSpecs(models.Model):

@@ -239,8 +239,7 @@ class ReportsList(generics.ListCreateAPIView):
         voyage = serializer.instance.voyage
 
         # Determine the new allowed_report_types array based on the report_type
-        new_allowed_report_types = determine_new_allowed_report_types(
-            report_type)
+        new_allowed_report_types = self.determine_new_allowed_report_types(report_type)
 
         # Update the voyage's allowed_report_types array
         voyage.allowed_report_types = new_allowed_report_types
