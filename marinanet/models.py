@@ -11,7 +11,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.db import models as dmodels
 from django.forms import ModelForm
-from timezone_field import TimeZoneField
+# from timezone_field import TimeZoneField
 
 from auth0.models import User
 from marinanet.enums import (
@@ -161,8 +161,8 @@ class ReportHeader(BaseModel):
     report_type = models.CharField(max_length=4, choices=ReportTypes.choices)
     report_num = models.PositiveIntegerField()
     report_date = models.DateTimeField()
-    report_tz = TimeZoneField(use_pytz=False)
-    summer_time = models.BooleanField()
+    report_tz = models.FloatField()
+    # summer_time = models.BooleanField()
     position = models.PointField(srid=4326)
     # Note that for position, X is Longitude, Y is Latitude
     status = models.PositiveSmallIntegerField(
@@ -427,11 +427,13 @@ class FreshWaterData(BaseModel):
 
 class StoppageData(ReportData):
     start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    end_date = models.DateTimeField(null=True, blank=True)
     duration = models.DecimalField(
         max_digits=5,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True,
+        blank=True)
     reduced_rpm = models.DecimalField(
         max_digits=5,
         decimal_places=1,

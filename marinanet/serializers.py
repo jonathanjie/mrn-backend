@@ -203,10 +203,10 @@ class ConsumptionConditionDataSerializer(serializers.ModelSerializer):
 class NoonReportViewSerializer(serializers.ModelSerializer):
     route = RouteSerializer()
     weatherdata = WeatherDataSerializer()
-    heavyweatherdata = HeavyWeatherDataSerializer(required=False)
+    heavyweatherdata = HeavyWeatherDataSerializer(required=False, allow_null=True)
     distanceperformancedata = DistancePerformanceDataSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
-    stoppagedata = StoppageDataSerializer(required=False)
+    stoppagedata = StoppageDataSerializer(required=False, allow_null=True)
     report_tz = TimeZoneSerializerField()
 
     class Meta:
