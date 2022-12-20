@@ -125,16 +125,15 @@ class ShipUser(BaseModel):
 """
 
 
-def get_default_allowed_report_types():
-    return ['DSBY']
+# def get_default_allowed_report_types():
+#     return ['DSBY']
 
 
 class Voyage(BaseModel):
-    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     voyage_num = models.PositiveIntegerField()
-    allowed_report_types = ArrayField(base_field=models.CharField(
-        max_length=4), default=get_default_allowed_report_types)
+    # allowed_report_types = ArrayField(base_field=models.CharField(
+    #     max_length=4), default=get_default_allowed_report_types)
     status = models.PositiveSmallIntegerField(
         choices=Status.choices, default=Status.ACTIVE)
 
@@ -143,9 +142,22 @@ class Voyage(BaseModel):
         unique_together = ["ship", "voyage_num"]
 
 
-class ReportHeader(BaseModel):
+class VoyageLeg(BaseModel):
     voyage = models.ForeignKey(Voyage, on_delete=models.PROTECT)
     leg_num = models.PositiveSmallIntegerField()
+    departure_port = models.CharField(max_length=6)  # TODO: LOCODE
+    departure_date = models.DateTimeField()
+    depature_tz = models.FloatField()
+    arrival_port = models.CharField(max_length=6)  # TODO: LOCODE
+    arrival_date = models.DateTimeField()
+    arrival_tz = models.FloatField()
+
+    class Meta:
+        db_table = "voyage_legs"
+
+
+class ReportHeader(BaseModel):
+    voyage_leg = models.ForeignKey(VoyageLeg, on_delete=models.PROTECT)
     report_type = models.CharField(max_length=4, choices=ReportTypes.choices)
     report_num = models.PositiveIntegerField()
     report_date = models.DateTimeField()
@@ -171,8 +183,10 @@ class ReportData(BaseModel):
 class Route(ReportData):
     departure_port = models.CharField(max_length=6)  # TODO: LOCODE
     departure_date = models.DateTimeField()
+    depature_tz = models.FloatField()
     arrival_port = models.CharField(max_length=6)  # TODO: LOCODE
     arrival_date = models.DateTimeField()
+    arrival_tz = models.FloatField()
 
 
 class WeatherData(ReportData):
