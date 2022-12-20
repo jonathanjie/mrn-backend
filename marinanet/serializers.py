@@ -23,6 +23,7 @@ from marinanet.models import (
     StoppageData,
     UserProfile,
     Voyage,
+    VoyageLeg,
     WeatherData
 )
 # from marinanet.utils import parse_dm
@@ -49,7 +50,8 @@ class ShipSpecsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShipSpecs
         fields = ('flag', 'deadweight_tonnage', 'cargo_unit', 'fuel_options',
-                  'lubricating_oil_options', 'machinery_options', 'propeller_pitch')
+                  'lubricating_oil_options', 'machinery_options',
+                  'propeller_pitch')
 
 
 class ShipSerializer(serializers.ModelSerializer):
@@ -157,7 +159,8 @@ class FuelOilDataCorrectionSerializer(serializers.ModelSerializer):
 
 
 class FuelOilDataSerializer(serializers.ModelSerializer):
-    fueloildatacorrection = FuelOilDataCorrectionSerializer(required=False)
+    fueloildatacorrection = FuelOilDataCorrectionSerializer(
+        required=False, allow_null=True)
 
     class Meta:
         model = FuelOilData
@@ -174,7 +177,7 @@ class LubricatingOilDataCorrectionSerializer(serializers.ModelSerializer):
 
 class LubricatingOilDataSerializer(serializers.ModelSerializer):
     lubricatingoildatacorrection = LubricatingOilDataCorrectionSerializer(
-        required=False)
+        required=False, allow_null=True)
 
     class Meta:
         model = LubricatingOilData
@@ -203,7 +206,8 @@ class ConsumptionConditionDataSerializer(serializers.ModelSerializer):
 class NoonReportViewSerializer(serializers.ModelSerializer):
     route = RouteSerializer()
     weatherdata = WeatherDataSerializer()
-    heavyweatherdata = HeavyWeatherDataSerializer(required=False, allow_null=True)
+    heavyweatherdata = HeavyWeatherDataSerializer(
+        required=False, allow_null=True)
     distanceperformancedata = DistancePerformanceDataSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     stoppagedata = StoppageDataSerializer(required=False, allow_null=True)
@@ -265,8 +269,8 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
 
         return header
 
+
 class ArrivalStandByReportViewSerializer(serializers.ModelSerializer):
-    
     route = RouteSerializer()
     weatherdata = WeatherDataSerializer()
     heavyweatherdata = HeavyWeatherDataSerializer(required=False)

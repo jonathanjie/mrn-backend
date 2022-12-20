@@ -33,6 +33,7 @@ from marinanet.enums import (
 
 
 class BaseModel(models.Model):
+    """Base Model to be used for all subsequent models"""
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -157,13 +158,13 @@ class VoyageLeg(BaseModel):
 
 
 class ReportHeader(BaseModel):
+    """Common header for all report types"""
     voyage_leg = models.ForeignKey(VoyageLeg, on_delete=models.PROTECT)
     report_type = models.CharField(max_length=4, choices=ReportTypes.choices)
     report_num = models.PositiveIntegerField()
     report_date = models.DateTimeField()
     report_tz = models.FloatField()
     # summer_time = models.BooleanField()
-    position = models.PointField(srid=4326)
     # Note that for position, X is Longitude, Y is Latitude
     status = models.PositiveSmallIntegerField(
         choices=Status.choices, default=Status.ACTIVE)
@@ -173,6 +174,7 @@ class ReportHeader(BaseModel):
 
 
 class ReportData(BaseModel):
+    """Base model for all report data models"""
     report_header = models.OneToOneField(
         ReportHeader, on_delete=models.PROTECT, primary_key=True)
 
@@ -180,13 +182,26 @@ class ReportData(BaseModel):
         abstract = True
 
 
-class Route(ReportData):
+class TimeAndPosition(ReportData):
+    """Base model for time and position models"""
+    time = models.DateTimeField()
+    timezone = models.FloatField()
+    position = models.PointField(srid=4326)
+
+    class Meta:
+        abstract = True
+
+
+class ReportRoute(ReportData):
     departure_port = models.CharField(max_length=6)  # TODO: LOCODE
     departure_date = models.DateTimeField()
     depature_tz = models.FloatField()
     arrival_port = models.CharField(max_length=6)  # TODO: LOCODE
     arrival_date = models.DateTimeField()
     arrival_tz = models.FloatField()
+
+    class Meta:
+        db_table = "report_routes"
 
 
 class WeatherData(ReportData):
@@ -330,6 +345,7 @@ class ConsumptionConditionData(ReportData):
 
 
 class ConsumptionData(BaseModel):
+    """Base model for consumption data"""
     ccdata = models.ForeignKey(
         ConsumptionConditionData, on_delete=models.PROTECT)
 
@@ -338,6 +354,7 @@ class ConsumptionData(BaseModel):
 
 
 class ConsumptionDataCorrection(BaseModel):
+    """Base model for consumption data correction"""
     correction = models.DecimalField(max_digits=7, decimal_places=2)
     remarks = models.TextField()
 
@@ -445,7 +462,36 @@ class StoppageData(ReportData):
     class Meta:
         db_table = "stoppage_data"
 
-class PlannedOperation(BaseModel):
+
+class CargoOperation(ReportData):
+    pass
+
+
+class DepartureVesselCondition(ReportData):
+    pass
+
+
+class DeparturePilotStation(ReportData):
+    pass
+
+
+class ArrivalPilotStation(ReportData):
+    pass
+
+
+class DepartureRunUp(ReportData):
+    pass
+
+
+class DistanceAndTime(ReportData):
+    pass
+
+
+class BudgetTransOcean(ReportData):
+    pass
+
+
+class PlannedOperation(ReportData):
     planned_operation_berth = models.BooleanField()
     planned_operation_stsstb = models.BooleanField()
     planned_operation_bunkering = models.BooleanField()
@@ -457,7 +503,11 @@ class PlannedOperation(BaseModel):
     planned_operation_othersdetails = models.TextField()
 
     class Meta:
-        db_table = "planned_operation"
+        db_table = "planned_operations"
+
+
+class ActualPerformance(ReportData):
+    pass
 
 
 # ======== FOR LATER =========
