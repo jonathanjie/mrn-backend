@@ -192,6 +192,11 @@ class TimeAndPosition(ReportData):
         abstract = True
 
 
+class NoonReportTimeAndPosition(TimeAndPosition):
+    class Meta:
+        db_table = "noon_report_time_and_position"
+
+
 class ReportRoute(ReportData):
     departure_port = models.CharField(max_length=6)  # TODO: LOCODE
     departure_date = models.DateTimeField()
@@ -491,7 +496,12 @@ class BudgetTransOcean(ReportData):
     pass
 
 
-class PlannedOperation(ReportData):
+class ArrivalStandbyTimeAndPosition(TimeAndPosition):
+    class Meta:
+        db_table = "arrival_standby_time_and_position"
+
+
+class PlannedOperations(ReportData):
     planned_operation_berth = models.BooleanField()
     planned_operation_stsstb = models.BooleanField()
     planned_operation_bunkering = models.BooleanField()
@@ -500,7 +510,7 @@ class PlannedOperation(ReportData):
     planned_operation_provisions = models.BooleanField()
     planned_operation_survey = models.BooleanField()
     planned_operation_others = models.BooleanField()
-    planned_operation_othersdetails = models.TextField()
+    planned_operation_othersdetails = models.TextField(null=True)
 
     class Meta:
         db_table = "planned_operations"
@@ -508,6 +518,29 @@ class PlannedOperation(ReportData):
 
 class ActualPerformance(ReportData):
     pass
+
+
+class ArrrivalFWETimeAndPosition(TimeAndPosition):
+    class Meta:
+        db_table = "arrival_fwe_time_and_position"
+
+
+class PortOperations(ReportData):
+    waiting = models.BooleanField()
+    cargo_operation = models.BooleanField()
+    bunkering_debunkering = models.BooleanField()
+    others = models.BooleanField()
+    others_details = models.TextField(null=True)
+
+    class Meta:
+        db_table = "port_operations"
+
+
+class EventData(TimeAndPosition):
+    distance_travelled = models.PositiveSmallIntegerField()
+
+    class Meta:
+        db_table = "event_data"
 
 
 # ======== FOR LATER =========
