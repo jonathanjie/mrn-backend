@@ -5,15 +5,23 @@ from rest_framework import serializers
 # from timezone_field.rest_framework import TimeZoneSerializerField
 
 from marinanet.models import (
+    CargoOperation,
     Company,
     ConsumptionConditionData,
+    DeparturePilotStation,
+    DepartureVesselCondition,
     DistancePerformanceData,
     FreshWaterData,
+    FreshWaterTotalConsumptionData,
     FuelOilData,
     FuelOilDataCorrection,
+    FuelOilTotalConsumptionData,
+    FuelOilTotalConsumptionDataCorrection,
     HeavyWeatherData,
     LubricatingOilData,
     LubricatingOilDataCorrection,
+    LubricatingOilTotalConsumptionData,
+    LubricatingOilTotalConsumptionDataCorrection,
     NoonReportTimeAndPosition,
     ReportHeader,
     ReportRoute,
@@ -21,6 +29,7 @@ from marinanet.models import (
     ShipSpecs,
     ShipUser,
     StoppageData,
+    TotalConsumptionData,
     UserProfile,
     Voyage,
     VoyageLeg,
@@ -217,6 +226,79 @@ class ConsumptionConditionDataSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid']
 
 
+class CargoOperationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CargoOperation
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class DepartureVesselConditionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DepartureVesselCondition
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class DeparturePilotStationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeparturePilotStation
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class FuelOilTotalConsumptionDataCorrectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FuelOilTotalConsumptionDataCorrection
+        exclude = ['fuel_oil_tcdata', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class FuelOilTotalConsumptionDataSerializer(serializers.ModelSerializer):
+    fueloiltotalconsumptiondatacorrection = FuelOilTotalConsumptionDataCorrectionSerializer(
+        required=False, allow_null=True)
+
+    class Meta:
+        model = FuelOilTotalConsumptionData
+        exclude = ['tc_data', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class LubricatingOilTotalConsumptionDataCorrectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LubricatingOilTotalConsumptionDataCorrection
+        exclude = ['lubricating_oil_tcdata', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class LubricatingOilTotalConsumptionDataSerializer(serializers.ModelSerializer):
+    lubricatingoiltotalconsumptiondatacorrection = LubricatingOilTotalConsumptionDataCorrectionSerializer(
+        required=False, allow_null=True)
+
+    class Meta:
+        model = LubricatingOilTotalConsumptionData
+        exclude = ['tc_data', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class FreshWaterTotalConsumptionDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FreshWaterTotalConsumptionData
+        exclude = ['ccdata', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class TotalConsumptionDataSerializer(serializers.ModelSerializer):
+    fueloiltotalconsumptiondata_set = FuelOilTotalConsumptionDataSerializer(many=True)
+    lubricatingoiltotalconsumptiondata_set = LubricatingOilTotalConsumptionDataSerializer(many=True)
+    freshwatertotalconsumptiondata = FreshWaterTotalConsumptionDataSerializer()
+
+    class Meta:
+        model = TotalConsumptionData
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
 class NoonReportViewSerializer(serializers.ModelSerializer):
     reportroute = ReportRouteSerializer()
     noonreporttimeandposition = NoonReportTimeAndPositionSerializer()
@@ -281,6 +363,90 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
                         lubricating_oil_data=lo_data,
                         **lubricatingoildatacorrection)
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
+
+        return header
+
+
+class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
+    reportroute = ReportRouteSerializer()
+    cargooperation = CargoOperationSerializer()
+    departurevesselcondition = DepartureVesselConditionSerializer()
+    departurepilotstation = DeparturePilotStationSerializer(required=False, allow_null=True)
+    consumptionconditiondata = ConsumptionConditionDataSerializer()
+    totalconsumptiondata = TotalConsumptionDataSerializer()
+
+    class Meta:
+        model = ReportHeader
+        fields = '__all__'
+
+    def create(self, validated_data):
+        reportroute = validated_data.pop('reportroute')
+        cargooperation = validated_data.pop('cargooperation')
+        departurevesselcondition = validated_data.pop('departurevesselcondition')
+        departurepilotstation = validated_data.pop('departurepilotstation', None)
+        consumptionconditiondata = validated_data.pop('consumptionconditiondata')
+        totalconsumptiondata = validated_data.pop('totalconsumptiondata')
+
+        with transaction.atomic():
+            header = ReportHeader.objects.create(**validated_data)
+            ReportRoute.objects.create(report_header=header, **reportroute)
+            CargoOperation.objects.create(report_header=header, **cargooperation)
+            DepartureVesselCondition.objects.create(report_header=header, **departurevesselcondition)
+            if departurepilotstation:
+                DeparturePilotStation.objects.create(report_header=header, **departurepilotstation)
+
+            fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+            lubricatingoildata_set = consumptionconditiondata.pop(
+                'lubricatingoildata_set')
+            freshwaterdata = consumptionconditiondata.pop(
+                'freshwaterdata')
+            ccdata = ConsumptionConditionData.objects.create(
+                report_header=header, **consumptionconditiondata)
+            for fueloildata in fueloildata_set:
+                fueloildatacorrection = fueloildata.pop(
+                    'fueloildatacorrection', None)
+                fo_data = FuelOilData.objects.create(
+                    ccdata=ccdata, **fueloildata)
+                if fueloildatacorrection:
+                    FuelOilDataCorrection.objects.create(
+                        fuel_oil_data=fo_data, **fueloildatacorrection)
+            for lubricatingoildata in lubricatingoildata_set:
+                lubricatingoildatacorrection = lubricatingoildata.pop(
+                    'lubricatingoildatacorrection', None)
+                lo_data = LubricatingOilData.objects.create(
+                    ccdata=ccdata, **lubricatingoildata)
+                if lubricatingoildatacorrection:
+                    LubricatingOilDataCorrection.objects.create(
+                        lubricating_oil_data=lo_data,
+                        **lubricatingoildatacorrection)
+            FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
+
+            fueloiltotalconsumptiondata_set = totalconsumptiondata.pop('fueloiltotalconsumptiondata_set')
+            lubricatingoiltotalconsumptiondata_set = totalconsumptiondata.pop(
+                'lubricatingoiltotalconsumptiondata_set')
+            freshwatertotalconsumptiondata = totalconsumptiondata.pop(
+                'freshwatertotalconsumptiondata')
+
+            tcdata = TotalConsumptionData.objects.create(
+                report_header=header, **totalconsumptiondata)
+            for fueloiltotalconsumptiondata in fueloiltotalconsumptiondata_set:
+                fueloiltotalconsumptiondatacorrection = fueloiltotalconsumptiondata.pop(
+                    'fueloiltotalconsumptiondatacorrection', None)
+                fo_tcdata = FuelOilTotalConsumptionData.objects.create(
+                    tc_data=tcdata, **fueloiltotalconsumptiondata)
+                if fueloiltotalconsumptiondatacorrection:
+                    FuelOilTotalConsumptionDataCorrection.objects.create(
+                        fuel_oil_tcdata=fo_tcdata, **fueloiltotalconsumptiondatacorrection)
+            for lubricatingoiltotalconsumptiondata in lubricatingoiltotalconsumptiondata_set:
+                lubricatingoiltotalconsumptiondatacorrection = lubricatingoiltotalconsumptiondata.pop(
+                    'lubricatingoiltotalconsumptiondatacorrection', None)
+                lo_tcdata = LubricatingOilTotalConsumptionData.objects.create(
+                    tc_data=tcdata, **lubricatingoiltotalconsumptiondata)
+                if lubricatingoiltotalconsumptiondatacorrection:
+                    LubricatingOilTotalConsumptionDataCorrection.objects.create(
+                        lubricating_oil_tcdata=lo_tcdata,
+                        **lubricatingoiltotalconsumptiondatacorrection)
+            FreshWaterTotalConsumptionData.objects.create(ccdata=tcdata, **freshwatertotalconsumptiondata)
 
         return header
 

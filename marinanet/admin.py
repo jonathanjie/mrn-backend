@@ -16,6 +16,7 @@ from marinanet.models import (
     DistanceTimeData,
     EventData,
     FreshWaterData,
+    FreshWaterTotalConsumptionData,
     FuelOilData,
     FuelOilDataCorrection,
     FuelOilTotalConsumptionData,
@@ -89,6 +90,7 @@ admin.site.register(FuelOilTotalConsumptionData)
 admin.site.register(FuelOilTotalConsumptionDataCorrection)
 admin.site.register(LubricatingOilTotalConsumptionData)
 admin.site.register(LubricatingOilTotalConsumptionDataCorrection)
+admin.site.register(FreshWaterTotalConsumptionData)
 admin.site.register(ArrrivalFWETimeAndPosition)
 admin.site.register(PortOperations)
 admin.site.register(EventData)

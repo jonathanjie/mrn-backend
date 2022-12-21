@@ -648,7 +648,7 @@ class TotalConsumptionData(ReportDataBaseModel):
 
 class TotalConsumptionDataBaseModel(BaseModel):
     """Base model for consumption data"""
-    tc_data = models.ForeignKey(TotalConsumptionData, on_delete=models.PROTECT)
+    tcdata = models.ForeignKey(TotalConsumptionData, on_delete=models.PROTECT)
 
     class Meta:
         abstract = True
@@ -727,6 +727,19 @@ class LubricatingOilTotalConsumptionDataCorrection(ConsumptionDataCorrectionBase
 
     class Meta:
         db_table = "lubricating_oil_total_consumption_data_corrections"
+
+
+class FreshWaterTotalConsumptionData(BaseModel):
+    tcdata = models.OneToOneField(
+        TotalConsumptionData, on_delete=models.PROTECT, primary_key=True)
+    consumed = models.PositiveIntegerField()
+    evaporated = models.PositiveIntegerField()
+    received = models.PositiveIntegerField()
+    discharged = models.PositiveIntegerField()
+    rob = models.PositiveIntegerField()
+
+    class Meta:
+        db_table = "fresh_water_total_consumption_data"
 
 
 class ArrrivalFWETimeAndPosition(TimeAndPositionBaseModel):
