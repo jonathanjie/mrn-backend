@@ -120,13 +120,29 @@ class ReportHeaderSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid', 'created_at', 'modified_at']
 
 
+# class VoyageReportsSerializer(serializers.ModelSerializer):
+#     reports = ReportHeaderSerializer(source='reportheader_set', many=True)
+
+#     class Meta:
+#         model = Voyage
+#         fields = ['uuid', 'ship', 'voyage_num', 'reports']
+#         read_only_fields = ['uuid', 'ship']
+
 class VoyageReportsSerializer(serializers.ModelSerializer):
-    reports = ReportHeaderSerializer(source='reportheader_set', many=True)
+    reports = serializers.SerializerMethodField()
 
     class Meta:
         model = Voyage
         fields = ['uuid', 'ship', 'voyage_num', 'reports']
         read_only_fields = ['uuid', 'ship']
+
+    def get_reports(self, obj):
+        voyage_legs = obj.voyageleg_set.all()
+        report_headers = []
+        for voyage_leg in voyage_legs:
+            report_headers.extend(voyage_leg.reportheader_set.all())
+        serializer = ReportHeaderSerializer(report_headers, many=True)
+        return serializer.data
 
 
 class NoonReportTimeAndPositionSerializer(serializers.ModelSerializer):
@@ -321,8 +337,10 @@ class FreshWaterTotalConsumptionDataSerializer(serializers.ModelSerializer):
 
 
 class TotalConsumptionDataSerializer(serializers.ModelSerializer):
-    fueloiltotalconsumptiondata_set = FuelOilTotalConsumptionDataSerializer(many=True)
-    lubricatingoiltotalconsumptiondata_set = LubricatingOilTotalConsumptionDataSerializer(many=True)
+    fueloiltotalconsumptiondata_set = FuelOilTotalConsumptionDataSerializer(
+        many=True)
+    lubricatingoiltotalconsumptiondata_set = LubricatingOilTotalConsumptionDataSerializer(
+        many=True)
     freshwatertotalconsumptiondata = FreshWaterTotalConsumptionDataSerializer()
 
     class Meta:
@@ -347,7 +365,8 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         reportroute = validated_data.pop('reportroute')
-        noonreporttimeandposition = validated_data.pop('noonreporttimeandposition')
+        noonreporttimeandposition = validated_data.pop(
+            'noonreporttimeandposition')
         weatherdata = validated_data.pop('weatherdata')
         heavyweatherdata = validated_data.pop('heavyweatherdata', None)
         distanceperformancedata = validated_data.pop('distanceperformancedata')
@@ -358,7 +377,8 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
             ReportRoute.objects.create(report_header=header, **reportroute)
-            NoonReportTimeAndPosition.objects.create(report_header=header, **noonreporttimeandposition)
+            NoonReportTimeAndPosition.objects.create(
+                report_header=header, **noonreporttimeandposition)
             WeatherData.objects.create(report_header=header, **weatherdata)
             if heavyweatherdata:
                 HeavyWeatherData.objects.create(
@@ -403,7 +423,8 @@ class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
     reportroute = ReportRouteSerializer()
     cargooperation = CargoOperationSerializer()
     departurevesselcondition = DepartureVesselConditionSerializer()
-    departurepilotstation = DeparturePilotStationSerializer(required=False, allow_null=True)
+    departurepilotstation = DeparturePilotStationSerializer(
+        required=False, allow_null=True)
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     totalconsumptiondata = TotalConsumptionDataSerializer()
 
@@ -414,18 +435,24 @@ class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         reportroute = validated_data.pop('reportroute')
         cargooperation = validated_data.pop('cargooperation')
-        departurevesselcondition = validated_data.pop('departurevesselcondition')
-        departurepilotstation = validated_data.pop('departurepilotstation', None)
-        consumptionconditiondata = validated_data.pop('consumptionconditiondata')
+        departurevesselcondition = validated_data.pop(
+            'departurevesselcondition')
+        departurepilotstation = validated_data.pop(
+            'departurepilotstation', None)
+        consumptionconditiondata = validated_data.pop(
+            'consumptionconditiondata')
         totalconsumptiondata = validated_data.pop('totalconsumptiondata')
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
             ReportRoute.objects.create(report_header=header, **reportroute)
-            CargoOperation.objects.create(report_header=header, **cargooperation)
-            DepartureVesselCondition.objects.create(report_header=header, **departurevesselcondition)
+            CargoOperation.objects.create(
+                report_header=header, **cargooperation)
+            DepartureVesselCondition.objects.create(
+                report_header=header, **departurevesselcondition)
             if departurepilotstation:
-                DeparturePilotStation.objects.create(report_header=header, **departurepilotstation)
+                DeparturePilotStation.objects.create(
+                    report_header=header, **departurepilotstation)
 
             fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
             lubricatingoildata_set = consumptionconditiondata.pop(
@@ -453,7 +480,8 @@ class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
                         **lubricatingoildatacorrection)
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
 
-            fueloiltotalconsumptiondata_set = totalconsumptiondata.pop('fueloiltotalconsumptiondata_set')
+            fueloiltotalconsumptiondata_set = totalconsumptiondata.pop(
+                'fueloiltotalconsumptiondata_set')
             lubricatingoiltotalconsumptiondata_set = totalconsumptiondata.pop(
                 'lubricatingoiltotalconsumptiondata_set')
             freshwatertotalconsumptiondata = totalconsumptiondata.pop(
@@ -478,14 +506,16 @@ class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
                     LubricatingOilTotalConsumptionDataCorrection.objects.create(
                         lubricating_oil_tcdata=lo_tcdata,
                         **lubricatingoiltotalconsumptiondatacorrection)
-            FreshWaterTotalConsumptionData.objects.create(tcdata=tcdata, **freshwatertotalconsumptiondata)
+            FreshWaterTotalConsumptionData.objects.create(
+                tcdata=tcdata, **freshwatertotalconsumptiondata)
 
         return header
 
 
 class DepartureCOSPReportViewSerializer(serializers.ModelSerializer):
     reportroute = ReportRouteSerializer()
-    departurepilotstation = DeparturePilotStationSerializer(required=False, allow_null=True)
+    departurepilotstation = DeparturePilotStationSerializer(
+        required=False, allow_null=True)
     arrivalpilotstation = ArrivalPilotStationSerializer()
     departurerunup = DepartureRunUpSerializer()
     distancetimedata = DistanceTimeDataSerializer()
@@ -498,22 +528,29 @@ class DepartureCOSPReportViewSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         reportroute = validated_data.pop('reportroute')
-        departurepilotstation = validated_data.pop('departurepilotstation', None)
+        departurepilotstation = validated_data.pop(
+            'departurepilotstation', None)
         arrivalpilotstation = validated_data.pop('arrivalpilotstation')
         departurerunup = validated_data.pop('departurerunup')
         distancetimedata = validated_data.pop('distancetimedata')
         transoceanicbudget = validated_data.pop('transoceanicbudget')
-        consumptionconditiondata = validated_data.pop('consumptionconditiondata')
+        consumptionconditiondata = validated_data.pop(
+            'consumptionconditiondata')
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
             ReportRoute.objects.create(report_header=header, **reportroute)
             if departurepilotstation:
-                DeparturePilotStation.objects.create(report_header=header, **departurepilotstation)
-            ArrivalPilotStation.objects.create(report_header=header, **arrivalpilotstation)
-            DepartureRunUp.objects.create(report_header=header, **departurerunup)
-            DistanceTimeData.objects.create(report_header=header, **distancetimedata)
-            TransoceanicBudget.objects.create(report_header=header, **transoceanicbudget)
+                DeparturePilotStation.objects.create(
+                    report_header=header, **departurepilotstation)
+            ArrivalPilotStation.objects.create(
+                report_header=header, **arrivalpilotstation)
+            DepartureRunUp.objects.create(
+                report_header=header, **departurerunup)
+            DistanceTimeData.objects.create(
+                report_header=header, **distancetimedata)
+            TransoceanicBudget.objects.create(
+                report_header=header, **transoceanicbudget)
 
             fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
             lubricatingoildata_set = consumptionconditiondata.pop(
