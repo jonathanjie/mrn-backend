@@ -16,7 +16,7 @@ from marinanet.models import (
     LubricatingOilData,
     LubricatingOilDataCorrection,
     ReportHeader,
-    Route,
+    ReportRoute,
     Ship,
     ShipSpecs,
     ShipUser,
@@ -85,7 +85,6 @@ class VoyageSerializer(serializers.ModelSerializer):
 
 class ReportHeaderSerializer(serializers.ModelSerializer):
     report_tz = TimeZoneSerializerField()
-    route = RouteSerializer(allow_null=True)
     # latitude = serializers.CharField(max_length=10)
     # longitude = serializers.CharField(max_length=10)
 
@@ -109,18 +108,18 @@ class VoyageReportsSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid', 'ship']
 
 
-class RouteSerializer(serializers.ModelSerializer):
+class ReportRouteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Route
+        model = ReportRoute
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
 
 
-class DistinctRoutesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Route
-        fields = ['departure_port', 'arrival_port',
-                  'departure_date', 'arrival_date']
+# class DistinctReportRoutesSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ReportRoute
+#         fields = ['departure_port', 'arrival_port',
+#                   'departure_date', 'arrival_date']
 
 
 class WeatherDataSerializer(serializers.ModelSerializer):
@@ -204,7 +203,7 @@ class ConsumptionConditionDataSerializer(serializers.ModelSerializer):
 
 
 class NoonReportViewSerializer(serializers.ModelSerializer):
-    route = RouteSerializer()
+    route = ReportRouteSerializer()
     weatherdata = WeatherDataSerializer()
     heavyweatherdata = HeavyWeatherDataSerializer(
         required=False, allow_null=True)
@@ -229,7 +228,7 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            Route.objects.create(report_header=header, **route)
+            ReportRoute.objects.create(report_header=header, **route)
             WeatherData.objects.create(report_header=header, **weather_data)
             if heavyweatherdata:
                 HeavyWeatherData.objects.create(
@@ -271,7 +270,7 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
 
 
 class ArrivalStandByReportViewSerializer(serializers.ModelSerializer):
-    route = RouteSerializer()
+    route = ReportRouteSerializer()
     weatherdata = WeatherDataSerializer()
     heavyweatherdata = HeavyWeatherDataSerializer(required=False)
     distanceperformancedata = DistancePerformanceDataSerializer()
@@ -295,7 +294,7 @@ class ArrivalStandByReportViewSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            Route.objects.create(report_header=header, **route)
+            ReportRoute.objects.create(report_header=header, **route)
             WeatherData.objects.create(report_header=header, **weather_data)
             if heavyweatherdata:
                 HeavyWeatherData.objects.create(

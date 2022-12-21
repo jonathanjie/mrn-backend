@@ -13,7 +13,7 @@ from marinanet.models import (
     LubricatingOilData,
     LubricatingOilDataCorrection,
     ReportHeader,
-    Route,
+    ReportRoute,
     Ship,
     ShipSpecs,
     ShipUser,
@@ -42,7 +42,7 @@ admin.site.register(ShipUser)
 # Report Models
 admin.site.register(Voyage)
 admin.site.register(ReportHeader)
-admin.site.register(Route)
+admin.site.register(ReportRoute)
 admin.site.register(WeatherData)
 admin.site.register(HeavyWeatherData)
 admin.site.register(DistancePerformanceData)

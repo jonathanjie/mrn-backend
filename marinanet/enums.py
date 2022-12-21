@@ -12,7 +12,7 @@ class ShipAccessPrivilege(models.IntegerChoices):
     WRITE = 1, _("Read and Write access")
 
 
-class ShipTypes(models.TextChoices):
+class ShipType(models.TextChoices):
     CONTAINER = "CNTR", _("Container Ship")
     BULK_CARRIER = "BULK", _("Bulk Carrier")
     OIL_TANKER = "OIL", _("Oil Tanker")
@@ -27,7 +27,7 @@ class ShipTypes(models.TextChoices):
     CRUISE_PASSENGER_SHIP = "CRUZ", _("Cruise Passenger Ship")
 
 
-class ReportTypes(models.TextChoices):
+class ReportType(models.TextChoices):
     NOON = "NOON", _("Noon at Sea")
     DEP_SBY = "DSBY", _("Departure: Standby")
     DEP_COSP = "DCSP", _("Departure: COSP")
@@ -37,11 +37,11 @@ class ReportTypes(models.TextChoices):
     EVENT = "EVNT", _("Event in Harbour")
 
 
-class CargoPresence(models.TextChoices):
-    BALLAST = "BALL", _("Ballast")
-    LADEN = "LADN", _("Laden")
-    EASTBOUND = "EAST", _("Eastbound")
-    WESTBOUND = "WEST", _("Westbound")
+class LoadCondition(models.TextChoices):
+    BALLAST = "BALLAST", _("Ballast")
+    LADEN = "LADEN", _("Laden")
+    EASTBOUND = "EASTBOUND", _("Eastbound")
+    WESTBOUND = "WESTBOUND", _("Westbound")
 
 
 class Cardinal_4(models.TextChoices):
@@ -102,20 +102,20 @@ class Weather(models.TextChoices):
     HAZE = "Z", _("Haze")
 
 
-class BeaufortScale(models.IntegerChoices):
-    CALM = 0, _("Calm")
-    LIGHT_AIR = 1, _("Light air")
-    LIGHT_BREEZE = 2, _("Light breeze")
-    GENTLE_BREEZE = 3, _("Gentle breeze")
-    MODERATE_BREEZE = 4, ("Moderate breeze")
-    FRESH_BREEZE = 5, _("Fresh breeze")
-    STRONG_BREEZE = 6, _("Strong breeze")
-    NEAR_GALE = 7, _("Near gale")
-    GALE = 8, _("Gale")
-    STRONG_GALE = 9, _("Strong gale")
-    STORM = 10, _("Storm")
-    VIOLENT_STORM = 11, _("Violent storm")
-    HURRICANE = 12, _("Hurricane")
+# class BeaufortScale(models.IntegerChoices):
+#     CALM = 0, _("Calm")
+#     LIGHT_AIR = 1, _("Light air")
+#     LIGHT_BREEZE = 2, _("Light breeze")
+#     GENTLE_BREEZE = 3, _("Gentle breeze")
+#     MODERATE_BREEZE = 4, ("Moderate breeze")
+#     FRESH_BREEZE = 5, _("Fresh breeze")
+#     STRONG_BREEZE = 6, _("Strong breeze")
+#     NEAR_GALE = 7, _("Near gale")
+#     GALE = 8, _("Gale")
+#     STRONG_GALE = 9, _("Strong gale")
+#     STORM = 10, _("Storm")
+#     VIOLENT_STORM = 11, _("Violent storm")
+#     HURRICANE = 12, _("Hurricane")
 
 
 class DouglasScale(models.IntegerChoices):
@@ -144,14 +144,22 @@ class SwellScale(models.IntegerChoices):
     CONFUSED_SWELL = 9, ("Confused Swell")
 
 
+class GlacierIceCondition(models.TextChoices):
+    NONE = "NONE", _("NONE")
+    LOW = "LOW", _("LOW")
+    MODERATE = "MOD", _("MODERATE")
+    HIGH = "HIGH", _("HIGH")
+    EXTENSIVE = "EXT", _("EXTENSIVE")
+
+
 class ConsumptionType(models.TextChoices):
-    NOON_TO_NOON = "NTON", _("Noon to Noon")
-    LAST_TO_SBY = "LTOS", _("Last Report to Standby")
-    IN_HARBOUR_PORT = "INHP", _("In Harbour / In Port")
-    STANDBY_TO_RUNUP = "STOR", _("Standby to Run Up")
-    NOON_TO_STANDBY = "NTOS", _("Noon to Standby")
-    STANDBY_TO_FWE = "STOF", _("Standby to FWE")
-    LAST_TO_EVENT = "LTOE", _("Last Report to Event")
+    NOON_TO_NOON = "NOON_TO_NOON", _("Noon to Noon")
+    LAST_TO_SBY = "LAST_TO_STANDBY", _("Last Report to Standby")
+    IN_HARBOUR_PORT = "IN_HARBOUR_PORT", _("In Harbour / In Port")
+    STANDBY_TO_RUNUP = "STANDBY_TO_RUNUP", _("Standby to Run Up")
+    NOON_TO_STANDBY = "NOON_TO_STANDBY", _("Noon to Standby")
+    STANDBY_TO_FWE = "STANDBY_TO_FWE", _("Standby to FWE")
+    LAST_TO_EVENT = "LAST_TO_EVENT", _("Last Report to Event")
 
 
 class FuelType(models.TextChoices):
@@ -166,9 +174,25 @@ class FuelType(models.TextChoices):
     LNG = "LNG", _("LNG")
 
 
-class GlacierIceCondition(models.TextChoices):
-    NONE = "NONE", _("NONE")
-    LOW = "LOW", _("LOW")
-    MODERATE = "MOD", _("MODERATE")
-    HIGH = "HIGH", _("HIGH")
-    EXTENSIVE = "EXT", _("EXTENSIVE")
+class TotalConsumptionType(models.TextChoices):
+    IN_HARBOUR_PORT = "IN_HARBOUR_PORT", _("In Harbour / In Port")
+    PILOT_TO_PILOT = "PILOT_TO_PILOT", _("Pilot to Pilot")
+    PORT_TO_PORT = "PORT_TO_PORT", _("Port to Port")
+
+
+class ActualPerformanceType(models.TextChoices):
+    PILOT_TO_PILOT = "PILOT_TO_PILOT", _("Pilot to Pilot")
+    PORT_TO_PORT = "PORT_TO_PORT", _("Port to Port")
+
+
+class ParkingStatus(models.TextChoices):
+    ANCHOR_START_OUTSIDE = "ANCHOR_START_OUTSIDE", _("Anchoring Start (Outside Port Limit)")
+    ANCHOR_END_OUTSIDE = "ANCHOR_END_OUTSIDE", _("Anchoring End (Outside Port Limit)")
+    ANCHOR_START_INSIDE = "ANCHOR_START_INSIDE", _("Anchoring Start (Inside Port Limit) ")
+    ANCHOR_END_INSIDE = "ANCHOR_END_INSIDE", _("Anchoring End (Inside Port Limit)")
+    DRIFTING_START = "DRIFTING_START", _("Drifting Start")
+    DRIFTING_END = "DRIFTING_END", _("Drifting End")
+    SHIFTING_START = "SHIFTING_START", _("Shifting Start")
+    SHIFTING_END = "SHIFTING_END", _("Shifting End")
+    BERTHING = "BERTHING", _("Berthing")
+    DRY_DOCKING = "DRY_DOCKING", _("Dry Docking")

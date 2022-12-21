@@ -15,19 +15,21 @@ from django.forms import ModelForm
 
 from auth0.models import User
 from marinanet.enums import (
-    BeaufortScale,
+    ActualPerformanceType,
     Cardinal_8,
     Cardinal_16,
-    CargoPresence,
     ConsumptionType,
     DouglasScale,
     FuelType,
     GlacierIceCondition,
-    ReportTypes,
+    LoadCondition,
+    ParkingStatus,
+    ReportType,
     ShipAccessPrivilege,
-    ShipTypes,
+    ShipType,
     Status,
     SwellScale,
+    TotalConsumptionType,
     Weather,
 )
 
@@ -79,7 +81,7 @@ class Ship(BaseModel):
     name = models.CharField(max_length=255)
     imo_reg = models.PositiveIntegerField()     # 7 digits
     company = models.ForeignKey(Company, on_delete=models.PROTECT)
-    ship_type = models.CharField(max_length=4, choices=ShipTypes.choices)
+    ship_type = models.CharField(max_length=4, choices=ShipType.choices)
     assigned_users = models.ManyToManyField(
         User,
         through='ShipUser',
@@ -160,7 +162,7 @@ class VoyageLeg(BaseModel):
 class ReportHeader(BaseModel):
     """Common header for all report types"""
     voyage_leg = models.ForeignKey(VoyageLeg, on_delete=models.PROTECT)
-    report_type = models.CharField(max_length=4, choices=ReportTypes.choices)
+    report_type = models.CharField(max_length=4, choices=ReportType.choices)
     report_num = models.PositiveIntegerField()
     report_date = models.DateTimeField()
     report_tz = models.FloatField()
@@ -232,13 +234,6 @@ class WeatherData(ReportData):
         max_length=4,
         choices=GlacierIceCondition.choices,
         default=GlacierIceCondition.NONE)
-    # wind_direction = models.DecimalField(
-    #     max_digits=4,
-    #     decimal_places=1,
-    #     validators=[
-    #         MinValueValidator(Decimal("0.0")),
-    #         MaxValueValidator(Decimal("360"))])
-    # beaufort = models.PositiveSmallIntegerField(choices=BeaufortScale.choices)
 
     class Meta:
         db_table = "weather_data"
@@ -266,11 +261,6 @@ class HeavyWeatherData(ReportData):
     sea_direction = models.CharField(
         max_length=2, choices=Cardinal_8.choices)
     sea_state = models.PositiveSmallIntegerField(choices=DouglasScale.choices)
-    # max_wave_height = models.DecimalField(
-    #     max_digits=3,
-    #     decimal_places=1,
-    #     validators=[
-    #         MinValueValidator(Decimal("0.0"))])
     remarks = models.TextField()
 
     class Meta:
@@ -292,20 +282,20 @@ class DistancePerformanceData(ReportData):
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    remarks_for_changes = models.TextField()
-    distance_obs_since_noon = models.DecimalField(
+    remarks_for_changes = models.TextField(null=True)
+    distance_observed_since_noon = models.DecimalField(
         max_digits=3,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    distance_obs_total = models.DecimalField(
+    distance_observed_total = models.DecimalField(
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    distance_eng_since_noon = models.DecimalField(
+    distance_engine_since_noon = models.DecimalField(
         max_digits=3,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    distance_eng_total = models.DecimalField(
+    distance_engine_total = models.DecimalField(
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
@@ -323,15 +313,15 @@ class DistancePerformanceData(ReportData):
         max_digits=4,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
-    speed_avg = models.DecimalField(
+    speed_average = models.DecimalField(
         max_digits=4,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
-    rpm_avg = models.DecimalField(
+    rpm_average = models.DecimalField(
         max_digits=4,
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))])
-    slip_avg = models.DecimalField(
+    slip_average = models.DecimalField(
         max_digits=4,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
@@ -342,7 +332,7 @@ class DistancePerformanceData(ReportData):
 
 class ConsumptionConditionData(ReportData):
     consumption_type = models.CharField(
-        max_length=4, choices=ConsumptionType.choices)
+        max_length=16, choices=ConsumptionType.choices)
 
     class Meta:
         db_table = "consumption_conduiion_data"
@@ -469,31 +459,128 @@ class StoppageData(ReportData):
 
 
 class CargoOperation(ReportData):
-    pass
+    load_condition = models.CharField(
+        max_length=16,
+        choices=LoadCondition.choices)
+    loading = models.PositiveIntegerField()
+    unloading = models.PositiveIntegerField()
+    total = models.PositiveIntegerField()
+    time = models.PositiveSmallIntegerField()
+
+    class Meta:
+        db_table = "cargo_operations"
 
 
 class DepartureVesselCondition(ReportData):
-    pass
+    draft_fwd = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    draft_mid = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    draft_aft = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    constant = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    gm = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    ballast = models.DecimalField(
+        max_digits=7,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    displacement = models.DecimalField(
+        max_digits=7,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))])
 
 
-class DeparturePilotStation(ReportData):
-    pass
+class PilotStation(ReportData):
+    """Base model for pilot stations"""
+    name = models.CharField(max_length=255)
+    date = models.DateTimeField()
+    position = models.PointField(srid=4326)
+
+    class Meta:
+        abstract = True
 
 
-class ArrivalPilotStation(ReportData):
-    pass
+class DeparturePilotStation(PilotStation):
+    class Meta:
+        db_table = "departure_pilot_stations"
 
 
-class DepartureRunUp(ReportData):
-    pass
+class ArrivalPilotStation(PilotStation):
+    draft_fwd = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    draft_mid = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    draft_aft = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+
+    class Meta:
+        db_table = "arrival_pilot_stations"
 
 
-class DistanceAndTime(ReportData):
-    pass
+class DepartureRunUp(TimeAndPosition):
+    class Meta:
+        db_table = "departure_runups"
 
 
-class BudgetTransOcean(ReportData):
-    pass
+class DistanceTimeData(ReportData):
+    time = models.PositiveSmallIntegerField()
+    distance_obs = models.DecimalField(
+        max_digits=3,
+        decimal_places=0,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    distance_eng = models.DecimalField(
+        max_digits=3,
+        decimal_places=0,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    revolution_count = models.IntegerField(
+        validators=[MinValueValidator(0)])
+    set_rpm = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))])
+
+    class Meta:
+        db_table = "distance_time_data"
+
+
+class TransoceanicBudget(ReportData):
+    distance_to_go = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    speed = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    me_daily_fo_consumption = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    me_rpm = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))])
+
+    class Meta:
+        db_table = "transoceanic_budgets"
 
 
 class ArrivalStandbyTimeAndPosition(TimeAndPosition):
@@ -516,11 +603,130 @@ class PlannedOperations(ReportData):
         db_table = "planned_operations"
 
 
-class ActualPerformance(ReportData):
-    pass
+class ActualPerformanceData(ReportData):
+    actual_performance_type = models.CharField(
+        max_length=16,
+        choices=ActualPerformanceType.choices)
+    distance_obs_total = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    sailing_time = models.PositiveIntegerField()
+    displacement = models.DecimalField(
+        max_digits=7,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    speed_average = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    rpm_average = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    me_average_daily_fo_consumption = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+
+
+class TotalConsumptionData(ReportData):
+    consumption_type = models.CharField(
+        max_length=16,
+        choices=TotalConsumptionType.choices)
+
+    class Meta:
+        db_table = "total_consumption_data"
+
+
+class TotalConsumptionData(BaseModel):
+    """Base model for consumption data"""
+    tc_data = models.ForeignKey(TotalConsumptionData, on_delete=models.PROTECT)
+
+    class Meta:
+        abstract = True
+
+
+class FuelOilTotalConsumptionData(TotalConsumptionData):
+    fuel_oil_type = models.CharField(max_length=4, choices=FuelType.choices)
+    total_consumption = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    receipt = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        default=0.0)
+    debunkering = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        default=0.0)
+    rob = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    breakdown = models.JSONField()
+
+    class Meta:
+        db_table = "fuel_oil_total_consumption_data"
+
+
+class FuelOilTotalConsumptionDataCorrection(ConsumptionDataCorrection):
+    fuel_oil_tcdata = models.OneToOneField(
+        FuelOilTotalConsumptionData,
+        on_delete=models.PROTECT,
+        primary_key=True)
+
+    class Meta:
+        db_table = "fuel_oil_total_consumption_data_corrections"
+
+
+class LubricatingOilTotalConsumptionData(TotalConsumptionData):
+    fuel_oil_type = models.CharField(max_length=64)
+    total_consumption = models.DecimalField(
+        blank=True,
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    receipt = models.DecimalField(
+        blank=True,
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        default=0.0)
+    debunkering = models.DecimalField(
+        blank=True,
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        default=0.0)
+    rob = models.DecimalField(
+        blank=True,
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+
+    class Meta:
+        db_table = "lubricating_oil_total_consumption_data"
+
+
+class LubricatingOilTotalConsumptionDataCorrection(ConsumptionDataCorrection):
+    lubricating_oil_tcdata = models.OneToOneField(
+        LubricatingOilTotalConsumptionData,
+        on_delete=models.PROTECT,
+        primary_key=True)
+
+    class Meta:
+        db_table = "lubricating_oil_total_consumption_data_corrections"
 
 
 class ArrrivalFWETimeAndPosition(TimeAndPosition):
+    parking_status = models.CharField(
+        max_length=32,
+        choices=ParkingStatus.choices)
+
     class Meta:
         db_table = "arrival_fwe_time_and_position"
 
@@ -538,6 +744,9 @@ class PortOperations(ReportData):
 
 class EventData(TimeAndPosition):
     distance_travelled = models.PositiveSmallIntegerField()
+    parking_status = models.CharField(
+        max_length=32,
+        choices=ParkingStatus.choices)
 
     class Meta:
         db_table = "event_data"
