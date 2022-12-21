@@ -28,6 +28,7 @@ from marinanet.enums import (
     ShipAccessPrivilege,
     ShipType,
     Status,
+    StoppageReason,
     SwellScale,
     TotalConsumptionType,
     Weather,
@@ -451,7 +452,7 @@ class StoppageData(ReportData):
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))])
     position = models.PointField(srid=4326)
-    reason = models.CharField(max_length=4)
+    reason = models.CharField(max_length=16, choices=StoppageReason.choices)
     remarks = models.TextField()
 
     class Meta:
@@ -589,14 +590,14 @@ class ArrivalStandbyTimeAndPosition(TimeAndPosition):
 
 
 class PlannedOperations(ReportData):
-    planned_operation_berth = models.BooleanField()
-    planned_operation_stsstb = models.BooleanField()
-    planned_operation_bunkering = models.BooleanField()
-    planned_operation_drydocking = models.BooleanField()
-    planned_operation_crewchange = models.BooleanField()
-    planned_operation_provisions = models.BooleanField()
-    planned_operation_survey = models.BooleanField()
-    planned_operation_others = models.BooleanField()
+    cargo_operation_berth = models.BooleanField()
+    cargo_operation_stsstb = models.BooleanField()
+    bunkering_debunkering = models.BooleanField()
+    dry_docking = models.BooleanField()
+    crew_change = models.BooleanField()
+    receiving_provisions_spares = models.BooleanField()
+    surveying = models.BooleanField()
+    others = models.BooleanField()
     planned_operation_othersdetails = models.TextField(null=True)
 
     class Meta:

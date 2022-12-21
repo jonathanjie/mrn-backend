@@ -174,6 +174,15 @@ class FuelType(models.TextChoices):
     LNG = "LNG", _("LNG")
 
 
+class StoppageReason(models.TextChoices):
+    ENGINE_PROBLEM = "ENGINE_PROBLEM", _("Engine Problem")
+    ACCIDENT = "ACCIDENT", _("Accident")
+    COLLISION = "COLLISION", _("Collision")
+    GROUNDING = "GROUNDING", _("Grounding")
+    OIL_SPILL = "OIL_SPILL", _("Oil Spill")
+    OTHER = "OTHER", _("Other")
+
+
 class TotalConsumptionType(models.TextChoices):
     IN_HARBOUR_PORT = "IN_HARBOUR_PORT", _("In Harbour / In Port")
     PILOT_TO_PILOT = "PILOT_TO_PILOT", _("Pilot to Pilot")
