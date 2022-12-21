@@ -260,7 +260,7 @@ class FuelOilTotalConsumptionDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FuelOilTotalConsumptionData
-        exclude = ['tc_data', 'created_at', 'modified_at']
+        exclude = ['tcdata', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
 
 
@@ -277,14 +277,14 @@ class LubricatingOilTotalConsumptionDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LubricatingOilTotalConsumptionData
-        exclude = ['tc_data', 'created_at', 'modified_at']
+        exclude = ['tcdata', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
 
 
 class FreshWaterTotalConsumptionDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = FreshWaterTotalConsumptionData
-        exclude = ['ccdata', 'created_at', 'modified_at']
+        exclude = ['tcdata', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
 
 
@@ -433,7 +433,7 @@ class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
                 fueloiltotalconsumptiondatacorrection = fueloiltotalconsumptiondata.pop(
                     'fueloiltotalconsumptiondatacorrection', None)
                 fo_tcdata = FuelOilTotalConsumptionData.objects.create(
-                    tc_data=tcdata, **fueloiltotalconsumptiondata)
+                    tcdata=tcdata, **fueloiltotalconsumptiondata)
                 if fueloiltotalconsumptiondatacorrection:
                     FuelOilTotalConsumptionDataCorrection.objects.create(
                         fuel_oil_tcdata=fo_tcdata, **fueloiltotalconsumptiondatacorrection)
@@ -441,12 +441,12 @@ class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
                 lubricatingoiltotalconsumptiondatacorrection = lubricatingoiltotalconsumptiondata.pop(
                     'lubricatingoiltotalconsumptiondatacorrection', None)
                 lo_tcdata = LubricatingOilTotalConsumptionData.objects.create(
-                    tc_data=tcdata, **lubricatingoiltotalconsumptiondata)
+                    tcdata=tcdata, **lubricatingoiltotalconsumptiondata)
                 if lubricatingoiltotalconsumptiondatacorrection:
                     LubricatingOilTotalConsumptionDataCorrection.objects.create(
                         lubricating_oil_tcdata=lo_tcdata,
                         **lubricatingoiltotalconsumptiondatacorrection)
-            FreshWaterTotalConsumptionData.objects.create(ccdata=tcdata, **freshwatertotalconsumptiondata)
+            FreshWaterTotalConsumptionData.objects.create(tcdata=tcdata, **freshwatertotalconsumptiondata)
 
         return header
 
