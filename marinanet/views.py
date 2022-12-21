@@ -16,6 +16,7 @@ from marinanet.models import (
     ShipSpecs,
     UserProfile,
     Voyage,
+    VoyageLeg,
 )
 from marinanet.permissions import (
     IsShipUser
@@ -280,7 +281,7 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
             voyage_leg__voyage__ship__imo_reg=imo_reg
         ).order_by('-report_date')
         print('Matching reports:', queryset.count())
-        return queryset.last()
+        return queryset.first()
 
     def get_object(self):
         queryset = self.get_queryset()
