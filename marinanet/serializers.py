@@ -2,7 +2,7 @@ import pytz
 
 from django.db import transaction
 from rest_framework import serializers
-from timezone_field.rest_framework import TimeZoneSerializerField
+# from timezone_field.rest_framework import TimeZoneSerializerField
 
 from marinanet.models import (
     Company,
@@ -14,6 +14,7 @@ from marinanet.models import (
     HeavyWeatherData,
     LubricatingOilData,
     LubricatingOilDataCorrection,
+    NoonReportTimeAndPosition,
     ReportHeader,
     ReportRoute,
     Ship,
@@ -78,12 +79,20 @@ class VoyageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Voyage
-        fields = ['uuid', 'ship', 'voyage_num', 'allowed_report_types']
+        fields = ['uuid', 'ship', 'voyage_num']
         read_only_fields = ['uuid', 'ship']
 
 
+class VoyageLegSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VoyageLeg
+        fields = ['uuid', 'voyage', 'leg_num',
+                  'departure_port', 'departure_date', 'departure_tz',
+                  'arrival_port', 'arrival_date', 'arrival_tz']
+        read_only_fields = ['uuid', 'voyage']
+
+
 class ReportHeaderSerializer(serializers.ModelSerializer):
-    report_tz = TimeZoneSerializerField()
     # latitude = serializers.CharField(max_length=10)
     # longitude = serializers.CharField(max_length=10)
 
@@ -105,6 +114,13 @@ class VoyageReportsSerializer(serializers.ModelSerializer):
         model = Voyage
         fields = ['uuid', 'ship', 'voyage_num', 'reports']
         read_only_fields = ['uuid', 'ship']
+
+
+class NoonReportTimeAndPositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NoonReportTimeAndPosition
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
 
 
 class ReportRouteSerializer(serializers.ModelSerializer):
@@ -202,23 +218,23 @@ class ConsumptionConditionDataSerializer(serializers.ModelSerializer):
 
 
 class NoonReportViewSerializer(serializers.ModelSerializer):
-    route = ReportRouteSerializer()
+    reportroute = ReportRouteSerializer()
+    noonreporttimeandposition = NoonReportTimeAndPositionSerializer()
     weatherdata = WeatherDataSerializer()
     heavyweatherdata = HeavyWeatherDataSerializer(
         required=False, allow_null=True)
     distanceperformancedata = DistancePerformanceDataSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     stoppagedata = StoppageDataSerializer(required=False, allow_null=True)
-    report_tz = TimeZoneSerializerField()
 
     class Meta:
         model = ReportHeader
         fields = '__all__'
-        exlude = ['report_tz']
 
     def create(self, validated_data):
-        route = validated_data.pop('route')
-        weather_data = validated_data.pop('weatherdata')
+        reportroute = validated_data.pop('reportroute')
+        noonreporttimeandposition = validated_data.pop('noonreporttimeandposition')
+        weatherdata = validated_data.pop('weatherdata')
         heavyweatherdata = validated_data.pop('heavyweatherdata', None)
         distanceperformancedata = validated_data.pop('distanceperformancedata')
         consumptionconditiondata = validated_data.pop(
@@ -227,8 +243,9 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            ReportRoute.objects.create(report_header=header, **route)
-            WeatherData.objects.create(report_header=header, **weather_data)
+            ReportRoute.objects.create(report_header=header, **reportroute)
+            NoonReportTimeAndPosition.objects.create(report_header=header, **noonreporttimeandposition)
+            WeatherData.objects.create(report_header=header, **weatherdata)
             if heavyweatherdata:
                 HeavyWeatherData.objects.create(
                     report_header=header, **heavyweatherdata)
@@ -275,7 +292,6 @@ class ArrivalStandByReportViewSerializer(serializers.ModelSerializer):
     distanceperformancedata = DistancePerformanceDataSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     stoppagedata = StoppageDataSerializer(required=False)
-    report_tz = TimeZoneSerializerField()
 
     class Meta:
         model = ReportHeader

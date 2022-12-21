@@ -29,7 +29,7 @@ from marinanet.serializers import (
     VoyageReportsSerializer,
     VoyageSerializer
 )
-# from marinanet.utils.serializer_utils import get_serializer_from_report_type
+from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
 # import jwt
 import logging
@@ -199,7 +199,7 @@ class ReportsList(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         queryset = ReportHeader.objects.filter(
-            voyage__ship__assigned_users=user)
+            voyage_leg__voyage__ship__assigned_users=user)
         return queryset
 
     # def determine_new_allowed_report_types(allowed_report_types, report_type):
@@ -277,7 +277,7 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
     def get_queryset(self):
         imo_reg = self.kwargs['imo_reg']
         queryset = ReportHeader.objects.filter(
-            voyage__ship__imo_reg=imo_reg
+            voyage_leg__voyage__ship__imo_reg=imo_reg
         ).order_by('-report_date')
         print('Matching reports:', queryset.count())
         return queryset.first()
