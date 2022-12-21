@@ -176,7 +176,7 @@ class ReportHeader(BaseModel):
         db_table = "report_headers"
 
 
-class ReportData(BaseModel):
+class ReportDataBaseModel(BaseModel):
     """Base model for all report data models"""
     report_header = models.OneToOneField(
         ReportHeader, on_delete=models.PROTECT, primary_key=True)
@@ -185,7 +185,7 @@ class ReportData(BaseModel):
         abstract = True
 
 
-class TimeAndPosition(ReportData):
+class TimeAndPositionBaseModel(ReportDataBaseModel):
     """Base model for time and position models"""
     time = models.DateTimeField()
     timezone = models.FloatField()
@@ -195,12 +195,12 @@ class TimeAndPosition(ReportData):
         abstract = True
 
 
-class NoonReportTimeAndPosition(TimeAndPosition):
+class NoonReportTimeAndPosition(TimeAndPositionBaseModel):
     class Meta:
         db_table = "noon_report_time_and_position"
 
 
-class ReportRoute(ReportData):
+class ReportRoute(ReportDataBaseModel):
     departure_port = models.CharField(max_length=6)  # TODO: LOCODE
     departure_date = models.DateTimeField()
     depature_tz = models.FloatField()
@@ -212,7 +212,7 @@ class ReportRoute(ReportData):
         db_table = "report_routes"
 
 
-class WeatherData(ReportData):
+class WeatherData(ReportDataBaseModel):
     weather_notation = models.CharField(max_length=2, choices=Weather.choices)
     visibility = models.PositiveSmallIntegerField()
     wind_direction = models.CharField(
@@ -240,7 +240,7 @@ class WeatherData(ReportData):
         db_table = "weather_data"
 
 
-class HeavyWeatherData(ReportData):
+class HeavyWeatherData(ReportDataBaseModel):
     total_hours = models.DecimalField(
         max_digits=3,
         decimal_places=1,
@@ -268,7 +268,7 @@ class HeavyWeatherData(ReportData):
         db_table = "heavy_weather_data"
 
 
-class DistancePerformanceData(ReportData):
+class DistancePerformanceData(ReportDataBaseModel):
     hours_since_noon = models.DecimalField(
         max_digits=3,
         decimal_places=1,
@@ -331,7 +331,7 @@ class DistancePerformanceData(ReportData):
         db_table = "distance_performance_data"
 
 
-class ConsumptionConditionData(ReportData):
+class ConsumptionConditionData(ReportDataBaseModel):
     consumption_type = models.CharField(
         max_length=16, choices=ConsumptionType.choices)
 
@@ -340,7 +340,7 @@ class ConsumptionConditionData(ReportData):
         unique_together = ["report_header", "consumption_type"]
 
 
-class ConsumptionData(BaseModel):
+class ConsumptionDataBaseModel(BaseModel):
     """Base model for consumption data"""
     ccdata = models.ForeignKey(
         ConsumptionConditionData, on_delete=models.PROTECT)
@@ -349,7 +349,7 @@ class ConsumptionData(BaseModel):
         abstract = True
 
 
-class ConsumptionDataCorrection(BaseModel):
+class ConsumptionDataCorrectionBaseModel(BaseModel):
     """Base model for consumption data correction"""
     correction = models.DecimalField(max_digits=7, decimal_places=2)
     remarks = models.TextField()
@@ -358,7 +358,7 @@ class ConsumptionDataCorrection(BaseModel):
         abstract = True
 
 
-class FuelOilData(ConsumptionData):
+class FuelOilData(ConsumptionDataBaseModel):
     fuel_oil_type = models.CharField(max_length=4, choices=FuelType.choices)
     total_consumption = models.DecimalField(
         max_digits=6,
@@ -382,7 +382,7 @@ class FuelOilData(ConsumptionData):
         db_table = "fuel_oil_data"
 
 
-class FuelOilDataCorrection(ConsumptionDataCorrection):
+class FuelOilDataCorrection(ConsumptionDataCorrectionBaseModel):
     fuel_oil_data = models.OneToOneField(
         FuelOilData, on_delete=models.PROTECT, primary_key=True)
 
@@ -390,7 +390,7 @@ class FuelOilDataCorrection(ConsumptionDataCorrection):
         db_table = "fuel_oil_data_corrections"
 
 
-class LubricatingOilData(ConsumptionData):
+class LubricatingOilData(ConsumptionDataBaseModel):
     fuel_oil_type = models.CharField(max_length=64)
     total_consumption = models.DecimalField(
         blank=True,
@@ -417,7 +417,7 @@ class LubricatingOilData(ConsumptionData):
         db_table = "lubricating_oil_data"
 
 
-class LubricatingOilDataCorrection(ConsumptionDataCorrection):
+class LubricatingOilDataCorrection(ConsumptionDataCorrectionBaseModel):
     lubricating_oil_data = models.OneToOneField(
         LubricatingOilData, on_delete=models.PROTECT, primary_key=True)
 
@@ -438,7 +438,7 @@ class FreshWaterData(BaseModel):
         db_table = "fresh_water_data"
 
 
-class StoppageData(ReportData):
+class StoppageData(ReportDataBaseModel):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(null=True, blank=True)
     duration = models.DecimalField(
@@ -459,7 +459,7 @@ class StoppageData(ReportData):
         db_table = "stoppage_data"
 
 
-class CargoOperation(ReportData):
+class CargoOperation(ReportDataBaseModel):
     load_condition = models.CharField(
         max_length=16,
         choices=LoadCondition.choices)
@@ -472,7 +472,7 @@ class CargoOperation(ReportData):
         db_table = "cargo_operations"
 
 
-class DepartureVesselCondition(ReportData):
+class DepartureVesselCondition(ReportDataBaseModel):
     draft_fwd = models.DecimalField(
         max_digits=4,
         decimal_places=2,
@@ -502,8 +502,11 @@ class DepartureVesselCondition(ReportData):
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))])
 
+    class Meta:
+        db_table = "departure_vessel_conditions"
 
-class PilotStation(ReportData):
+
+class PilotStation(ReportDataBaseModel):
     """Base model for pilot stations"""
     name = models.CharField(max_length=255)
     date = models.DateTimeField()
@@ -536,12 +539,12 @@ class ArrivalPilotStation(PilotStation):
         db_table = "arrival_pilot_stations"
 
 
-class DepartureRunUp(TimeAndPosition):
+class DepartureRunUp(TimeAndPositionBaseModel):
     class Meta:
         db_table = "departure_runups"
 
 
-class DistanceTimeData(ReportData):
+class DistanceTimeData(ReportDataBaseModel):
     time = models.PositiveSmallIntegerField()
     distance_obs = models.DecimalField(
         max_digits=3,
@@ -562,7 +565,7 @@ class DistanceTimeData(ReportData):
         db_table = "distance_time_data"
 
 
-class TransoceanicBudget(ReportData):
+class TransoceanicBudget(ReportDataBaseModel):
     distance_to_go = models.DecimalField(
         max_digits=5,
         decimal_places=0,
@@ -584,12 +587,12 @@ class TransoceanicBudget(ReportData):
         db_table = "transoceanic_budgets"
 
 
-class ArrivalStandbyTimeAndPosition(TimeAndPosition):
+class ArrivalStandbyTimeAndPosition(TimeAndPositionBaseModel):
     class Meta:
         db_table = "arrival_standby_time_and_position"
 
 
-class PlannedOperations(ReportData):
+class PlannedOperations(ReportDataBaseModel):
     cargo_operation_berth = models.BooleanField()
     cargo_operation_stsstb = models.BooleanField()
     bunkering_debunkering = models.BooleanField()
@@ -604,7 +607,7 @@ class PlannedOperations(ReportData):
         db_table = "planned_operations"
 
 
-class ActualPerformanceData(ReportData):
+class ActualPerformanceData(ReportDataBaseModel):
     actual_performance_type = models.CharField(
         max_length=16,
         choices=ActualPerformanceType.choices)
@@ -630,8 +633,11 @@ class ActualPerformanceData(ReportData):
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
 
+    class Meta:
+        db_table = "actual_performance_data"
 
-class TotalConsumptionData(ReportData):
+
+class TotalConsumptionData(ReportDataBaseModel):
     consumption_type = models.CharField(
         max_length=16,
         choices=TotalConsumptionType.choices)
@@ -640,7 +646,7 @@ class TotalConsumptionData(ReportData):
         db_table = "total_consumption_data"
 
 
-class TotalConsumptionData(BaseModel):
+class TotalConsumptionDataBaseModel(BaseModel):
     """Base model for consumption data"""
     tc_data = models.ForeignKey(TotalConsumptionData, on_delete=models.PROTECT)
 
@@ -648,7 +654,7 @@ class TotalConsumptionData(BaseModel):
         abstract = True
 
 
-class FuelOilTotalConsumptionData(TotalConsumptionData):
+class FuelOilTotalConsumptionData(TotalConsumptionDataBaseModel):
     fuel_oil_type = models.CharField(max_length=4, choices=FuelType.choices)
     total_consumption = models.DecimalField(
         max_digits=6,
@@ -674,7 +680,7 @@ class FuelOilTotalConsumptionData(TotalConsumptionData):
         db_table = "fuel_oil_total_consumption_data"
 
 
-class FuelOilTotalConsumptionDataCorrection(ConsumptionDataCorrection):
+class FuelOilTotalConsumptionDataCorrection(ConsumptionDataCorrectionBaseModel):
     fuel_oil_tcdata = models.OneToOneField(
         FuelOilTotalConsumptionData,
         on_delete=models.PROTECT,
@@ -684,7 +690,7 @@ class FuelOilTotalConsumptionDataCorrection(ConsumptionDataCorrection):
         db_table = "fuel_oil_total_consumption_data_corrections"
 
 
-class LubricatingOilTotalConsumptionData(TotalConsumptionData):
+class LubricatingOilTotalConsumptionData(TotalConsumptionDataBaseModel):
     fuel_oil_type = models.CharField(max_length=64)
     total_consumption = models.DecimalField(
         blank=True,
@@ -713,7 +719,7 @@ class LubricatingOilTotalConsumptionData(TotalConsumptionData):
         db_table = "lubricating_oil_total_consumption_data"
 
 
-class LubricatingOilTotalConsumptionDataCorrection(ConsumptionDataCorrection):
+class LubricatingOilTotalConsumptionDataCorrection(ConsumptionDataCorrectionBaseModel):
     lubricating_oil_tcdata = models.OneToOneField(
         LubricatingOilTotalConsumptionData,
         on_delete=models.PROTECT,
@@ -723,7 +729,7 @@ class LubricatingOilTotalConsumptionDataCorrection(ConsumptionDataCorrection):
         db_table = "lubricating_oil_total_consumption_data_corrections"
 
 
-class ArrrivalFWETimeAndPosition(TimeAndPosition):
+class ArrrivalFWETimeAndPosition(TimeAndPositionBaseModel):
     parking_status = models.CharField(
         max_length=32,
         choices=ParkingStatus.choices)
@@ -732,7 +738,7 @@ class ArrrivalFWETimeAndPosition(TimeAndPosition):
         db_table = "arrival_fwe_time_and_position"
 
 
-class PortOperations(ReportData):
+class PortOperations(ReportDataBaseModel):
     waiting = models.BooleanField()
     cargo_operation = models.BooleanField()
     bunkering_debunkering = models.BooleanField()
@@ -743,7 +749,7 @@ class PortOperations(ReportData):
         db_table = "port_operations"
 
 
-class EventData(TimeAndPosition):
+class EventData(TimeAndPositionBaseModel):
     distance_travelled = models.PositiveSmallIntegerField()
     parking_status = models.CharField(
         max_length=32,

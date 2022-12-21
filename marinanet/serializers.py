@@ -7,7 +7,6 @@ from timezone_field.rest_framework import TimeZoneSerializerField
 from marinanet.models import (
     Company,
     ConsumptionConditionData,
-    ConsumptionDataCorrection,
     DistancePerformanceData,
     FreshWaterData,
     FuelOilData,
