@@ -173,7 +173,7 @@ class VoyageReportsList(generics.ListAPIView):
     def get_queryset(self):
         voyage_uuid = self.kwargs['uuid']
         voyage = Voyage.objects.get(uuid=voyage_uuid)
-        queryset = ReportHeader.objects.filter(voyage=voyage)
+        queryset = ReportHeader.objects.filter(voyage_leg__voyage=voyage)
         return queryset
 
 

@@ -179,8 +179,8 @@ JWT_AUTH = {
 }
 
 # Add path for GDAL
-GDAL_LIBRARY_PATH = "/opt/homebrew/opt/gdal/lib/libgdal.dylib"
-GEOS_LIBRARY_PATH = "/opt/homebrew/opt/geos/lib/libgeos_c.dylib"
+# GDAL_LIBRARY_PATH = "/opt/homebrew/opt/gdal/lib/libgdal.dylib"
+# GEOS_LIBRARY_PATH = "/opt/homebrew/opt/geos/lib/libgeos_c.dylib"
 
 
 SILENCED_SYSTEM_CHECKS = ["fields.E300", "fields.E307"]
