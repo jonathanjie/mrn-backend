@@ -151,7 +151,7 @@ class VoyageLeg(BaseModel):
     leg_num = models.PositiveSmallIntegerField()
     departure_port = models.CharField(max_length=6)  # TODO: LOCODE
     departure_date = models.DateTimeField()
-    depature_tz = models.FloatField()
+    departure_tz = models.FloatField()
     arrival_port = models.CharField(max_length=6)  # TODO: LOCODE
     arrival_date = models.DateTimeField()
     arrival_tz = models.FloatField()
