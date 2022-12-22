@@ -3,7 +3,7 @@ from django.contrib import admin
 # Register your models here.
 from marinanet.models import (
     ActualPerformanceData,
-    ArrrivalFWETimeAndPosition,
+    ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
     CargoOperation,
@@ -91,6 +91,6 @@ admin.site.register(FuelOilTotalConsumptionDataCorrection)
 admin.site.register(LubricatingOilTotalConsumptionData)
 admin.site.register(LubricatingOilTotalConsumptionDataCorrection)
 admin.site.register(FreshWaterTotalConsumptionData)
-admin.site.register(ArrrivalFWETimeAndPosition)
+admin.site.register(ArrivalFWETimeAndPosition)
 admin.site.register(PortOperations)
 admin.site.register(EventData)

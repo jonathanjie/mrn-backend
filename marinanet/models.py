@@ -742,7 +742,7 @@ class FreshWaterTotalConsumptionData(BaseModel):
         db_table = "fresh_water_total_consumption_data"
 
 
-class ArrrivalFWETimeAndPosition(TimeAndPositionBaseModel):
+class ArrivalFWETimeAndPosition(TimeAndPositionBaseModel):
     parking_status = models.CharField(
         max_length=32,
         choices=ParkingStatus.choices)
