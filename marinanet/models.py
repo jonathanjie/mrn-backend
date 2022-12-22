@@ -283,7 +283,7 @@ class DistancePerformanceData(ReportDataBaseModel):
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    remarks_for_changes = models.TextField(null=True)
+    remarks_for_changes = models.TextField(null=True, blank=True)
     distance_observed_since_noon = models.DecimalField(
         max_digits=3,
         decimal_places=0,
@@ -601,7 +601,7 @@ class PlannedOperations(ReportDataBaseModel):
     receiving_provisions_spares = models.BooleanField()
     surveying = models.BooleanField()
     others = models.BooleanField()
-    planned_operation_othersdetails = models.TextField(null=True)
+    planned_operation_othersdetails = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = "planned_operations"
@@ -756,7 +756,7 @@ class PortOperations(ReportDataBaseModel):
     cargo_operation = models.BooleanField()
     bunkering_debunkering = models.BooleanField()
     others = models.BooleanField()
-    others_details = models.TextField(null=True)
+    others_details = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = "port_operations"

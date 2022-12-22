@@ -27,6 +27,7 @@ from marinanet.models import (
     LubricatingOilTotalConsumptionData,
     LubricatingOilTotalConsumptionDataCorrection,
     NoonReportTimeAndPosition,
+    PlannedOperations,
     ReportHeader,
     ReportRoute,
     Ship,
@@ -299,6 +300,13 @@ class TransoceanicBudgetSerializer(serializers.ModelSerializer):
 class ArrivalStandbyTimeAndPositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArrivalStandbyTimeAndPosition
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class PlannedOperationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlannedOperations
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
 
@@ -592,6 +600,7 @@ class DepartureCOSPReportViewSerializer(serializers.ModelSerializer):
 
 class ArrivalStandbyReportViewSerializer(serializers.ModelSerializer):
     reportroute = ReportRouteSerializer()
+    plannedoperations = PlannedOperationsSerializer()
     arrivalstandbytimeandposition = ArrivalStandbyTimeAndPositionSerializer()
     weatherdata = WeatherDataSerializer()
     distanceperformancedata = DistancePerformanceDataSerializer()
@@ -607,6 +616,7 @@ class ArrivalStandbyReportViewSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         reportroute = validated_data.pop('reportroute')
+        plannedoperations = validated_data.pop('plannedoperations')
         arrivalstandbytimeandposition = validated_data.pop(
             'arrivalstandbytimeandposition')
         weatherdata = validated_data.pop('weatherdata')
@@ -619,6 +629,8 @@ class ArrivalStandbyReportViewSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
             ReportRoute.objects.create(report_header=header, **reportroute)
+            PlannedOperations.objects.create(
+                report_header=header, **plannedoperations)
             ArrivalStandbyTimeAndPosition.objects.create(
                 report_header=header, **arrivalstandbytimeandposition)
             WeatherData.objects.create(report_header=header, **weatherdata)
