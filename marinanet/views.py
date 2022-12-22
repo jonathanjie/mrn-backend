@@ -27,8 +27,9 @@ from marinanet.serializers import (
     ShipSerializer,
     ShipSpecsSerializer,
     UserProfileSerializer,
+    VoyageLegSerializer,
     VoyageReportsSerializer,
-    VoyageSerializer
+    VoyageSerializer,
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
