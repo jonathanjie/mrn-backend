@@ -300,6 +300,27 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 
+class ShipLegsList(APIView):
+    def get(self, request, imo_reg):
+        # Get the ship with the given IMO number, or return a 404 response if it doesn't exist
+        ship = get_object_or_404(Ship, imo_reg=imo_reg)
+
+        # Get the latest voyage for the ship
+        latest_voyage = ship.voyage_set.order_by('-voyage_num').first()
+
+        # Return a 404 response if the ship has no voyages
+        if latest_voyage is None:
+            return Response(status=404)
+
+        # Get the number of voyage legs to return
+        count = request.query_params.get('count', 10)
+
+        # Serialize the voyage legs for the latest voyage
+        voyage_legs = latest_voyage.voyageleg_set.all()[:count]
+        serializer = VoyageLegSerializer(voyage_legs, many=True)
+        return Response(serializer.data)
+
+
 # class MostRecentDistinctReportRoutesList(generics.ListAPIView):
 #     serializer_class = DistinctReportRoutesSerializer
 
