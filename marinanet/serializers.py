@@ -6,6 +6,7 @@ from rest_framework import serializers
 
 from marinanet.models import (
     ArrivalPilotStation,
+    ArrivalStandbyTimeAndPosition,
     CargoOperation,
     Company,
     ConsumptionConditionData,
@@ -291,6 +292,13 @@ class DistanceTimeDataSerializer(serializers.ModelSerializer):
 class TransoceanicBudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransoceanicBudget
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class ArrivalStandbyTimeAndPositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArrivalStandbyTimeAndPosition
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
 
@@ -582,13 +590,15 @@ class DepartureCOSPReportViewSerializer(serializers.ModelSerializer):
         return header
 
 
-class ArrivalStandByReportViewSerializer(serializers.ModelSerializer):
-    route = ReportRouteSerializer()
+class ArrivalStandbyReportViewSerializer(serializers.ModelSerializer):
+    reportroute = ReportRouteSerializer()
+    arrivalstandbytimeandposition = ArrivalStandbyTimeAndPositionSerializer()
     weatherdata = WeatherDataSerializer()
-    heavyweatherdata = HeavyWeatherDataSerializer(required=False)
     distanceperformancedata = DistancePerformanceDataSerializer()
+    arrivalpilotstation = ArrivalPilotStationSerializer(
+        required=False, allow_null=True)
     consumptionconditiondata = ConsumptionConditionDataSerializer()
-    stoppagedata = StoppageDataSerializer(required=False)
+    totalconsumptiondata = TotalConsumptionDataSerializer()
 
     class Meta:
         model = ReportHeader
@@ -596,26 +606,24 @@ class ArrivalStandByReportViewSerializer(serializers.ModelSerializer):
         exlude = ['report_tz']
 
     def create(self, validated_data):
-        route = validated_data.pop('route')
-        weather_data = validated_data.pop('weatherdata')
-        heavyweatherdata = validated_data.pop('heavyweatherdata', None)
+        reportroute = validated_data.pop('reportroute')
+        arrivalstandbytimeandposition = validated_data.pop(
+            'arrivalstandbytimeandposition')
+        weatherdata = validated_data.pop('weatherdata')
         distanceperformancedata = validated_data.pop('distanceperformancedata')
+        arrivalpilotstation = validated_data.pop('arrivalpilotstation', None)
         consumptionconditiondata = validated_data.pop(
             'consumptionconditiondata')
-        stoppagedata = validated_data.pop('stoppagedata', None)
+        totalconsumptiondata = validated_data.pop('totalconsumptiondata')
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            ReportRoute.objects.create(report_header=header, **route)
-            WeatherData.objects.create(report_header=header, **weather_data)
-            if heavyweatherdata:
-                HeavyWeatherData.objects.create(
-                    report_header=header, **heavyweatherdata)
+            ReportRoute.objects.create(report_header=header, **reportroute)
+            ArrivalStandbyTimeAndPosition.objects.create(
+                report_header=header, **arrivalstandbytimeandposition)
+            WeatherData.objects.create(report_header=header, **weatherdata)
             DistancePerformanceData.objects.create(
                 report_header=header, **distanceperformancedata)
-            if stoppagedata:
-                StoppageData.objects.create(
-                    report_header=header, **stoppagedata)
 
             fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
             lubricatingoildata_set = consumptionconditiondata.pop(
@@ -643,5 +651,34 @@ class ArrivalStandByReportViewSerializer(serializers.ModelSerializer):
                         lubricating_oil_data=lo_data,
                         **lubricatingoildatacorrection)
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
+
+            fueloiltotalconsumptiondata_set = totalconsumptiondata.pop(
+                'fueloiltotalconsumptiondata_set')
+            lubricatingoiltotalconsumptiondata_set = totalconsumptiondata.pop(
+                'lubricatingoiltotalconsumptiondata_set')
+            freshwatertotalconsumptiondata = totalconsumptiondata.pop(
+                'freshwatertotalconsumptiondata')
+
+            tcdata = TotalConsumptionData.objects.create(
+                report_header=header, **totalconsumptiondata)
+            for fueloiltotalconsumptiondata in fueloiltotalconsumptiondata_set:
+                fueloiltotalconsumptiondatacorrection = fueloiltotalconsumptiondata.pop(
+                    'fueloiltotalconsumptiondatacorrection', None)
+                fo_tcdata = FuelOilTotalConsumptionData.objects.create(
+                    tcdata=tcdata, **fueloiltotalconsumptiondata)
+                if fueloiltotalconsumptiondatacorrection:
+                    FuelOilTotalConsumptionDataCorrection.objects.create(
+                        fuel_oil_tcdata=fo_tcdata, **fueloiltotalconsumptiondatacorrection)
+            for lubricatingoiltotalconsumptiondata in lubricatingoiltotalconsumptiondata_set:
+                lubricatingoiltotalconsumptiondatacorrection = lubricatingoiltotalconsumptiondata.pop(
+                    'lubricatingoiltotalconsumptiondatacorrection', None)
+                lo_tcdata = LubricatingOilTotalConsumptionData.objects.create(
+                    tcdata=tcdata, **lubricatingoiltotalconsumptiondata)
+                if lubricatingoiltotalconsumptiondatacorrection:
+                    LubricatingOilTotalConsumptionDataCorrection.objects.create(
+                        lubricating_oil_tcdata=lo_tcdata,
+                        **lubricatingoiltotalconsumptiondatacorrection)
+            FreshWaterTotalConsumptionData.objects.create(
+                tcdata=tcdata, **freshwatertotalconsumptiondata)
 
         return header
