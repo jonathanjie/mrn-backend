@@ -315,6 +315,7 @@ class ShipLegsList(APIView):
 
         # Get the number of voyage legs to return
         count = request.query_params.get('count', 10)
+        count = int(count)
 
         # Serialize the voyage legs for the latest voyage
         voyage_legs = latest_voyage.voyageleg_set.all()[:count]
