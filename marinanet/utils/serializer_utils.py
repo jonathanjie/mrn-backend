@@ -1,12 +1,12 @@
 from rest_framework.serializers import ModelSerializer
 
 from marinanet.enums import ReportType
-from marinanet.serializers import (
+from marinanet.serializers.report_serializers import (
     ArrivalFWEReportViewSerializer,
     ArrivalStandbyReportViewSerializer,
     DepartureCOSPReportViewSerializer,
     DepartureStandbyReportViewSerializer,
-    NoonReportViewSerializer,
+    NoonReportViewSerializer
 )
 
 
