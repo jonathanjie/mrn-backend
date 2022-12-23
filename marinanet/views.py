@@ -140,7 +140,7 @@ class VoyageList(generics.ListCreateAPIView):
         return queryset
 
     def create(self, request):
-        ship = get_object_or_404(Ship, uuid=request.data.get('ship_uuid'))
+        ship = get_object_or_404(Ship, imo_reg=request.data.get('imo_reg'))
         # TODO: CHECK PERMISSIONS
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
