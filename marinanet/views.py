@@ -21,8 +21,7 @@ from marinanet.models import (
 from marinanet.permissions import (
     IsShipUser
 )
-from marinanet.serializers import (
-    NoonReportViewSerializer,
+from marinanet.serializers.model_serializers import (
     ReportHeaderSerializer,
     ShipSerializer,
     ShipSpecsSerializer,
