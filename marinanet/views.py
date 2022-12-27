@@ -1,3 +1,5 @@
+from django.db.models import Q
+from django.db.models.functions import TruncDate
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
@@ -9,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 # from marinanet.enums import ReportTypes
+from marinanet.enums import ReportType
 from marinanet.models import (
     ReportHeader,
     ReportRoute,
@@ -29,6 +32,9 @@ from marinanet.serializers.model_serializers import (
     VoyageLegSerializer,
     VoyageReportsSerializer,
     VoyageSerializer,
+)
+from marinanet.serializers.stats_serializers import (
+    DailyStatSerializer,
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
@@ -349,3 +355,25 @@ class ShipLegsList(APIView):
 
 #         # Otherwise, return the most recent num_routes routes
 #         return queryset[:num_routes]
+
+
+class WeeklyStatsList(APIView):
+    def get(self, request, imo_reg):
+        ship = get_object_or_404(Ship, imo_reg=imo_reg)
+        from datetime import datetime
+        start_date = datetime.fromisoformat('2022-12-21T00:00:01+00:00')
+        end_date = datetime.fromisoformat('2022-12-28T00:00:00+00:00')
+        past_week_reports = ReportHeader.objects.filter(
+            Q(report_type=ReportType.NOON) | Q(report_type=ReportType.ARR_SBY),
+        ).filter(
+            report_date__gte=start_date,
+            report_date__lte=end_date,
+        ).annotate(
+            date=TruncDate('report_date'),
+        ).order_by(
+            '-date'
+        ).distinct(
+            'date'
+        ).select_related()
+        serializer = DailyStatSerializer(past_week_reports, many=True)
+        return Response(serializer.data)
