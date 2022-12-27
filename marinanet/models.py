@@ -430,7 +430,7 @@ class FreshWaterData(BaseModel):
     ccdata = models.OneToOneField(
         ConsumptionConditionData, on_delete=models.PROTECT, primary_key=True)
     consumed = models.PositiveIntegerField()
-    evaporated = models.PositiveIntegerField()
+    generated = models.PositiveIntegerField()
     received = models.PositiveIntegerField()
     discharged = models.PositiveIntegerField()
     rob = models.PositiveIntegerField()
@@ -734,7 +734,7 @@ class FreshWaterTotalConsumptionData(BaseModel):
     tcdata = models.OneToOneField(
         TotalConsumptionData, on_delete=models.PROTECT, primary_key=True)
     consumed = models.PositiveIntegerField()
-    evaporated = models.PositiveIntegerField()
+    generated = models.PositiveIntegerField()
     received = models.PositiveIntegerField()
     discharged = models.PositiveIntegerField()
     rob = models.PositiveIntegerField()

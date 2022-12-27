@@ -306,27 +306,40 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 
-class ShipLegsList(APIView):
-    def get(self, request, imo_reg):
-        # Get the ship with the given IMO number, or return a 404 response if it doesn't exist
-        ship = get_object_or_404(Ship, imo_reg=imo_reg)
+# class ShipLegsList(APIView):
+#     def get(self, request, imo_reg):
+#         # Get the ship with the given IMO number, or return a 404 response if it doesn't exist
+#         ship = get_object_or_404(Ship, imo_reg=imo_reg)
 
-        # Get the latest voyage for the ship
-        latest_voyage = ship.voyage_set.order_by('-voyage_num').first()
+#         # Get the latest voyage for the ship
+#         latest_voyage = ship.voyage_set.order_by('-voyage_num').first()
 
-        # Return a 404 response if the ship has no voyages
-        if latest_voyage is None:
-            return Response(status=404)
+#         # Return a 404 response if the ship has no voyages
+#         if latest_voyage is None:
+#             return Response(status=404)
 
-        # Get the number of voyage legs to return
-        count = request.query_params.get('count', 10)
-        count = int(count)
+#         # Get the number of voyage legs to return
+#         count = request.query_params.get('count', 10)
+#         count = int(count)
 
-        # Serialize the voyage legs for the latest voyages
-        voyage_legs = latest_voyage.voyageleg_set.order_by(
-            '-departure_date')[:count]
-        serializer = VoyageLegSerializer(voyage_legs, many=True)
-        return Response(serializer.data)
+#         # Serialize the voyage legs for the latest voyages
+#         voyage_legs = latest_voyage.voyageleg_set.order_by(
+#             '-departure_date')[:count]
+#         serializer = VoyageLegSerializer(voyage_legs, many=True)
+#         return Response(serializer.data)
+
+
+class ShipLegsList(generics.ListAPIView):
+    """
+    Lists all legs from a single ship
+    """
+    serializer_class = VoyageLegSerializer
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        ship = Ship.objects.get(imo_reg=imo_reg)
+        queryset = VoyageLeg.objects.filter(voyage__ship=ship)
+        return queryset
 
 
 # class MostRecentDistinctReportRoutesList(generics.ListAPIView):
