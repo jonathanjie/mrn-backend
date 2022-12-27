@@ -241,6 +241,7 @@ class WeatherData(ReportDataBaseModel):
 
 
 class HeavyWeatherData(ReportDataBaseModel):
+    weather_notation = models.CharField(max_length=2, choices=Weather.choices)
     total_hours = models.DecimalField(
         max_digits=3,
         decimal_places=1,
