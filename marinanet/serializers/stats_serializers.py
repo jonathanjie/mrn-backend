@@ -32,6 +32,7 @@ class DailyStatSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportHeader
         fields = ['report_date',
+                  'report_type',
                   'speed',
                   'distance_observed',
                   'distance_to_go',
