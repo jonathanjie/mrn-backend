@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from django.db.models import Q
 from django.db.models.functions import TruncDate
 from django.http import Http404
@@ -388,5 +390,21 @@ class WeeklyStatsList(APIView):
         ).distinct(
             'date'
         ).select_related()
+
+        # processed_reports = []
+        # for report in past_week_reports:
+        #     report_dt = report.report_date
+        #     report_local_tz = timezone(timedelta(hours=report.report_tz))
+        #     report_local_dt = report_date.astimezone(report_local_tz)
+        #     report_local_date = report_local_dt.date()
+
+        #     speed = report.distanceperformancedata.speed_since_noon
+        #     distance_observed = report.distanceperformancedata.distance_observed_since_noon
+        #     distance_to_go = report.distanceperformancedata.distance_to_go
+
+        #     fuel_oil_data_set = report.consumptionconditiondata.fueloildata_set
+        #     for fuel_oil_data in fueloildata_set:
+        #         pass
+
         serializer = DailyStatSerializer(past_week_reports, many=True)
         return Response(serializer.data)

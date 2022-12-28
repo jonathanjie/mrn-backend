@@ -13,6 +13,7 @@ from marinanet.models import (
     DepartureVesselCondition,
     DistancePerformanceData,
     DistanceTimeData,
+    EventData,
     FreshWaterData,
     FreshWaterTotalConsumptionData,
     FuelOilData,
@@ -373,5 +374,12 @@ class TotalConsumptionDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TotalConsumptionData
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class EventDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventData
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']

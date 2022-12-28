@@ -34,7 +34,10 @@ class ReportType(models.TextChoices):
     ARR_SBY = "ASBY", _("Arrival: Standby")
     ARR_FWE = "AFWE", _("Arrival: FWE")
     BDN = "BDN", _("Bunker Delivery Note")
-    EVENT = "EVNT", _("Event in Harbour")
+    EVENT_HARBOUR = "EVHB", _("Event in Harbour")
+    EVENT_PORT = "EVPO", _("Event in Port")
+    NOON_HARBOUR = "NNHB", _("Noon in Harbour")
+    NOON_PORT = "NNPO", _("Noon in Port")
 
 
 class LoadCondition(models.TextChoices):

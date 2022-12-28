@@ -13,6 +13,7 @@ from marinanet.models import (
     DepartureVesselCondition,
     DistancePerformanceData,
     DistanceTimeData,
+    EventData,
     FreshWaterData,
     FreshWaterTotalConsumptionData,
     FuelOilData,
@@ -46,6 +47,7 @@ from marinanet.serializers.model_serializers import (
     DepartureVesselConditionSerializer,
     DistancePerformanceDataSerializer,
     DistanceTimeDataSerializer,
+    EventDataSerializer,
     HeavyWeatherDataSerializer,
     NoonReportTimeAndPositionSerializer,
     PlannedOperationsSerializer,
@@ -305,7 +307,6 @@ class ArrivalStandbyReportViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportHeader
         fields = '__all__'
-        exlude = ['report_tz']
 
     def create(self, validated_data):
         reportroute = validated_data.pop('reportroute')
@@ -389,7 +390,6 @@ class ArrivalFWEReportViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportHeader
         fields = '__all__'
-        exlude = ['report_tz']
 
     def create(self, validated_data):
         arrivalfwetimeandposition = validated_data.pop(
@@ -452,5 +452,56 @@ class ArrivalFWEReportViewSerializer(serializers.ModelSerializer):
             for fueloiltotalconsumptiondata in fueloiltotalconsumptiondata_set:
                 fo_tcdata = FuelOilTotalConsumptionData.objects.create(
                     tcdata=tcdata, **fueloiltotalconsumptiondata)
+
+        return header
+
+
+class EventReportViewSerialiazer(serializers.ModelSerializer):
+    eventdata = EventDataSerializer()
+    plannedoperations = PlannedOperationsSerializer()
+    consumptionconditiondata = ConsumptionConditionDataSerializer()
+
+    class Meta:
+        model = ReportHeader
+        fields = '__all__'
+
+    def create(self, validated_data):
+        eventdata = validated_data.pop('eventdata')
+        plannedoperations = validated_data.pop('plannedoperations')
+        consumptionconditiondata = validated_data.pop(
+            'consumptionconditiondata')
+
+        with transaction.atomic():
+            header = ReportHeader.objects.create(**validated_data)
+            EventData.objects.create(report_header=header, **eventdata)
+            PlannedOperations.objects.create(
+                report_header=header, **plannedoperations)
+
+            fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+            lubricatingoildata_set = consumptionconditiondata.pop(
+                'lubricatingoildata_set')
+            freshwaterdata = consumptionconditiondata.pop(
+                'freshwaterdata')
+
+            ccdata = ConsumptionConditionData.objects.create(
+                report_header=header, **consumptionconditiondata)
+            for fueloildata in fueloildata_set:
+                fueloildatacorrection = fueloildata.pop(
+                    'fueloildatacorrection', None)
+                fo_data = FuelOilData.objects.create(
+                    ccdata=ccdata, **fueloildata)
+                if fueloildatacorrection:
+                    FuelOilDataCorrection.objects.create(
+                        fuel_oil_data=fo_data, **fueloildatacorrection)
+            for lubricatingoildata in lubricatingoildata_set:
+                lubricatingoildatacorrection = lubricatingoildata.pop(
+                    'lubricatingoildatacorrection', None)
+                lo_data = LubricatingOilData.objects.create(
+                    ccdata=ccdata, **lubricatingoildata)
+                if lubricatingoildatacorrection:
+                    LubricatingOilDataCorrection.objects.create(
+                        lubricating_oil_data=lo_data,
+                        **lubricatingoildatacorrection)
+            FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
 
         return header
