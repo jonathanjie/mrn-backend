@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.gis",
     "rest_framework",
     "corsheaders",
+    "phonenumber_field",
     "auth0",
     "marinanet"
     # "drf_yasg"

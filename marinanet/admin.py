@@ -6,6 +6,7 @@ from marinanet.models import (
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
+    BDNData,
     CargoOperation,
     Company,
     ConsumptionConditionData,
@@ -94,3 +95,4 @@ admin.site.register(FreshWaterTotalConsumptionData)
 admin.site.register(ArrivalFWETimeAndPosition)
 admin.site.register(PortOperations)
 admin.site.register(EventData)
+admin.site.register(BDNData)

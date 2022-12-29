@@ -5,6 +5,7 @@ from marinanet.models import (
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
+    BDNData,
     CargoOperation,
     Company,
     ConsumptionConditionData,
@@ -381,5 +382,12 @@ class TotalConsumptionDataSerializer(serializers.ModelSerializer):
 class EventDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventData
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class BDNDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BDNData
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']

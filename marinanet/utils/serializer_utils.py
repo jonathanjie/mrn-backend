@@ -4,6 +4,7 @@ from marinanet.enums import ReportType
 from marinanet.serializers.report_serializers import (
     ArrivalFWEReportViewSerializer,
     ArrivalStandbyReportViewSerializer,
+    BDNReportViewSerializer,
     DepartureCOSPReportViewSerializer,
     DepartureStandbyReportViewSerializer,
     EventReportViewSerialiazer,
@@ -22,5 +23,6 @@ def get_serializer_from_report_type(report_type: str) -> ModelSerializer:
         ReportType.EVENT_PORT: EventReportViewSerialiazer,
         ReportType.NOON_HARBOUR: EventReportViewSerialiazer,
         ReportType.NOON_PORT: EventReportViewSerialiazer,
+        ReportType.BDN: BDNReportViewSerializer,
     }
     return serializer_type_map.get(report_type)

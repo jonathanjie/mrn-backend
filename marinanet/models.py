@@ -11,6 +11,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.db import models as dmodels
 from django.forms import ModelForm
+from phonenumber_field.modelfields import PhoneNumberField
 # from timezone_field import TimeZoneField
 
 from auth0.models import User
@@ -771,6 +772,56 @@ class EventData(TimeAndPositionBaseModel):
 
     class Meta:
         db_table = "event_data"
+
+
+class BDNData(ReportDataBaseModel):
+    bunkering_port = models.CharField(max_length=6)
+    bunkering_date = models.DateTimeField()
+    bdn_file = ArrayField(models.URLField(max_length=1500))
+    delivered_oil_type = models.CharField(
+        max_length=16, choices=FuelType.choices)
+    delivered_quantity = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    density_15 = models.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    specific_gravity_15 = models.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    viscosity_value = models.DecimalField(
+        max_digits=5,
+        decimal_places=3,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    viscosity_temperature = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    flash_point = models.DecimalField(
+        max_digits=6,
+        decimal_places=3,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    sulfur_content = models.DecimalField(
+        max_digits=4,
+        decimal_places=3,
+        validators=[MinValueValidator(Decimal("0.0"))])
+    sample_sealing_marpol = models.CharField(max_length=64)
+    sample_sealing_ship = models.CharField(max_length=64)
+    sample_sealing_barge = models.CharField(max_length=64)
+    alongside_date = models.DateTimeField()
+    hose_connection_date = models.DateTimeField()
+    pump_start_date = models.DateTimeField()
+    pump_stop_date = models.DateTimeField()
+    hose_disconnection_date = models.DateTimeField()
+    slipoff_date = models.DateTimeField()
+    purchaser = models.CharField(max_length=128)
+    barge_name = models.CharField(max_length=128)
+    supplier_name = models.CharField(max_length=128)
+    supplier_address = models.TextField()
+    supplier_contact = PhoneNumberField()
 
 
 # ======== FOR LATER =========

@@ -6,6 +6,7 @@ from marinanet.models import (
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
+    BDNData,
     CargoOperation,
     ConsumptionConditionData,
     DeparturePilotStation,
@@ -40,6 +41,7 @@ from marinanet.serializers.model_serializers import (
     ArrivalFWETimeandPositionSerializer,
     ArrivalPilotStationSerializer,
     ArrivalStandbyTimeAndPositionSerializer,
+    BDNDataSerializer,
     CargoOperationSerializer,
     ConsumptionConditionDataSerializer,
     DeparturePilotStationSerializer,
@@ -503,5 +505,22 @@ class EventReportViewSerialiazer(serializers.ModelSerializer):
                         lubricating_oil_data=lo_data,
                         **lubricatingoildatacorrection)
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
+
+        return header
+
+
+class BDNReportViewSerializer(serializers.ModelSerializer):
+    bdndata = BDNDataSerializer()
+
+    class Meta:
+        model = ReportHeader
+        fields = '__all__'
+
+    def create(self, validated_data):
+        bdndata = validated_data.pop('bdndata')
+
+        with transaction.atomic():
+            header = ReportHeader.objects.create(**validated_data)
+            BDNData.objects.create(report_header=header, **bdndata)
 
         return header
