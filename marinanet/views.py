@@ -167,8 +167,30 @@ class VoyageDetail(generics.RetrieveAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Voyage.objects.filter(ship__assigned_users=user)
+        ship = Ship.objects.get(imo_reg=imo_reg)
+        queryset = Voyage.objects.filter(ship=ship)
         return queryset
+
+
+class LatestVoyageDetailByShip(generics.RetrieveAPIView):
+    """
+    Displays details for the latest report for a ship
+    User must have permission to view ship that voyage is associated with
+    """
+    serializer_class = VoyageSerializer
+    lookup_field = 'imo_reg'
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        user = self.request.user
+        ship = Ship.objects.get(imo_reg=imo_reg)
+        import pdb; pdb.set_trace()
+        queryset = Voyage.objects.filter(ship=ship)
+        return queryset
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return queryset.latest('created_at')
 
 
 class VoyageReportsList(generics.ListAPIView):
@@ -288,7 +310,6 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
         queryset = ReportHeader.objects.filter(
             voyage_leg__voyage__ship__imo_reg=imo_reg
         ).order_by('-report_date')
-        print('Matching reports:', queryset.count())
         return queryset.first()
 
     def get_object(self):
@@ -299,9 +320,7 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
         return obj
 
     def retrieve(self, request, *args, **kwargs):
-        print('Retrieving report...')
         instance = self.get_object()
-        print('Report:', instance)
         report_type = instance.report_type
         serializer_class = get_serializer_from_report_type(report_type)
         serializer = serializer_class(instance)
