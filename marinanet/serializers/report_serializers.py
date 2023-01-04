@@ -58,10 +58,20 @@ from marinanet.serializers.model_serializers import (
     TotalConsumptionDataSerializer,
     TransoceanicBudgetSerializer,
     WeatherDataSerializer,
+    VoyageLegSerializer,
 )
 
 
-class NoonReportViewSerializer(serializers.ModelSerializer):
+class BaseReportViewSerializer(serializers.ModelSerializer):
+    voyage_leg = VoyageLegSerializer()
+
+    class Meta:
+        model = ReportHeader
+        fields = '__all__'
+        exclude = ['id', 'created_at', 'modified_at']
+
+
+class NoonReportViewSerializer(BaseReportViewSerializer):
     reportroute = ReportRouteSerializer()
     noonreporttimeandposition = NoonReportTimeAndPositionSerializer()
     weatherdata = WeatherDataSerializer()
@@ -131,7 +141,7 @@ class NoonReportViewSerializer(serializers.ModelSerializer):
         return header
 
 
-class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
+class DepartureStandbyReportViewSerializer(BaseReportViewSerializer):
     reportroute = ReportRouteSerializer()
     cargooperation = CargoOperationSerializer()
     departurevesselcondition = DepartureVesselConditionSerializer()
@@ -224,7 +234,7 @@ class DepartureStandbyReportViewSerializer(serializers.ModelSerializer):
         return header
 
 
-class DepartureCOSPReportViewSerializer(serializers.ModelSerializer):
+class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
     reportroute = ReportRouteSerializer()
     departurepilotstation = DeparturePilotStationSerializer(
         required=False, allow_null=True)
@@ -294,7 +304,7 @@ class DepartureCOSPReportViewSerializer(serializers.ModelSerializer):
         return header
 
 
-class ArrivalStandbyReportViewSerializer(serializers.ModelSerializer):
+class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
     reportroute = ReportRouteSerializer()
     plannedoperations = PlannedOperationsSerializer()
     arrivalstandbytimeandposition = ArrivalStandbyTimeAndPositionSerializer()
@@ -379,7 +389,7 @@ class ArrivalStandbyReportViewSerializer(serializers.ModelSerializer):
         return header
 
 
-class ArrivalFWEReportViewSerializer(serializers.ModelSerializer):
+class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
     arrivalfwetimeandposition = ArrivalFWETimeandPositionSerializer()
     plannedoperations = PlannedOperationsSerializer()
     arrivalpilotstation = ArrivalPilotStationSerializer(
@@ -458,7 +468,7 @@ class ArrivalFWEReportViewSerializer(serializers.ModelSerializer):
         return header
 
 
-class EventReportViewSerialiazer(serializers.ModelSerializer):
+class EventReportViewSerialiazer(BaseReportViewSerializer):
     eventdata = EventDataSerializer()
     plannedoperations = PlannedOperationsSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
@@ -509,7 +519,7 @@ class EventReportViewSerialiazer(serializers.ModelSerializer):
         return header
 
 
-class BDNReportViewSerializer(serializers.ModelSerializer):
+class BDNReportViewSerializer(BaseReportViewSerializer):
     bdndata = BDNDataSerializer()
 
     class Meta:
