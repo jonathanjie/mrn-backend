@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from django.db.models import Q
 from django.db.models.functions import TruncDate
+from django.forms.models import model_to_dict
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
@@ -261,14 +262,14 @@ class ReportsList(generics.ListCreateAPIView):
         # TODO: Creation of VoyageLeg should be separate API
         if report_type == ReportType.DEP_SBY:
             voyage_leg_data = request.data.pop('voyage_leg')
-            voyage_uuid = voyage_leg_data.pop('voyage')
+            voyage_uuid = voyage_leg_data.pop('voyage').pop('uuid')
             voyage = Voyage.objects.get(uuid=voyage_uuid)
             voyage_leg = VoyageLeg.objects.create(
                 voyage=voyage, **voyage_leg_data)
         else:
             voyage_leg_data = request.data.pop('voyage_leg')
             voyage_leg = VoyageLeg.objects.get(uuid=voyage_leg_data['uuid'])
-        request.data['voyage_leg'] = voyage_leg
+        # request.data['voyage_leg'] = voyage_leg
 
         # Get serializer class based on report type
         serializer_class = get_serializer_from_report_type(report_type)
@@ -276,7 +277,7 @@ class ReportsList(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         # Save the newly created report header
-        self.perform_create(serializer)
+        serializer.save(voyage_leg=voyage_leg)
         headers = self.get_success_headers(serializer.data)
 
         # # Fetch the voyage associated with the newly created report header
