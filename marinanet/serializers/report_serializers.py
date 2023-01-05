@@ -33,7 +33,8 @@ from marinanet.models import (
     StoppageData,
     TotalConsumptionData,
     TransoceanicBudget,
-    WeatherData
+    VoyageLeg,
+    WeatherData,
 )
 
 from marinanet.serializers.model_serializers import (
@@ -57,8 +58,9 @@ from marinanet.serializers.model_serializers import (
     StoppageDataSerializer,
     TotalConsumptionDataSerializer,
     TransoceanicBudgetSerializer,
-    WeatherDataSerializer,
+    VoyageSerializer,
     VoyageLegSerializer,
+    WeatherDataSerializer,
 )
 
 
@@ -155,6 +157,7 @@ class DepartureStandbyReportViewSerializer(BaseReportViewSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
+        voyage_leg_data = validated_data.pop('voyage_leg')
         reportroute = validated_data.pop('reportroute')
         cargooperation = validated_data.pop('cargooperation')
         departurevesselcondition = validated_data.pop(
@@ -166,7 +169,9 @@ class DepartureStandbyReportViewSerializer(BaseReportViewSerializer):
         totalconsumptiondata = validated_data.pop('totalconsumptiondata')
 
         with transaction.atomic():
-            header = ReportHeader.objects.create(**validated_data)
+            voyage_leg = VoyageLeg.objects.create(**voyage_leg_data)
+            header = ReportHeader.objects.create(
+                voyage_leg=voyage_leg, **validated_data)
             ReportRoute.objects.create(report_header=header, **reportroute)
             CargoOperation.objects.create(
                 report_header=header, **cargooperation)

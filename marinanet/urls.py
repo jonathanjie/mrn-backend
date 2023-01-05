@@ -16,6 +16,8 @@ urlpatterns = [
     path('marinanet/ships/<int:imo_reg>/latest-report/',
          views.LatestReportDetailByShip.as_view()),
     path('marinanet/ships/<int:imo_reg>/legs/', views.ShipLegsList.as_view()),
+    path('marinanet/ships/<int:imo_reg>/latest-details/',
+         views.ReportPrefillView.as_view()),
     path('marinanet/voyages/', views.VoyageList.as_view()),
     path('marinanet/voyages/<uuid:uuid>/', views.VoyageDetail.as_view()),
     path('marinanet/voyages/<uuid:uuid>/reports',

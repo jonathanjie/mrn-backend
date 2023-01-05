@@ -161,6 +161,84 @@ class VoyageLeg(BaseModel):
         db_table = "voyage_legs"
 
 
+class VoyageLegData(BaseModel):
+    voyage_leg = models.OneToOneField(
+        VoyageLeg, on_delete=models.PROTECT, null=True)
+    last_report_type = models.CharField(
+        max_length=4, choices=ReportType.choices, null=True)
+    last_report_date = models.DateTimeField(null=True)
+
+    departure_port = models.CharField(max_length=6, null=True)  # TODO: LOCODE
+    departure_date = models.DateTimeField(null=True)
+    departure_tz = models.FloatField(null=True)
+    arrival_port = models.CharField(max_length=6, null=True)  # TODO: LOCODE
+    arrival_date = models.DateTimeField(null=True)
+    arrival_tz = models.FloatField(null=True)
+
+    displacement_at_departure = models.DecimalField(
+        max_digits=7,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    load_condition = models.CharField(
+        max_length=16,
+        choices=LoadCondition.choices,
+        null=True)
+    propeller_pitch = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True)
+
+    total_hours = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    distance_observed_total = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    distance_engine_total = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    revolution_count = models.IntegerField(
+        validators=[MinValueValidator(0)], null=True)
+    distance_to_go = models.DecimalField(
+        max_digits=5,
+        decimal_places=0,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    speed_average = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    rpm_average = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    slip_average = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+
+    fuel_oil_data = models.JSONField(null=True)
+    lube_oil_data = models.JSONField(null=True)
+    freshwater_data = models.JSONField(null=True)
+
+    plannedoperations = models.JSONField(null=True)
+    parking_status = models.CharField(
+        max_length=32,
+        choices=ParkingStatus.choices,
+        null=True)
+
+    class Meta:
+        db_table = "voyage_leg_data"
+
+
 class ReportHeader(BaseModel):
     """Common header for all report types"""
     voyage_leg = models.ForeignKey(VoyageLeg, on_delete=models.PROTECT)

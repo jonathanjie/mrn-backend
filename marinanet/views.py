@@ -22,6 +22,7 @@ from marinanet.models import (
     UserProfile,
     Voyage,
     VoyageLeg,
+    VoyageLegData,
 )
 from marinanet.permissions import (
     IsShipUser
@@ -32,6 +33,7 @@ from marinanet.serializers.model_serializers import (
     ShipSpecsSerializer,
     UserProfileSerializer,
     VoyageLegSerializer,
+    VoyageLegDataSerializer,
     VoyageReportsSerializer,
     VoyageSerializer,
 )
@@ -184,7 +186,6 @@ class LatestVoyageDetailByShip(generics.RetrieveAPIView):
         imo_reg = self.kwargs['imo_reg']
         user = self.request.user
         ship = Ship.objects.get(imo_reg=imo_reg)
-        import pdb; pdb.set_trace()
         queryset = Voyage.objects.filter(ship=ship)
         return queryset
 
@@ -255,6 +256,19 @@ class ReportsList(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         # Get the report type from the request data
         report_type = request.data.get('report_type')
+
+        # Temporary logic for creating new VoyageLeg
+        # TODO: Creation of VoyageLeg should be separate API
+        if report_type == ReportType.DEP_SBY:
+            voyage_leg_data = request.data.pop('voyage_leg')
+            voyage_uuid = voyage_leg_data.pop('voyage')
+            voyage = Voyage.objects.get(uuid=voyage_uuid)
+            voyage_leg = VoyageLeg.objects.create(
+                voyage=voyage, **voyage_leg_data)
+        else:
+            voyage_leg_data = request.data.pop('voyage_leg')
+            voyage_leg = VoyageLeg.objects.get(uuid=voyage_leg_data['uuid'])
+        request.data['voyage_leg'] = voyage_leg
 
         # Get serializer class based on report type
         serializer_class = get_serializer_from_report_type(report_type)
@@ -389,6 +403,21 @@ class ShipLegsList(generics.ListAPIView):
 
 #         # Otherwise, return the most recent num_routes routes
 #         return queryset[:num_routes]
+
+
+class ReportPrefillView(generics.RetrieveAPIView):
+    serializer_class = VoyageLegDataSerializer
+    lookup_field = 'imo_reg'
+
+    def get_queryset(self):
+        imo_reg = self.kwargs['imo_reg']
+        ship = Ship.objects.get(imo_reg=imo_reg)
+        queryset = VoyageLegData.objects.filter(voyage_leg__voyage__ship=ship)
+        return queryset
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        return queryset.latest('modified_at')
 
 
 class WeeklyStatsList(APIView):

@@ -39,6 +39,7 @@ from marinanet.models import (
     UserProfile,
     Voyage,
     VoyageLeg,
+    VoyageLegData,
     WeatherData,
 )
 
@@ -104,6 +105,13 @@ class VoyageLegSerializer(serializers.ModelSerializer):
                   'departure_port', 'departure_date', 'departure_tz',
                   'arrival_port', 'arrival_date', 'arrival_tz']
         read_only_fields = ['uuid', 'voyage']
+
+
+class VoyageLegDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VoyageLegData
+        fields = '__all__'
+        exclude = ['uuid', 'created_at', 'modified_at']
 
 
 class ReportHeaderSerializer(serializers.ModelSerializer):
