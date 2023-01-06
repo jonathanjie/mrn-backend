@@ -41,6 +41,7 @@ from marinanet.models import (
     UserProfile,
     Voyage,
     VoyageLeg,
+    VoyageLegData,
     WeatherData
 )
 
@@ -96,3 +97,4 @@ admin.site.register(ArrivalFWETimeAndPosition)
 admin.site.register(PortOperations)
 admin.site.register(EventData)
 admin.site.register(BDNData)
+admin.site.register(VoyageLegData)

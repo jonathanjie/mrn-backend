@@ -423,11 +423,12 @@ class ReportPrefillView(generics.RetrieveAPIView):
 class WeeklyStatsList(APIView):
     def get(self, request, imo_reg):
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
-        from datetime import datetime
-        start_date = datetime.fromisoformat('2022-12-21T00:00:01+00:00')
-        end_date = datetime.fromisoformat('2022-12-28T00:00:00+00:00')
         past_week_reports = ReportHeader.objects.filter(
-            Q(report_type=ReportType.NOON) | Q(report_type=ReportType.ARR_SBY),
+            Q(report_type=ReportType.DEP_SBY) |
+            Q(report_type=ReportType.DEP_COSP) |
+            Q(report_type=ReportType.NOON) |
+            Q(report_type=ReportType.ARR_SBY) |
+            Q(report_type=ReportType.ARR_FWE)
         ).filter(
             report_date__gte=start_date,
             report_date__lte=end_date,
@@ -437,7 +438,7 @@ class WeeklyStatsList(APIView):
             '-date'
         ).distinct(
             'date'
-        ).select_related()
+        ).select_related()[:7]
 
         # processed_reports = []
         # for report in past_week_reports:

@@ -232,7 +232,7 @@ class VoyageLegData(BaseModel):
     lube_oil_robs = models.JSONField(default=dict)
     freshwater_rob = models.PositiveIntegerField(null=True)
 
-    plannedoperations = models.JSONField(null=True)
+    planned_operations = models.JSONField(null=True)
     parking_status = models.CharField(
         max_length=32,
         choices=ParkingStatus.choices,

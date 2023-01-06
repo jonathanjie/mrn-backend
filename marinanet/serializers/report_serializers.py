@@ -409,6 +409,13 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
             fueloiltotalconsumptiondata_set = totalconsumptiondata.pop(
                 'fueloiltotalconsumptiondata_set')
 
+            # Arrival Standby Total Consumption should not have
+            # lubricating oil or freshwater
+            lubricatingoiltotalconsumptiondata_set = totalconsumptiondata.pop(
+                'lubricatingoiltotalconsumptiondata_set', None)
+            freshwatertotalconsumptiondata = totalconsumptiondata.pop(
+                'freshwatertotalconsumptiondata', None)
+
             tcdata = TotalConsumptionData.objects.create(
                 report_header=header, **totalconsumptiondata)
             for fueloiltotalconsumptiondata in fueloiltotalconsumptiondata_set:
@@ -495,6 +502,13 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
 
             fueloiltotalconsumptiondata_set = totalconsumptiondata.pop(
                 'fueloiltotalconsumptiondata_set')
+
+            # Arrival FWE Total Consumption should not have
+            # lubricating oil or freshwater
+            lubricatingoiltotalconsumptiondata_set = totalconsumptiondata.pop(
+                'lubricatingoiltotalconsumptiondata_set', None)
+            freshwatertotalconsumptiondata = totalconsumptiondata.pop(
+                'freshwatertotalconsumptiondata', None)
 
             tcdata = TotalConsumptionData.objects.create(
                 report_header=header, **totalconsumptiondata)

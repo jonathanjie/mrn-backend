@@ -1,3 +1,5 @@
+from django.forms.models import model_to_dict
+
 from marinanet.enums import ReportType
 from marinanet.models import VoyageLegData
 
@@ -7,7 +9,7 @@ def update_leg_data(report_header, **kwargs):
     leg_data, created = VoyageLegData.objects.get_or_create(
         voyage_leg=voyage_leg)
     if created:
-        leg_data.propellor_pitch = voyage_leg.voyage.ship.\
+        leg_data.propeller_pitch = voyage_leg.voyage.ship.\
             shipspecs.propeller_pitch
 
     leg_data.last_report_type = report_header.report_type
@@ -82,7 +84,7 @@ def update_leg_data(report_header, **kwargs):
 
     if 'distance_time_data' in kwargs:
         dt_data = kwargs.pop('distance_time_data')
-        leg_data.total_hours = dt_data.hours_total
+        leg_data.total_hours = dt_data.time
         leg_data.distance_observed_total = dt_data.distance_obs
         leg_data.distance_engine_total = dt_data.distance_eng
         leg_data.revolution_count = dt_data.revolution_count
@@ -115,7 +117,11 @@ def update_leg_data(report_header, **kwargs):
     #     pass
 
     if 'planned_operations' in kwargs:
-        pass
+        planned_operations = kwargs.pop('planned_operations')
+        planned_operations_dict = model_to_dict(planned_operations)
+        planned_operations_dict.pop('report_header')
+        leg_data.planned_operations = planned_operations_dict
+
 
     # if 'arrival_standby_time_and_position' in kwargs:
     #     pass
@@ -123,8 +129,9 @@ def update_leg_data(report_header, **kwargs):
     # if 'arrival_fwe_time_and_position' in kwargs:
     #     pass
 
-    # if 'event_data' in kwargs:
-    #     pass
+    if 'event_data' in kwargs:
+        event_data = kwargs.pop('event_data')
+        leg_data.parking_status = event_data.parking_status
 
     # if 'bdn_data' in kwargs:
     #     pass
@@ -137,8 +144,9 @@ def _update_fo_consumption(fo_type, cons_breakdown_dict, leg_fo_cons_dict):
     if fo_type not in leg_fo_cons_dict:
         leg_fo_cons_dict[fo_type] = cons_breakdown_dict
     else:
-        for eng_type, val in cons_breakdown_dict:
-            if eng_type in leg_fo_cons_dict:
-                leg_fo_cons_dict[eng_type] += val
+        leg_fo_cons_for_type = leg_fo_cons_dict[fo_type]
+        for eng_type, val in cons_breakdown_dict.items():
+            if eng_type in leg_fo_cons_for_type:
+                leg_fo_cons_for_type[eng_type] += val
             else:
-                leg_fo_cons_dict[eng_type] = val
+                leg_fo_cons_for_type[eng_type] = val
