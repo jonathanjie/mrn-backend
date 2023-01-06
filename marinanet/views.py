@@ -444,20 +444,11 @@ class WeeklyStatsList(APIView):
     def get(self, request, imo_reg):
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
         past_week_reports = ReportHeader.objects.filter(
-            Q(report_type=ReportType.DEP_SBY) |
-            Q(report_type=ReportType.DEP_COSP) |
+            # Q(report_type=ReportType.DEP_SBY) |
+            # Q(report_type=ReportType.DEP_COSP) |
             Q(report_type=ReportType.NOON) |
-            Q(report_type=ReportType.ARR_SBY) |
-            Q(report_type=ReportType.ARR_FWE)
-        ).filter(
-            report_date__gte=start_date,
-            report_date__lte=end_date,
-        ).annotate(
-            date=TruncDate('report_date'),
-        ).order_by(
-            '-date'
-        ).distinct(
-            'date'
+            Q(report_type=ReportType.ARR_SBY)
+            # Q(report_type=ReportType.ARR_FWE)
         ).select_related()[:7]
 
         # processed_reports = []
