@@ -130,7 +130,7 @@ class ReportHeaderSerializer(serializers.ModelSerializer):
 
 
 class ReportHeaderWithLegSerializer(serializers.ModelSerializer):
-    voyage_leg = VoyageLegSerializer
+    voyage_leg = VoyageLegSerializer()
 
     class Meta:
         model = ReportHeader
