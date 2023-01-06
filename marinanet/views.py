@@ -170,9 +170,8 @@ class VoyageDetail(generics.RetrieveAPIView):
     lookup_field = 'uuid'
 
     def get_queryset(self):
-        user = self.request.user
-        ship = Ship.objects.get(imo_reg=imo_reg)
-        queryset = Voyage.objects.filter(ship=ship)
+        voyage_uuid = self.kwargs['uuid']
+        queryset = Voyage.objects.filter(uuid=voyage_uuid)
         return queryset
 
 
