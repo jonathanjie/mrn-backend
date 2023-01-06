@@ -36,7 +36,6 @@ from marinanet.models import (
     VoyageLeg,
     WeatherData,
 )
-
 from marinanet.serializers.model_serializers import (
     ActualPerformanceDataSerializer,
     ArrivalFWETimeandPositionSerializer,
@@ -62,6 +61,7 @@ from marinanet.serializers.model_serializers import (
     VoyageLegSerializer,
     WeatherDataSerializer,
 )
+from marinanet.utils.report_utils import update_leg_data
 
 
 class BaseReportViewSerializer(serializers.ModelSerializer):
@@ -100,14 +100,15 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            ReportRoute.objects.create(report_header=header, **reportroute)
-            NoonReportTimeAndPosition.objects.create(
+            report_route = ReportRoute.objects.create(
+                report_header=header, **reportroute)
+            noon_report_time_and_position = NoonReportTimeAndPosition.objects.create(
                 report_header=header, **noonreporttimeandposition)
             WeatherData.objects.create(report_header=header, **weatherdata)
             if heavyweatherdata:
                 HeavyWeatherData.objects.create(
                     report_header=header, **heavyweatherdata)
-            DistancePerformanceData.objects.create(
+            distance_performance_data = DistancePerformanceData.objects.create(
                 report_header=header, **distanceperformancedata)
             if stoppagedata:
                 StoppageData.objects.create(
@@ -140,6 +141,13 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
                         **lubricatingoildatacorrection)
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
 
+            leg_data = update_leg_data(
+                report_header=header,
+                report_route=report_route,
+                distance_performance_data=distance_performance_data,
+                consumption_condition_data=ccdata,
+                )
+
         return header
 
 
@@ -169,10 +177,11 @@ class DepartureStandbyReportViewSerializer(BaseReportViewSerializer):
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            ReportRoute.objects.create(report_header=header, **reportroute)
-            CargoOperation.objects.create(
+            report_route = ReportRoute.objects.create(
+                report_header=header, **reportroute)
+            cargo_operation = CargoOperation.objects.create(
                 report_header=header, **cargooperation)
-            DepartureVesselCondition.objects.create(
+            departure_condition = DepartureVesselCondition.objects.create(
                 report_header=header, **departurevesselcondition)
             if departurepilotstation:
                 DeparturePilotStation.objects.create(
@@ -233,6 +242,14 @@ class DepartureStandbyReportViewSerializer(BaseReportViewSerializer):
             FreshWaterTotalConsumptionData.objects.create(
                 tcdata=tcdata, **freshwatertotalconsumptiondata)
 
+            leg_data = update_leg_data(
+                report_header=header,
+                report_route=report_route,
+                cargo_operation=cargo_operation,
+                departure_condition=departure_condition,
+                consumption_condition_data=ccdata,
+            )
+
         return header
 
 
@@ -263,7 +280,8 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            ReportRoute.objects.create(report_header=header, **reportroute)
+            report_route = ReportRoute.objects.create(
+                report_header=header, **reportroute)
             if departurepilotstation:
                 DeparturePilotStation.objects.create(
                     report_header=header, **departurepilotstation)
@@ -271,9 +289,9 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
                 report_header=header, **arrivalpilotstation)
             DepartureRunUp.objects.create(
                 report_header=header, **departurerunup)
-            DistanceTimeData.objects.create(
+            distance_time_data = DistanceTimeData.objects.create(
                 report_header=header, **distancetimedata)
-            TransoceanicBudget.objects.create(
+            transoceanic_budget = TransoceanicBudget.objects.create(
                 report_header=header, **transoceanicbudget)
 
             fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
@@ -302,6 +320,14 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
                         lubricating_oil_data=lo_data,
                         **lubricatingoildatacorrection)
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
+
+            leg_data = update_leg_data(
+                report_header=header,
+                report_route=report_route,
+                distance_time_data=distance_time_data,
+                transoceanic_budget=transoceanic_budget,
+                consumption_condition_data=ccdata,
+            )
 
         return header
 
@@ -337,13 +363,14 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
-            ReportRoute.objects.create(report_header=header, **reportroute)
-            PlannedOperations.objects.create(
+            report_route = ReportRoute.objects.create(
+                report_header=header, **reportroute)
+            planned_operations = PlannedOperations.objects.create(
                 report_header=header, **plannedoperations)
             ArrivalStandbyTimeAndPosition.objects.create(
                 report_header=header, **arrivalstandbytimeandposition)
             WeatherData.objects.create(report_header=header, **weatherdata)
-            DistancePerformanceData.objects.create(
+            distance_performance_data = DistancePerformanceData.objects.create(
                 report_header=header, **distanceperformancedata)
             if arrivalpilotstation:
                 ArrivalPilotStation.objects.create(
@@ -388,6 +415,14 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
                 fo_tcdata = FuelOilTotalConsumptionData.objects.create(
                     tcdata=tcdata, **fueloiltotalconsumptiondata)
 
+            leg_data = update_leg_data(
+                report_header=header,
+                report_route=report_route,
+                planned_operations=planned_operations,
+                distance_performance_data=distance_performance_data,
+                consumption_condition_data=ccdata,
+            )
+
         return header
 
 
@@ -420,7 +455,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
             header = ReportHeader.objects.create(**validated_data)
             ArrivalFWETimeAndPosition.objects.create(
                 report_header=header, **arrivalfwetimeandposition)
-            PlannedOperations.objects.create(
+            planned_operations = PlannedOperations.objects.create(
                 report_header=header, **plannedoperations)
             if arrivalpilotstation:
                 ArrivalPilotStation.objects.create(
@@ -467,6 +502,12 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
                 fo_tcdata = FuelOilTotalConsumptionData.objects.create(
                     tcdata=tcdata, **fueloiltotalconsumptiondata)
 
+            leg_data = update_leg_data(
+                report_header=header,
+                planned_operations=planned_operations,
+                consumption_condition_data=ccdata,
+            )
+
         return header
 
 
@@ -488,7 +529,7 @@ class EventReportViewSerialiazer(BaseReportViewSerializer):
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
             EventData.objects.create(report_header=header, **eventdata)
-            PlannedOperations.objects.create(
+            planned_operations = PlannedOperations.objects.create(
                 report_header=header, **plannedoperations)
 
             fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
@@ -518,6 +559,12 @@ class EventReportViewSerialiazer(BaseReportViewSerializer):
                         **lubricatingoildatacorrection)
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
 
+            leg_data = update_leg_data(
+                report_header=header,
+                planned_operations=planned_operations,
+                consumption_condition_data=ccdata,
+            )
+
         return header
 
 
@@ -534,5 +581,9 @@ class BDNReportViewSerializer(BaseReportViewSerializer):
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
             BDNData.objects.create(report_header=header, **bdndata)
+
+            leg_data = update_leg_data(
+                report_header=header,
+            )
 
         return header

@@ -225,9 +225,12 @@ class VoyageLegData(BaseModel):
         validators=[MinValueValidator(Decimal("0.0"))],
         null=True)
 
-    fuel_oil_data = models.JSONField(null=True)
-    lube_oil_data = models.JSONField(null=True)
-    freshwater_data = models.JSONField(null=True)
+    fuel_oil_robs = models.JSONField(default=dict)
+    fuel_oil_cons_port_to_port = models.JSONField(default=dict)
+    fuel_oil_cons_pilot_to_pilot = models.JSONField(default=dict)
+    fuel_oil_cons_in_harbour_port = models.JSONField(default=dict)
+    lube_oil_robs = models.JSONField(default=dict)
+    freshwater_rob = models.PositiveIntegerField(null=True)
 
     plannedoperations = models.JSONField(null=True)
     parking_status = models.CharField(
