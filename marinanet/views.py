@@ -41,6 +41,7 @@ from marinanet.serializers.model_serializers import (
 )
 from marinanet.serializers.stats_serializers import (
     DailyStatSerializer,
+    VesselListDetailSerializer,
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
@@ -95,6 +96,20 @@ class ShipDetail(APIView):
         else:
             data = ship_serializer.data
             return Response(data)
+
+
+class ShipOverviewList(generics.ListAPIView):
+    serializer_class = VesselListDetailSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = VoyageLeg.objects.filter(
+            voyage__ship__assigned_users=user
+            ).order_by(
+                'voyage__ship',
+                '-modified_at'
+            ).distinct('voyage__ship')
+        return queryset
 
 
 class ShipSpecsCreate(APIView):
