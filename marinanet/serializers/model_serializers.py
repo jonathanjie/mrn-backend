@@ -110,7 +110,6 @@ class VoyageLegSerializer(serializers.ModelSerializer):
 class VoyageLegDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = VoyageLegData
-        fields = '__all__'
         exclude = ['uuid', 'created_at', 'modified_at']
 
 
