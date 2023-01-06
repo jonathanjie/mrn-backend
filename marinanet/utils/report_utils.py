@@ -40,30 +40,26 @@ def update_leg_data(report_header, **kwargs):
         for fuel_oil_data in ccdata.fueloildata_set:
             fo_type = fuel_oil_data.fuel_oil_type
             leg_fo_robs['fo_type'] = fuel_oil_data.rob
-            if fo_type not in leg_fo_cons_port_to_port:
-                leg_fo_cons_port_to_port[fo_type] = {}
-            cons_port_to_port_temp = leg_fo_cons_port_to_port[fo_type]
 
             cons_breakdown = fuel_oil_data.breakdown
-            for key, val in cons_breakdown:
-                if report_header.report_type in (ReportType.DEP_COSP,
-                                                 ReportType.NOON,
-                                                 ReportType.ARR_SBY,
-                                                 ReportType.ARR_FWE):
-                    # Update values for Port to Port consumption
-                    pass
+            if report_header.report_type in (ReportType.DEP_COSP,
+                                             ReportType.NOON,
+                                             ReportType.ARR_SBY,
+                                             ReportType.ARR_FWE):
+                # Update values for Port to Port consumption
+                _update_fo_consumption(fo_type, cons_breakdown, leg_fo_cons_port_to_port)
 
-                if report_header.report_type in (ReportType.NOON,
-                                                 ReportType.ARR_SBY):
-                    # Update values for Pilot to Pilot consumption
-                    pass
+            if report_header.report_type in (ReportType.NOON,
+                                             ReportType.ARR_SBY):
+                # Update values for Pilot to Pilot consumption
+                _update_fo_consumption(fo_type, cons_breakdown, leg_fo_cons_pilot_to_pilot)
 
-                if report_header.report_type in (ReportType.EVENT_HARBOUR,
-                                                 ReportType.EVENT_PORT,
-                                                 ReportType.NOON_HARBOUR,
-                                                 ReportType.NOON_PORT):
-                    # Update values for In Harbour / Port consumption
-                    pass
+            if report_header.report_type in (ReportType.EVENT_HARBOUR,
+                                             ReportType.EVENT_PORT,
+                                             ReportType.NOON_HARBOUR,
+                                             ReportType.NOON_PORT):
+                # Update values for In Harbour / Port consumption
+                _update_fo_consumption(fo_type, cons_breakdown, leg_fo_cons_in_harbour_port)
 
         leg_lo_data_set = leg_data.lube_oil_data
         for lube_oil_data in ccdata.lubricatingoildata_set:
@@ -141,3 +137,14 @@ def update_leg_data(report_header, **kwargs):
 
     leg_data.save()
     return leg_data
+
+
+def _update_fo_consumption(fo_type, cons_breakdown_dict, leg_fo_cons_dict):
+    if fo_type not in leg_fo_cons_dict:
+        leg_fo_cons_dict[fo_type] = cons_breakdown_dict
+    else:
+        for eng_type, val in cons_breakdown_dict:
+            if eng_type in leg_fo_cons_dict:
+                leg_fo_cons_dict[eng_type] += val
+            else:
+                leg_fo_cons_dict[eng_type] = val
