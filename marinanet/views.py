@@ -108,7 +108,12 @@ class ShipOverviewList(generics.ListAPIView):
             ).order_by(
                 'voyage__ship',
                 '-modified_at'
-            ).distinct('voyage__ship')
+            ).distinct(
+                'voyage__ship'
+            ).select_related(
+                'voyage__ship__shipspecs',
+                'voyagelegdata',
+            )
         return queryset
 
 
