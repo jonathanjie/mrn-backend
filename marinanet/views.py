@@ -30,6 +30,7 @@ from marinanet.permissions import (
 )
 from marinanet.serializers.model_serializers import (
     ReportHeaderSerializer,
+    ReportHeaderWithLegSerializer,
     ShipSerializer,
     ShipSpecsSerializer,
     UserProfileSerializer,
@@ -200,7 +201,7 @@ class VoyageReportsList(generics.ListAPIView):
     Lists all reports from a single voyage
     TODO: User must have permission to view ship
     """
-    serializer_class = ReportHeaderSerializer
+    serializer_class = ReportHeaderWithLegSerializer
 
     def get_queryset(self):
         voyage_uuid = self.kwargs['uuid']
@@ -269,7 +270,6 @@ class ReportsList(generics.ListCreateAPIView):
         else:
             voyage_leg_data = request.data.pop('voyage_leg')
             voyage_leg = VoyageLeg.objects.get(uuid=voyage_leg_data['uuid'])
-        # request.data['voyage_leg'] = voyage_leg
 
         # Get serializer class based on report type
         serializer_class = get_serializer_from_report_type(report_type)

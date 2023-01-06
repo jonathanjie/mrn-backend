@@ -129,6 +129,15 @@ class ReportHeaderSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid', 'created_at', 'modified_at']
 
 
+class ReportHeaderWithLegSerializer(serializers.ModelSerializer):
+    voyage_leg = VoyageLegSerializer
+
+    class Meta:
+        model = ReportHeader
+        fields = '__all__'
+        read_only_fields = ['uuid', 'created_at', 'modified_at']
+
+
 # class VoyageReportsSerializer(serializers.ModelSerializer):
 #     reports = ReportHeaderSerializer(source='reportheader_set', many=True)
 
