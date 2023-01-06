@@ -8,16 +8,16 @@ def update_leg_data(report_header, **kwargs):
         voyage_leg=voyage_leg)
     if created:
         leg_data.propellor_pitch = voyage_leg.voyage.ship.\
-            shipspecs.propellor_pitch
+            shipspecs.propeller_pitch
 
     leg_data.last_report_type = report_header.report_type
     leg_data.last_report_type = report_header.report_date
 
     if 'report_route' in kwargs:
-        route = kwargs.pop('reportroute')
+        route = kwargs.pop('report_route')
         leg_data.departure_port = route.departure_port
-        leg_data.departure_time = route.departure_time
-        leg_data.departure_tz = route.departure_tz
+        leg_data.departure_time = route.departure_date
+        leg_data.departure_tz = route.depature_tz
         leg_data.arrival_port = route.arrival_port
         leg_data.arrival_date = route.arrival_date
         leg_data.arrival_tz = route.arrival_tz
@@ -37,9 +37,9 @@ def update_leg_data(report_header, **kwargs):
         leg_fo_cons_pilot_to_pilot = leg_data.fuel_oil_cons_pilot_to_pilot
         leg_fo_cons_in_harbour_port = leg_data.fuel_oil_cons_in_harbour_port
 
-        for fuel_oil_data in ccdata.fueloildata_set:
+        for fuel_oil_data in ccdata.fueloildata_set.all():
             fo_type = fuel_oil_data.fuel_oil_type
-            leg_fo_robs['fo_type'] = fuel_oil_data.rob
+            leg_fo_robs[fo_type] = fuel_oil_data.rob
 
             cons_breakdown = fuel_oil_data.breakdown
             if report_header.report_type in (ReportType.DEP_COSP,
@@ -61,16 +61,10 @@ def update_leg_data(report_header, **kwargs):
                 # Update values for In Harbour / Port consumption
                 _update_fo_consumption(fo_type, cons_breakdown, leg_fo_cons_in_harbour_port)
 
-        leg_lo_data_set = leg_data.lube_oil_data
-        for lube_oil_data in ccdata.lubricatingoildata_set:
+        leg_lo_robs = leg_data.lube_oil_robs
+        for lube_oil_data in ccdata.lubricatingoildata_set.all():
             lo_type = lube_oil_data.fuel_oil_type
-            if lo_type in leg_lo_data_set:
-                leg_lo_data = leg_fo_data_set[lo_type]
-                leg_lo_data['rob'] = lube_oil_data.rob
-            else:
-                leg_lo_data_set[lo_type] - {
-                    "rob": lube_oil_data.rob
-                }
+            leg_lo_robs[lo_type] = lube_oil_data.rob
 
         leg_data.freshwater_rob = ccdata.freshwaterdata.rob
 
@@ -134,7 +128,7 @@ def update_leg_data(report_header, **kwargs):
 
     # if 'bdn_data' in kwargs:
     #     pass
-
+    import pdb; pdb.set_trace()
     leg_data.save()
     return leg_data
 
