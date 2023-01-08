@@ -158,7 +158,7 @@ class VoyageReportsSerializer(serializers.ModelSerializer):
         report_headers = []
         for voyage_leg in voyage_legs:
             report_headers.extend(voyage_leg.reportheader_set.all())
-        serializer = ReportHeaderSerializer(report_headers, many=True)
+        serializer = ReportHeaderWtihLegSerializer(report_headers, many=True)
         return serializer.data
 
 
