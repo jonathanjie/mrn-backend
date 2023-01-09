@@ -13,7 +13,6 @@ from marinanet.models import (
     DeparturePilotStation,
     DepartureRunUp,
     DepartureVesselCondition,
-    DistancePerformanceData,
     DistanceTimeData,
     EventData,
     FreshWaterData,
@@ -28,16 +27,17 @@ from marinanet.models import (
     LubricatingOilTotalConsumptionData,
     LubricatingOilTotalConsumptionDataCorrection,
     NoonReportTimeAndPosition,
+    PerformanceData,
     PortOperations,
     PlannedOperations,
     ReportHeader,
     ReportRoute,
+    SailingPlan,
     Ship,
     ShipSpecs,
     ShipUser,
     StoppageData,
     TotalConsumptionData,
-    TransoceanicBudget,
     UserProfile,
     Voyage,
     VoyageLeg,
@@ -69,7 +69,8 @@ admin.site.register(NoonReportTimeAndPosition)
 admin.site.register(ReportRoute)
 admin.site.register(WeatherData)
 admin.site.register(HeavyWeatherData)
-admin.site.register(DistancePerformanceData)
+admin.site.register(DistanceTimeData)
+admin.site.register(PerformanceData)
 admin.site.register(ConsumptionConditionData)
 admin.site.register(FuelOilData)
 admin.site.register(FuelOilDataCorrection)
@@ -82,8 +83,7 @@ admin.site.register(DepartureVesselCondition)
 admin.site.register(DeparturePilotStation)
 admin.site.register(ArrivalPilotStation)
 admin.site.register(DepartureRunUp)
-admin.site.register(DistanceTimeData)
-admin.site.register(TransoceanicBudget)
+admin.site.register(SailingPlan)
 admin.site.register(ArrivalStandbyTimeAndPosition)
 admin.site.register(PlannedOperations)
 admin.site.register(ActualPerformanceData)

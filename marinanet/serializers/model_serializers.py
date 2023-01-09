@@ -12,7 +12,6 @@ from marinanet.models import (
     DeparturePilotStation,
     DepartureRunUp,
     DepartureVesselCondition,
-    DistancePerformanceData,
     DistanceTimeData,
     EventData,
     FreshWaterData,
@@ -27,15 +26,16 @@ from marinanet.models import (
     LubricatingOilTotalConsumptionData,
     LubricatingOilTotalConsumptionDataCorrection,
     NoonReportTimeAndPosition,
+    PerformanceData,
     PlannedOperations,
     ReportHeader,
     ReportRoute,
+    SailingPlan,
     Ship,
     ShipSpecs,
     ShipUser,
     StoppageData,
     TotalConsumptionData,
-    TransoceanicBudget,
     UserProfile,
     Voyage,
     VoyageLeg,
@@ -101,9 +101,16 @@ class VoyageSerializer(serializers.ModelSerializer):
 class VoyageLegSerializer(serializers.ModelSerializer):
     class Meta:
         model = VoyageLeg
-        fields = ['uuid', 'voyage', 'leg_num',
-                  'departure_port', 'departure_date', 'departure_tz',
-                  'arrival_port', 'arrival_date', 'arrival_tz']
+        fields = ['uuid', 'voyage', 'leg_num']
+        read_only_fields = ['uuid', 'voyage']
+
+
+class VoyageLegWithVoyageSerializer(serializers.ModelSerializer):
+    voyage = VoyageSerializer()
+
+    class Meta:
+        model = VoyageLeg
+        fields = ['uuid', 'voyage', 'leg_num']
         read_only_fields = ['uuid', 'voyage']
 
 
@@ -197,9 +204,16 @@ class HeavyWeatherDataSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid']
 
 
-class DistancePerformanceDataSerializer(serializers.ModelSerializer):
+class DistanceTimeDataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DistancePerformanceData
+        model = DistanceTimeData
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class PerformanceDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerformanceData
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
 
@@ -298,16 +312,9 @@ class DepartureRunUpSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid']
 
 
-class DistanceTimeDataSerializer(serializers.ModelSerializer):
+class SailingPlanSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DistanceTimeData
-        exclude = ['report_header', 'created_at', 'modified_at']
-        read_only_fields = ['uuid']
-
-
-class TransoceanicBudgetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TransoceanicBudget
+        model = SailingPlan
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
 
