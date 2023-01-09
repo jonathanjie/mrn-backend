@@ -84,14 +84,18 @@ def update_leg_data(report_header, **kwargs):
 
     if 'distance_time_data' in kwargs:
         dt_data = kwargs.pop('distance_time_data')
-        leg_data.total_hours = dt_data.time
-        leg_data.distance_observed_total = dt_data.distance_obs
-        leg_data.distance_engine_total = dt_data.distance_eng
+        leg_data.total_hours = dt_data.hours_total
+        leg_data.distance_observed_total = dt_data.distance_observed_total
+        leg_data.distance_engine_total = dt_data.distance_engine_total
         leg_data.revolution_count = dt_data.revolution_count
+        leg_data.distance_to_go = dt_data.distance_to_go
 
-    if 'transoceanic_budget' in kwargs:
-        transoceanic_budget = kwargs.pop('transoceanic_budget')
-        leg_data.distance_to_go = transoceanic_budget.distance_to_go
+        if report_header.report_type == ReportType.DEP_SBY:
+            leg_data.distance_standby_to_cosp = dt_data.distance_observed_total
+
+    if 'sailing_plan' in kwargs:
+        sailing_plan = kwargs.pop('sailing_plan')
+        leg_data.distance_to_go = sailing_plan.distance_to_go
 
     # if 'noon_report_time_and_position' in kwargs:
     #     pass
@@ -102,16 +106,11 @@ def update_leg_data(report_header, **kwargs):
     # if 'heavy_weather_data' in kwargs:
     #     pass
 
-    if 'distance_performance_data' in kwargs:
-        dp_data = kwargs.pop('distance_performance_data')
-        leg_data.total_hours = dp_data.hours_total
-        leg_data.distance_observed_total = dp_data.distance_observed_total
-        leg_data.distance_engine_total = dp_data.distance_engine_total
-        leg_data.revolution_count = dp_data.revolution_count
-        leg_data.distance_to_go = dp_data.distance_to_go
-        leg_data.speed_average = dp_data.speed_average
-        leg_data.rpm_average = dp_data.rpm_average
-        leg_data.slip_average = dp_data.slip_average
+    if 'performance_data' in kwargs:
+        performance_data = kwargs.pop('performance_data')
+        leg_data.speed_average = performance_data.speed_average
+        leg_data.rpm_average = performance_data.rpm_average
+        leg_data.slip_average = performance_data.slip_average
 
     # if 'stoppage_data' in kwargs:
     #     pass

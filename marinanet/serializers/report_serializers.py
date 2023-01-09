@@ -12,7 +12,6 @@ from marinanet.models import (
     DeparturePilotStation,
     DepartureRunUp,
     DepartureVesselCondition,
-    DistancePerformanceData,
     DistanceTimeData,
     EventData,
     FreshWaterData,
@@ -27,12 +26,13 @@ from marinanet.models import (
     LubricatingOilTotalConsumptionData,
     LubricatingOilTotalConsumptionDataCorrection,
     NoonReportTimeAndPosition,
+    PerformanceData,
     PlannedOperations,
     ReportHeader,
     ReportRoute,
+    SailingPlan,
     StoppageData,
     TotalConsumptionData,
-    TransoceanicBudget,
     VoyageLeg,
     WeatherData,
 )
@@ -47,25 +47,25 @@ from marinanet.serializers.model_serializers import (
     DeparturePilotStationSerializer,
     DepartureRunUpSerializer,
     DepartureVesselConditionSerializer,
-    DistancePerformanceDataSerializer,
     DistanceTimeDataSerializer,
     EventDataSerializer,
     HeavyWeatherDataSerializer,
     NoonReportTimeAndPositionSerializer,
+    PerformanceDataSerializer,
     PlannedOperationsSerializer,
     ReportRouteSerializer,
+    SailingPlanSerializer,
     StoppageDataSerializer,
     TotalConsumptionDataSerializer,
-    TransoceanicBudgetSerializer,
     VoyageSerializer,
-    VoyageLegSerializer,
+    VoyageLegWithVoyageSerializer,
     WeatherDataSerializer,
 )
 from marinanet.utils.report_utils import update_leg_data
 
 
 class BaseReportViewSerializer(serializers.ModelSerializer):
-    voyage_leg = VoyageLegSerializer(read_only=True)
+    voyage_leg = VoyageLegWithVoyageSerializer(read_only=True)
 
     class Meta:
         model = ReportHeader
@@ -79,7 +79,8 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
     weatherdata = WeatherDataSerializer()
     heavyweatherdata = HeavyWeatherDataSerializer(
         required=False, allow_null=True)
-    distanceperformancedata = DistancePerformanceDataSerializer()
+    distancetimedata = DistanceTimeDataSerializer()
+    performancedata = PerformanceDataSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     stoppagedata = StoppageDataSerializer(required=False, allow_null=True)
 
@@ -93,7 +94,8 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
             'noonreporttimeandposition')
         weatherdata = validated_data.pop('weatherdata')
         heavyweatherdata = validated_data.pop('heavyweatherdata', None)
-        distanceperformancedata = validated_data.pop('distanceperformancedata')
+        distancetimedata = validated_data.pop('distancetimedata')
+        performancedata = validated_data.pop('performancedata')
         consumptionconditiondata = validated_data.pop(
             'consumptionconditiondata')
         stoppagedata = validated_data.pop('stoppagedata', None)
@@ -108,8 +110,10 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
             if heavyweatherdata:
                 HeavyWeatherData.objects.create(
                     report_header=header, **heavyweatherdata)
-            distance_performance_data = DistancePerformanceData.objects.create(
-                report_header=header, **distanceperformancedata)
+            distance_time_data = DistanceTimeData.objects.create(
+                report_header=header, **distancetimedata)
+            performance_data = PerformanceData.objects.create(
+                report_header=header, **performancedata)
             if stoppagedata:
                 StoppageData.objects.create(
                     report_header=header, **stoppagedata)
@@ -144,7 +148,8 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
             leg_data = update_leg_data(
                 report_header=header,
                 report_route=report_route,
-                distance_performance_data=distance_performance_data,
+                distance_time_data=distance_time_data,
+                performance_data=performance_data,
                 consumption_condition_data=ccdata,
                 )
 
@@ -257,10 +262,11 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
     reportroute = ReportRouteSerializer()
     departurepilotstation = DeparturePilotStationSerializer(
         required=False, allow_null=True)
-    arrivalpilotstation = ArrivalPilotStationSerializer()
+    arrivalpilotstation = ArrivalPilotStationSerializer(
+        required=False, allow_null=True)
     departurerunup = DepartureRunUpSerializer()
     distancetimedata = DistanceTimeDataSerializer()
-    transoceanicbudget = TransoceanicBudgetSerializer()
+    sailingplan = SailingPlanSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
 
     class Meta:
@@ -271,10 +277,11 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
         reportroute = validated_data.pop('reportroute')
         departurepilotstation = validated_data.pop(
             'departurepilotstation', None)
-        arrivalpilotstation = validated_data.pop('arrivalpilotstation')
+        arrivalpilotstation = validated_data.pop(
+            'arrivalpilotstation', None)
         departurerunup = validated_data.pop('departurerunup')
         distancetimedata = validated_data.pop('distancetimedata')
-        transoceanicbudget = validated_data.pop('transoceanicbudget')
+        sailingplan = validated_data.pop('sailingplan')
         consumptionconditiondata = validated_data.pop(
             'consumptionconditiondata')
 
@@ -285,14 +292,15 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
             if departurepilotstation:
                 DeparturePilotStation.objects.create(
                     report_header=header, **departurepilotstation)
-            ArrivalPilotStation.objects.create(
-                report_header=header, **arrivalpilotstation)
+            if arrivalpilotstation:
+                ArrivalPilotStation.objects.create(
+                    report_header=header, **arrivalpilotstation)
             DepartureRunUp.objects.create(
                 report_header=header, **departurerunup)
             distance_time_data = DistanceTimeData.objects.create(
                 report_header=header, **distancetimedata)
-            transoceanic_budget = TransoceanicBudget.objects.create(
-                report_header=header, **transoceanicbudget)
+            sailing_plan = SailingPlan.objects.create(
+                report_header=header, **sailingplan)
 
             fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
             lubricatingoildata_set = consumptionconditiondata.pop(
@@ -325,7 +333,7 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
                 report_header=header,
                 report_route=report_route,
                 distance_time_data=distance_time_data,
-                transoceanic_budget=transoceanic_budget,
+                sailing_plan=sailing_plan,
                 consumption_condition_data=ccdata,
             )
 
@@ -337,7 +345,8 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
     plannedoperations = PlannedOperationsSerializer()
     arrivalstandbytimeandposition = ArrivalStandbyTimeAndPositionSerializer()
     weatherdata = WeatherDataSerializer()
-    distanceperformancedata = DistancePerformanceDataSerializer()
+    distancetimedata = DistanceTimeDataSerializer()
+    performancedata = PerformanceDataSerializer()
     arrivalpilotstation = ArrivalPilotStationSerializer(
         required=False, allow_null=True)
     consumptionconditiondata = ConsumptionConditionDataSerializer()
@@ -354,7 +363,8 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
         arrivalstandbytimeandposition = validated_data.pop(
             'arrivalstandbytimeandposition')
         weatherdata = validated_data.pop('weatherdata')
-        distanceperformancedata = validated_data.pop('distanceperformancedata')
+        distancetimedata = validated_data.pop('distancetimedata')
+        performancedata = validated_data.pop('performancedata')
         arrivalpilotstation = validated_data.pop('arrivalpilotstation', None)
         consumptionconditiondata = validated_data.pop(
             'consumptionconditiondata')
@@ -370,8 +380,10 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
             ArrivalStandbyTimeAndPosition.objects.create(
                 report_header=header, **arrivalstandbytimeandposition)
             WeatherData.objects.create(report_header=header, **weatherdata)
-            distance_performance_data = DistancePerformanceData.objects.create(
-                report_header=header, **distanceperformancedata)
+            distance_time_data = DistanceTimeData.objects.create(
+                report_header=header, **distancetimedata)
+            performance_data = PerformanceData.objects.create(
+                report_header=header, **performancedata)
             if arrivalpilotstation:
                 ArrivalPilotStation.objects.create(
                     report_header=header, **arrivalpilotstation)
@@ -426,7 +438,8 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
                 report_header=header,
                 report_route=report_route,
                 planned_operations=planned_operations,
-                distance_performance_data=distance_performance_data,
+                distance_time_data=distance_time_data,
+                performance_data=performance_data,
                 consumption_condition_data=ccdata,
             )
 
@@ -467,7 +480,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
             if arrivalpilotstation:
                 ArrivalPilotStation.objects.create(
                     report_header=header, **arrivalpilotstation)
-            DistanceTimeData.objects.create(
+            distance_time_data = DistanceTimeData.objects.create(
                 report_header=header, **distancetimedata)
 
             fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
@@ -520,6 +533,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
                 report_header=header,
                 planned_operations=planned_operations,
                 consumption_condition_data=ccdata,
+                distance_time_data=distance_time_data,
             )
 
         return header
