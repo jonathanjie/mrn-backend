@@ -36,6 +36,7 @@ from marinanet.serializers.model_serializers import (
     UserProfileSerializer,
     VoyageLegSerializer,
     VoyageLegDataSerializer,
+    VoyageLegWithPortsSerializer,
     VoyageReportsSerializer,
     VoyageSerializer,
 )
@@ -388,12 +389,18 @@ class ShipLegsList(generics.ListAPIView):
     """
     Lists all legs from a single ship
     """
-    serializer_class = VoyageLegSerializer
+    serializer_class = VoyageLegWithPortsSerializer
 
     def get_queryset(self):
         imo_reg = self.kwargs['imo_reg']
         ship = Ship.objects.get(imo_reg=imo_reg)
-        queryset = VoyageLeg.objects.filter(voyage__ship=ship)
+        queryset = VoyageLeg.objects.filter(
+            voyage__ship=ship
+        ).select_related(
+            'voyagelegdata',
+        ).order_by(
+            'created_at',
+        )
         return queryset
 
 

@@ -114,6 +114,26 @@ class VoyageLegWithVoyageSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid', 'voyage']
 
 
+class VoyageLegWithPortsSerializer(serializers.ModelSerializer):
+    departure_port = serializers.CharField(
+        max_length=6, source='voyagelegdata.departure_port')
+    departure_date = serializers.DateTimeField(
+        source='voyagelegdata.departure_date')
+    departure_tz = serializers.FloatField(
+        source='voyagelegdata.departure_tz')
+    arrival_port = serializers.CharField(
+        max_length=6, source='voyagelegdata.arrival_port')
+    arrival_date = serializers.DateTimeField(
+        source='voyagelegdata.arrival_date')
+    arrival_tz = serializers.FloatField(
+        source='voyagelegdata.departure_tz')
+
+    class Meta:
+        model = VoyageLeg
+        exclude = ['uuid', 'created_at', 'modified_at']
+        read_only_fields = ['uuid', 'voyage']
+
+
 class VoyageLegDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = VoyageLegData
