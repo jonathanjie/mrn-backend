@@ -285,7 +285,7 @@ class ReportsList(generics.ListCreateAPIView):
             voyage_leg_data = request.data.pop('voyage_leg')
             voyage_uuid = voyage_leg_data.pop('voyage').pop('uuid')
             voyage = Voyage.objects.get(uuid=voyage_uuid)
-            voyage_leg = VoyageLeg.objects.create(
+            voyage_leg = VoyageLeg.objects.get_or_create(
                 voyage=voyage, **voyage_leg_data)
         else:
             voyage_leg_data = request.data.pop('voyage_leg')
@@ -464,21 +464,6 @@ class WeeklyStatsList(APIView):
         ).prefetch_related(
             'consumptionconditiondata__fueloildata_set',
         )[:7]
-
-        # processed_reports = []
-        # for report in past_week_reports:
-        #     report_dt = report.report_date
-        #     report_local_tz = timezone(timedelta(hours=report.report_tz))
-        #     report_local_dt = report_date.astimezone(report_local_tz)
-        #     report_local_date = report_local_dt.date()
-
-        #     speed = report.distanceperformancedata.speed_since_noon
-        #     distance_observed = report.distanceperformancedata.distance_observed_since_noon
-        #     distance_to_go = report.distanceperformancedata.distance_to_go
-
-        #     fuel_oil_data_set = report.consumptionconditiondata.fueloildata_set
-        #     for fuel_oil_data in fueloildata_set:
-        #         pass
 
         serializer = DailyStatSerializer(past_week_reports, many=True)
         return Response(serializer.data)
