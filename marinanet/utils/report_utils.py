@@ -19,7 +19,7 @@ def update_leg_data(report_header, **kwargs):
         route = kwargs.pop('report_route')
         leg_data.departure_port = route.departure_port
         leg_data.departure_date = route.departure_date
-        leg_data.departure_tz = route.depature_tz
+        leg_data.departure_tz = route.departure_tz
         leg_data.arrival_port = route.arrival_port
         leg_data.arrival_date = route.arrival_date
         leg_data.arrival_tz = route.arrival_tz
