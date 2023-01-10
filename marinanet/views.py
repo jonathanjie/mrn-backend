@@ -437,7 +437,10 @@ class ReportPrefillView(generics.RetrieveAPIView):
 
     def get_object(self):
         queryset = self.get_queryset()
-        return queryset.latest('modified_at')
+        obj = {}
+        if queryset:
+            obj = queryset.latest('modified_at')
+        return obj
 
 
 class WeeklyStatsList(APIView):
