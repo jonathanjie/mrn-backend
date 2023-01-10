@@ -164,14 +164,6 @@ class ReportHeaderWithLegSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid', 'created_at', 'modified_at']
 
 
-# class VoyageReportsSerializer(serializers.ModelSerializer):
-#     reports = ReportHeaderSerializer(source='reportheader_set', many=True)
-
-#     class Meta:
-#         model = Voyage
-#         fields = ['uuid', 'ship', 'voyage_num', 'reports']
-#         read_only_fields = ['uuid', 'ship']
-
 class VoyageReportsSerializer(serializers.ModelSerializer):
     reports = serializers.SerializerMethodField()
 
@@ -201,13 +193,6 @@ class ReportRouteSerializer(serializers.ModelSerializer):
         model = ReportRoute
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']
-
-
-# class DistinctReportRoutesSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ReportRoute
-#         fields = ['departure_port', 'arrival_port',
-#                   'departure_date', 'arrival_date']
 
 
 class WeatherDataSerializer(serializers.ModelSerializer):

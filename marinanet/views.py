@@ -46,7 +46,6 @@ from marinanet.serializers.stats_serializers import (
 )
 from marinanet.utils.serializer_utils import get_serializer_from_report_type
 
-# import jwt
 import logging
 
 logger = logging.getLogger(__name__)
@@ -256,25 +255,6 @@ class ReportsList(generics.ListCreateAPIView):
             voyage_leg__voyage__ship__assigned_users=user)
         return queryset
 
-    # def determine_new_allowed_report_types(allowed_report_types, report_type):
-
-    #     all_report_types = ['NOON', 'DSBY',
-    #                         'DCSP', 'ASBY', 'AFWE', 'BDN', 'EVENT']
-
-    #     if report_type in ['NOON', 'BDN', 'EVENT']:
-    #         return allowed_report_types
-    #     elif report_type == 'DSBY':
-    #         return all_report_types.remove('DSBY').remove('ASBY').remove('AFWE')
-    #     elif report_type == 'DCSP':
-    #         return all_report_types.remove('DSBY').remove('DCSP')
-    #     elif report_type == 'ASBY':
-    #         return all_report_types.remove('DSBY').remove('DCSP').remove('ASBY')
-    #     elif report_type == 'AFWE':
-    #         return all_report_types.remove('ASBY').remove('AFWE')
-    #     else:
-    #         return allowed_report_types
-    #     # TODO: Check if these allows are correct
-
     def create(self, request, *args, **kwargs):
         # Get the report type from the request data
         report_type = request.data.get('report_type')
@@ -299,16 +279,6 @@ class ReportsList(generics.ListCreateAPIView):
         # Save the newly created report header
         serializer.save(voyage_leg=voyage_leg)
         headers = self.get_success_headers(serializer.data)
-
-        # # Fetch the voyage associated with the newly created report header
-        # voyage = serializer.instance.voyage
-
-        # # Determine the new allowed_report_types array based on the report_type
-        # new_allowed_report_types = self.determine_new_allowed_report_types(report_type)
-
-        # # Update the voyage's allowed_report_types array
-        # voyage.allowed_report_types = new_allowed_report_types
-        # voyage.save()
 
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -362,29 +332,6 @@ class LatestReportDetailByShip(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 
-# class ShipLegsList(APIView):
-#     def get(self, request, imo_reg):
-#         # Get the ship with the given IMO number, or return a 404 response if it doesn't exist
-#         ship = get_object_or_404(Ship, imo_reg=imo_reg)
-
-#         # Get the latest voyage for the ship
-#         latest_voyage = ship.voyage_set.order_by('-voyage_num').first()
-
-#         # Return a 404 response if the ship has no voyages
-#         if latest_voyage is None:
-#             return Response(status=404)
-
-#         # Get the number of voyage legs to return
-#         count = request.query_params.get('count', 10)
-#         count = int(count)
-
-#         # Serialize the voyage legs for the latest voyages
-#         voyage_legs = latest_voyage.voyageleg_set.order_by(
-#             '-departure_date')[:count]
-#         serializer = VoyageLegSerializer(voyage_legs, many=True)
-#         return Response(serializer.data)
-
-
 class ShipLegsList(generics.ListAPIView):
     """
     Lists all legs from a single ship
@@ -402,34 +349,6 @@ class ShipLegsList(generics.ListAPIView):
             'created_at',
         )
         return queryset
-
-
-# class MostRecentDistinctReportRoutesList(generics.ListAPIView):
-#     serializer_class = DistinctReportRoutesSerializer
-
-#     def get_queryset(self):
-#         imo_reg = self.kwargs['imo_reg']
-#         ship = Ship.objects.get(imo_reg=imo_reg)
-
-#         # Get the number of routes to query for from the request query parameters,
-#         # or default to 10 if not provided
-#         num_routes = self.request.query_params.get("num_routes", 10)
-
-#         # Query for the most recent num_routes distinct ReportRoutes for the Ship,
-#         # ordered by the report_date field in descending order
-#         queryset = ReportRoute.objects.filter(
-#             report_header__voyage__ship=ship
-#         ).order_by("-report_header__report_date").values(
-#             "departure_port", "arrival_port", "departure_date", "arrival_date"
-#         ).distinct()
-
-#         # If there are fewer than num_routes distinct routes for the Ship,
-#         # only return the number of routes that are available
-#         if queryset.count() < num_routes:
-#             return queryset
-
-#         # Otherwise, return the most recent num_routes routes
-#         return queryset[:num_routes]
 
 
 class ReportPrefillView(generics.RetrieveAPIView):

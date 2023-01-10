@@ -130,15 +130,9 @@ class ShipUser(BaseModel):
 """
 
 
-# def get_default_allowed_report_types():
-#     return ['DSBY']
-
-
 class Voyage(BaseModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     voyage_num = models.PositiveIntegerField()
-    # allowed_report_types = ArrayField(base_field=models.CharField(
-    #     max_length=4), default=get_default_allowed_report_types)
     status = models.PositiveSmallIntegerField(
         choices=Status.choices, default=Status.ACTIVE)
 
