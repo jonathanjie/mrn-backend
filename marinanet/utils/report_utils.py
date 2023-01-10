@@ -65,7 +65,7 @@ def update_leg_data(report_header, **kwargs):
 
         leg_lo_robs = leg_data.lube_oil_robs
         for lube_oil_data in ccdata.lubricatingoildata_set.all():
-            lo_type = lube_oil_data.fuel_oil_type
+            lo_type = lube_oil_data.lubricating_oil_type
             leg_lo_robs[lo_type] = str(lube_oil_data.rob)
 
         leg_data.freshwater_rob = ccdata.freshwaterdata.rob
