@@ -380,6 +380,8 @@ class WeeklyStatsList(APIView):
     def get(self, request, imo_reg):
         ship = get_object_or_404(Ship, imo_reg=imo_reg)
         past_week_reports = ReportHeader.objects.filter(
+            voyage_leg__voyage__ship=ship,
+        ).filter(
             Q(report_type=ReportType.DEP_SBY) |
             Q(report_type=ReportType.DEP_COSP) |
             Q(report_type=ReportType.NOON) |
