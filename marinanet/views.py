@@ -272,7 +272,7 @@ class ReportsList(generics.ListCreateAPIView):
             voyage_leg_data = request.data.pop('voyage_leg')
             voyage_uuid = voyage_leg_data.pop('voyage').pop('uuid')
             voyage = Voyage.objects.get(uuid=voyage_uuid)
-            voyage_leg = VoyageLeg.objects.get_or_create(
+            voyage_leg, _ = VoyageLeg.objects.get_or_create(
                 voyage=voyage, **voyage_leg_data)
         else:
             voyage_leg_data = request.data.pop('voyage_leg')
@@ -385,6 +385,8 @@ class WeeklyStatsList(APIView):
             Q(report_type=ReportType.NOON) |
             Q(report_type=ReportType.ARR_SBY) |
             Q(report_type=ReportType.ARR_FWE)
+        ).order_by(
+            '-report_date',
         ).select_related(
             'distancetimedata',
         ).prefetch_related(
