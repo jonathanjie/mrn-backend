@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.forms.models import model_to_dict
 
 from marinanet.enums import ReportType
