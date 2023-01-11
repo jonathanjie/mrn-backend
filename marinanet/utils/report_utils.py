@@ -41,7 +41,7 @@ def update_leg_data(report_header, **kwargs):
 
         for fuel_oil_data in ccdata.fueloildata_set.all():
             fo_type = fuel_oil_data.fuel_oil_type
-            leg_fo_robs[fo_type] = str(fuel_oil_data.rob)
+            leg_fo_robs[fo_type] = fuel_oil_data.rob
 
             cons_breakdown = fuel_oil_data.breakdown
             if report_header.report_type in (ReportType.DEP_COSP,
@@ -66,7 +66,7 @@ def update_leg_data(report_header, **kwargs):
         leg_lo_robs = leg_data.lube_oil_robs
         for lube_oil_data in ccdata.lubricatingoildata_set.all():
             lo_type = lube_oil_data.lubricating_oil_type
-            leg_lo_robs[lo_type] = str(lube_oil_data.rob)
+            leg_lo_robs[lo_type] = lube_oil_data.rob
 
         leg_data.freshwater_rob = ccdata.freshwaterdata.rob
 
@@ -146,6 +146,7 @@ def _update_fo_consumption(fo_type, cons_breakdown_dict, leg_fo_cons_dict):
         leg_fo_cons_for_type = leg_fo_cons_dict[fo_type]
         for eng_type, val in cons_breakdown_dict.items():
             if eng_type in leg_fo_cons_for_type:
-                leg_fo_cons_for_type[eng_type] += val
+                leg_fo_cons_for_type[eng_type] = \
+                    Decimal(leg_fo_cons_for_type[eng_type]) + Decimal(val)
             else:
                 leg_fo_cons_for_type[eng_type] = val
