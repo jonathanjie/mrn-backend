@@ -6,9 +6,10 @@ from django.contrib.contenttypes.fields import (
     GenericRelation
 )
 from django.contrib.contenttypes.models import ContentType
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models as dmodels
 from django.forms import ModelForm
 from phonenumber_field.modelfields import PhoneNumberField
@@ -104,10 +105,10 @@ class ShipSpecs(models.Model):
     flag = models.CharField(max_length=127)
     deadweight_tonnage = models.DecimalField(max_digits=10, decimal_places=2)
     cargo_unit = models.CharField(max_length=50)
-    fuel_options = models.JSONField()
-    lubricating_oil_options = models.JSONField()
-    machinery_options = models.JSONField()
-    propeller_pitch = models.DecimalField(max_digits=3, decimal_places=1)
+    fuel_options = models.JSONField(encoder=DjangoJSONEncoder)
+    lubricating_oil_options = models.JSONField(encoder=DjangoJSONEncoder)
+    machinery_options = models.JSONField(encoder=DjangoJSONEncoder)
+    propeller_pitch = models.DecimalField(max_digits=5, decimal_places=4)
 
     class Meta:
         db_table = "ship_specs"
@@ -218,14 +219,20 @@ class VoyageLegData(BaseModel):
         validators=[MinValueValidator(Decimal("0.0"))],
         null=True)
 
-    fuel_oil_robs = models.JSONField(default=dict)
-    fuel_oil_cons_port_to_port = models.JSONField(default=dict)
-    fuel_oil_cons_pilot_to_pilot = models.JSONField(default=dict)
-    fuel_oil_cons_in_harbour_port = models.JSONField(default=dict)
-    lube_oil_robs = models.JSONField(default=dict)
+    fuel_oil_robs = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
+    fuel_oil_cons_port_to_port = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
+    fuel_oil_cons_pilot_to_pilot = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
+    fuel_oil_cons_in_harbour_port = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
+    lube_oil_robs = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
     freshwater_rob = models.PositiveIntegerField(null=True)
 
-    planned_operations = models.JSONField(null=True)
+    planned_operations = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
     parking_status = models.CharField(
         max_length=32,
         choices=ParkingStatus.choices,
@@ -463,7 +470,7 @@ class FuelOilData(ConsumptionDataBaseModel):
         max_digits=7,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
-    breakdown = models.JSONField()
+    breakdown = models.JSONField(encoder=DjangoJSONEncoder)
 
     class Meta:
         db_table = "fuel_oil_data"
@@ -761,7 +768,7 @@ class FuelOilTotalConsumptionData(TotalConsumptionDataBaseModel):
         max_digits=7,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
-    breakdown = models.JSONField()
+    breakdown = models.JSONField(encoder=DjangoJSONEncoder)
 
     class Meta:
         db_table = "fuel_oil_total_consumption_data"
