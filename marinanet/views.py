@@ -385,6 +385,8 @@ class WeeklyStatsList(APIView):
             Q(report_type=ReportType.NOON) |
             Q(report_type=ReportType.ARR_SBY) |
             Q(report_type=ReportType.ARR_FWE)
+        ).order_by(
+            '-report_date',
         ).select_related(
             'distancetimedata',
         ).prefetch_related(
