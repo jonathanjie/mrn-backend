@@ -81,21 +81,28 @@ class ShipList(generics.ListAPIView):
         return queryset
 
 
-class ShipDetail(APIView):
-    def get(self, request, imo_reg):
-        print("REQUEST:")
-        print((request.body).decode('utf-8'))
-        ship = get_object_or_404(Ship, imo_reg=imo_reg)
-        ship_serializer = ShipSerializer(ship)
-        if hasattr(ship, 'specs'):
-            ship_specs = ship.specs
-            ship_specs_serializer = ShipSpecsSerializer(ship_specs)
-            data = ship_serializer.data
-            data['specs'] = ship_specs_serializer.data
-            return Response(data)
-        else:
-            data = ship_serializer.data
-            return Response(data)
+class ShipDetail(generics.RetrieveAPIView):
+    queryset = Ship.objects.all()
+    serializer_class = ShipSerializer
+    lookup_field = 'imo_reg'
+
+
+
+# class ShipDetail(APIView):
+#     def get(self, request, imo_reg):
+#         print("REQUEST:")
+#         print((request.body).decode('utf-8'))
+#         ship = get_object_or_404(Ship, imo_reg=imo_reg)
+#         ship_serializer = ShipSerializer(ship)
+#         if hasattr(ship, 'specs'):
+#             ship_specs = ship.specs
+#             ship_specs_serializer = ShipSpecsSerializer(ship_specs)
+#             data = ship_serializer.data
+#             data['specs'] = ship_specs_serializer.data
+#             return Response(data)
+#         else:
+#             data = ship_serializer.data
+#             return Response(data)
 
 
 class ShipOverviewList(generics.ListAPIView):
