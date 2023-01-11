@@ -16,7 +16,7 @@ class FuelOilStatSerializer(serializers.ModelSerializer):
 
 class DailyStatSerializer(serializers.ModelSerializer):
     speed = serializers.DecimalField(
-        source='distancetimedata.speed_since_last',
+        source='performancedata.speed_since_last',
         max_digits=4,
         decimal_places=2)
     distance_observed = serializers.DecimalField(
