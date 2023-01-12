@@ -55,8 +55,13 @@ class VesselListDetailSerializer(serializers.ModelSerializer):
     load_condition = serializers.CharField(
         max_length=16,
         source='voyagelegdata.load_condition')
+    last_report_type = serializers.CharField(
+        max_length=4,
+        source='voyagelegdata.last_report_type')
     last_report_date = serializers.DateTimeField(
         source='voyagelegdata.last_report_date')
+    last_report_tz = serializers.FloatField(
+        source='voyagelegdata.last_report_tz')
 
     class Meta:
         model = VoyageLeg
@@ -66,5 +71,7 @@ class VesselListDetailSerializer(serializers.ModelSerializer):
                   'imo_reg',
                   'deadweight_tonnage',
                   'load_condition',
+                  'last_report_type',
                   'last_report_date',
+                  'last_report_tz',
                   ]
