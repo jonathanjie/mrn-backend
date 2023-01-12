@@ -164,21 +164,65 @@ class ReportHeaderWithLegSerializer(serializers.ModelSerializer):
         read_only_fields = ['uuid', 'created_at', 'modified_at']
 
 
-class VoyageReportsSerializer(serializers.ModelSerializer):
-    reports = serializers.SerializerMethodField()
+class ReportHeaderWithRouteSerializer(serializers.ModelSerializer):
+    departure_port = serializers.CharField(
+        max_length=6, source='reportroute.departure_port')
+    departure_date = serializers.DateTimeField(
+        source='reportroute.departure_date')
+    departure_tz = serializers.FloatField(
+        source='reportroute.departure_tz')
+    arrival_port = serializers.CharField(
+        max_length=6, source='reportroute.arrival_port')
+    arrival_date = serializers.DateTimeField(
+        source='reportroute.arrival_date')
+    arrival_tz = serializers.FloatField(
+        source='reportroute.departure_tz')
+
+    class Meta:
+        model = ReportHeader
+        fields = '__all__'
+        read_only_fields = ['uuid', 'created_at', 'modified_at']
+
+
+class VoyageLegWithReportsSerializer(serializers.ModelSerializer):
+    reports = ReportHeaderWithRouteSerializer(
+        many=True, source='reportheader_set')
+    load_condition = serializers.CharField(
+        max_length=16,
+        source='voyagelegdata.load_condition')
+
+    class Meta:
+        model = VoyageLeg
+        exclude = ['uuid', 'created_at', 'modified_at']
+        read_only_fields = ['uuid', 'voyage']
+
+
+class VoyageWithVoyageLegsSerializer(serializers.ModelSerializer):
+    voyage_legs = VoyageLegWithReportsSerializer(
+        many=True, source='voyageleg_set')
 
     class Meta:
         model = Voyage
-        fields = ['uuid', 'ship', 'voyage_num', 'reports']
+        exclude = ['uuid', 'created_at', 'modified_at']
         read_only_fields = ['uuid', 'ship']
 
-    def get_reports(self, obj):
-        voyage_legs = obj.voyageleg_set.all()
-        report_headers = []
-        for voyage_leg in voyage_legs:
-            report_headers.extend(voyage_leg.reportheader_set.all())
-        serializer = ReportHeaderWithLegSerializer(report_headers, many=True)
-        return serializer.data
+
+# class VoyageReportsSerializer(serializers.ModelSerializer):
+#     reports = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Voyage
+#         fields = ['uuid', 'ship', 'voyage_num', 'reports']
+#         read_only_fields = ['uuid', 'ship']
+
+#     def get_reports(self, obj):
+#         voyage_legs = obj.voyageleg_set.all().select_related(
+#             'voyagelegdata')
+#         report_headers = []
+#         for voyage_leg in voyage_legs:
+#             report_headers.extend(voyage_leg.reportheader_set.all())
+#         serializer = ReportHeaderWithRouteSerializer(report_headers, many=True)
+#         return serializer.data
 
 
 class NoonReportTimeAndPositionSerializer(serializers.ModelSerializer):

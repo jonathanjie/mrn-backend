@@ -37,8 +37,8 @@ from marinanet.serializers.model_serializers import (
     VoyageLegSerializer,
     VoyageLegDataSerializer,
     VoyageLegWithPortsSerializer,
-    VoyageReportsSerializer,
     VoyageSerializer,
+    VoyageWithVoyageLegsSerializer,
 )
 from marinanet.serializers.stats_serializers import (
     DailyStatSerializer,
@@ -85,7 +85,6 @@ class ShipDetail(generics.RetrieveAPIView):
     queryset = Ship.objects.all()
     serializer_class = ShipSerializer
     lookup_field = 'imo_reg'
-
 
 
 # class ShipDetail(APIView):
@@ -240,7 +239,7 @@ class ShipReportsList(generics.ListAPIView):
     """
     Lists all reports from a single ship
     """
-    serializer_class = VoyageReportsSerializer
+    serializer_class = VoyageWithVoyageLegsSerializer
 
     def get_queryset(self):
         imo_reg = self.kwargs['imo_reg']
