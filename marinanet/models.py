@@ -1,17 +1,11 @@
 from decimal import Decimal
 import uuid
 
-from django.contrib.contenttypes.fields import (
-    GenericForeignKey,
-    GenericRelation
-)
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models as dmodels
-from django.forms import ModelForm
 from phonenumber_field.modelfields import PhoneNumberField
 # from timezone_field import TimeZoneField
 
@@ -82,7 +76,11 @@ class UserProfile(BaseModel):
 class Ship(BaseModel):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     name = models.CharField(max_length=255)
-    imo_reg = models.PositiveIntegerField()     # 7 digits
+    imo_reg = models.PositiveIntegerField(
+        unique=True,
+        validators=[
+            MinValueValidator(1000000),
+            MaxValueValidator(9999999)])     # 7 digits
     company = models.ForeignKey(Company, on_delete=models.PROTECT)
     ship_type = models.CharField(max_length=4, choices=ShipType.choices)
     assigned_users = models.ManyToManyField(
@@ -105,9 +103,17 @@ class ShipSpecs(models.Model):
     flag = models.CharField(max_length=127)
     deadweight_tonnage = models.DecimalField(max_digits=10, decimal_places=2)
     cargo_unit = models.CharField(max_length=50)
-    fuel_options = models.JSONField(encoder=DjangoJSONEncoder)
-    lubricating_oil_options = models.JSONField(encoder=DjangoJSONEncoder)
-    machinery_options = models.JSONField(encoder=DjangoJSONEncoder)
+    fuel_options = ArrayField(
+        models.CharField(
+            max_length=4,
+            choices=FuelType.choices),
+        default=list)
+    lubricating_oil_options = ArrayField(
+        models.CharField(max_length=64),
+        default=list)
+    machinery_options = ArrayField(
+        models.CharField(max_length=64),
+        default=list)
     propeller_pitch = models.DecimalField(max_digits=5, decimal_places=4)
 
     class Meta:
@@ -329,8 +335,8 @@ class HeavyWeatherData(ReportDataBaseModel):
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))])
     observed_distance = models.DecimalField(
-        max_digits=3,
-        decimal_places=0,
+        max_digits=4,
+        decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))])
     fuel_consumption = models.DecimalField(
         max_digits=5,
@@ -345,7 +351,7 @@ class HeavyWeatherData(ReportDataBaseModel):
     sea_direction = models.CharField(
         max_length=2, choices=Cardinal_8.choices)
     sea_state = models.PositiveSmallIntegerField(choices=DouglasScale.choices)
-    remarks = models.TextField()
+    remarks = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = "heavy_weather_data"
@@ -406,8 +412,7 @@ class PerformanceData(ReportDataBaseModel):
         validators=[MinValueValidator(Decimal("0.0"))])
     slip_since_last = models.DecimalField(
         max_digits=4,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        decimal_places=2)
     speed_average = models.DecimalField(
         max_digits=4,
         decimal_places=2,
@@ -418,8 +423,7 @@ class PerformanceData(ReportDataBaseModel):
         validators=[MinValueValidator(Decimal("0.0"))])
     slip_average = models.DecimalField(
         max_digits=4,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        decimal_places=2)
 
     class Meta:
         db_table = "performance_data"
@@ -870,22 +874,21 @@ class BDNData(ReportDataBaseModel):
     bunkering_port = models.CharField(max_length=6)
     bunkering_date = models.DateTimeField()
     bdn_file = ArrayField(models.URLField(max_length=1500))
-    delivered_oil_type = models.CharField(
-        max_length=16, choices=FuelType.choices)
+    delivered_oil_type = models.CharField(max_length=64)
     delivered_quantity = models.DecimalField(
         max_digits=7,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
     density_15 = models.DecimalField(
-        max_digits=5,
+        max_digits=7,
         decimal_places=4,
         validators=[MinValueValidator(Decimal("0.0"))])
     specific_gravity_15 = models.DecimalField(
-        max_digits=5,
+        max_digits=7,
         decimal_places=4,
         validators=[MinValueValidator(Decimal("0.0"))])
     viscosity_value = models.DecimalField(
-        max_digits=5,
+        max_digits=6,
         decimal_places=3,
         validators=[MinValueValidator(Decimal("0.0"))])
     viscosity_temperature = models.DecimalField(
