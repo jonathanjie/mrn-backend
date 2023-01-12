@@ -29,6 +29,7 @@ def update_leg_data(report_header, **kwargs):
     if 'cargo_operation' in kwargs:
         cargo_operation = kwargs.pop('cargo_operation')
         leg_data.load_condition = cargo_operation.load_condition
+        leg_data.cargo_total_at_departure = cargo_operation.total
 
     if 'departure_condition' in kwargs:
         dep_condition = kwargs.pop('departure_condition')
@@ -37,7 +38,7 @@ def update_leg_data(report_header, **kwargs):
     if 'consumption_condition_data' in kwargs:
         ccdata = kwargs.pop('consumption_condition_data')
         leg_fo_robs = leg_data.fuel_oil_robs
-        leg_fo_cons_port_to_port = leg_data.fuel_oil_cons_port_to_port
+        leg_fo_cons_port_to_port = leg_data.fuel_oil_cons_port_to_port8
         leg_fo_cons_pilot_to_pilot = leg_data.fuel_oil_cons_pilot_to_pilot
         leg_fo_cons_in_harbour_port = leg_data.fuel_oil_cons_in_harbour_port
 
@@ -92,8 +93,10 @@ def update_leg_data(report_header, **kwargs):
         leg_data.revolution_count = dt_data.revolution_count
         leg_data.distance_to_go = dt_data.distance_to_go
 
-        if report_header.report_type == ReportType.DEP_SBY:
-            leg_data.distance_standby_to_cosp = dt_data.distance_observed_total
+        if report_header.report_type == ReportType.DEP_COSP:
+            leg_data.distance_standby_to_cosp = \
+                dt_data.distance_observed_since_last
+            leg_data.time_standby_to_cosp = dt_data.hours_since_last
 
     if 'sailing_plan' in kwargs:
         sailing_plan = kwargs.pop('sailing_plan')
@@ -121,8 +124,15 @@ def update_leg_data(report_header, **kwargs):
         planned_operations = kwargs.pop('planned_operations')
         planned_operations_dict = model_to_dict(planned_operations)
         planned_operations_dict.pop('report_header')
-        leg_data.planned_operations = planned_operations_dict
 
+        if report_header.report_type == ReportType.ARR_SBY:
+            leg_data.planned_operations = planned_operations_dict
+
+        if report_header.report_type in (ReportType.EVENT_HARBOUR,
+                                         ReportType.EVENT_PORT,
+                                         ReportType.NOON_HARBOUR,
+                                         ReportType.NOON_PORT):
+            leg_data.last_operation = planned_operations_dict
 
     # if 'arrival_standby_time_and_position' in kwargs:
     #     pass

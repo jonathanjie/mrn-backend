@@ -62,6 +62,8 @@ class VesselListDetailSerializer(serializers.ModelSerializer):
         source='voyagelegdata.last_report_date')
     last_report_tz = serializers.FloatField(
         source='voyagelegdata.last_report_tz')
+    last_operation = serializers.JSONField(
+        source='voyagelegdata.last_operation')
 
     class Meta:
         model = VoyageLeg
@@ -74,4 +76,5 @@ class VesselListDetailSerializer(serializers.ModelSerializer):
                   'last_report_type',
                   'last_report_date',
                   'last_report_tz',
+                  'last_operation',
                   ]

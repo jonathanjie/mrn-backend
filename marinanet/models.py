@@ -246,6 +246,8 @@ class VoyageLegData(BaseModel):
 
     planned_operations = models.JSONField(
         default=dict, encoder=DjangoJSONEncoder)
+    last_operation = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
     parking_status = models.CharField(
         max_length=32,
         choices=ParkingStatus.choices,
@@ -379,7 +381,7 @@ class DistanceTimeData(ReportDataBaseModel):
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    remarks_for_changes = models.TextField(default="NIL")
+    remarks_for_changes = models.TextField()
     distance_observed_since_last = models.DecimalField(
         max_digits=3,
         decimal_places=0,
