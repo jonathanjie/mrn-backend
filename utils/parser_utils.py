@@ -2,7 +2,6 @@ import re
 
 from django.contrib.gis.geos import Point
 from latlon import string2latlon
-from rest_framework.serializers import ModelSerializer
 
 
 def parse_dm(lat: str, lon: str) -> Point:
