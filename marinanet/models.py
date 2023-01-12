@@ -162,6 +162,7 @@ class VoyageLegData(BaseModel):
     last_report_type = models.CharField(
         max_length=4, choices=ReportType.choices, null=True)
     last_report_date = models.DateTimeField(null=True)
+    last_report_tz = models.FloatField(null=True)
 
     departure_port = models.CharField(max_length=6, null=True)  # TODO: LOCODE
     departure_date = models.DateTimeField(null=True)
@@ -175,6 +176,7 @@ class VoyageLegData(BaseModel):
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))],
         null=True)
+    cargo_total_at_departure = models.PositiveIntegerField(null=True)
     load_condition = models.CharField(
         max_length=16,
         choices=LoadCondition.choices,
@@ -184,6 +186,11 @@ class VoyageLegData(BaseModel):
 
     total_hours = models.DecimalField(
         max_digits=5,
+        decimal_places=1,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    time_standby_to_cosp = models.DecimalField(
+        max_digits=4,
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))],
         null=True)
@@ -372,7 +379,7 @@ class DistanceTimeData(ReportDataBaseModel):
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    remarks_for_changes = models.TextField(null=True, blank=True)
+    remarks_for_changes = models.TextField(default="NIL")
     distance_observed_since_last = models.DecimalField(
         max_digits=3,
         decimal_places=0,
