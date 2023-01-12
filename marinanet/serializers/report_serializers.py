@@ -61,7 +61,7 @@ from marinanet.serializers.model_serializers import (
     VoyageLegWithVoyageSerializer,
     WeatherDataSerializer,
 )
-from marinanet.utils.report_utils import update_leg_data
+from marinanet.logic.report_logic import update_leg_data
 
 
 class BaseReportViewSerializer(serializers.ModelSerializer):

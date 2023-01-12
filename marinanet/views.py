@@ -13,7 +13,6 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.views import APIView
 from rest_framework import status
 
-# from marinanet.enums import ReportTypes
 from marinanet.enums import ReportType
 from marinanet.models import (
     ReportHeader,
@@ -44,7 +43,7 @@ from marinanet.serializers.stats_serializers import (
     DailyStatSerializer,
     VesselListDetailSerializer,
 )
-from marinanet.utils.serializer_utils import get_serializer_from_report_type
+from marinanet.logic.serializer_map import get_serializer_from_report_type
 
 import logging
 
