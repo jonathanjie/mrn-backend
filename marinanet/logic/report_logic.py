@@ -97,6 +97,8 @@ def update_leg_data(report_header, **kwargs):
             leg_data.distance_standby_to_cosp = \
                 dt_data.distance_observed_since_last
             leg_data.time_standby_to_cosp = dt_data.hours_since_last
+            leg_data.revolution_count_standby_to_cosp = \
+                dt_data.revolution_count
 
     if 'sailing_plan' in kwargs:
         sailing_plan = kwargs.pop('sailing_plan')
@@ -117,8 +119,10 @@ def update_leg_data(report_header, **kwargs):
         leg_data.rpm_average = performance_data.rpm_average
         leg_data.slip_average = performance_data.slip_average
 
-    # if 'stoppage_data' in kwargs:
-    #     pass
+    if 'stoppage_data' in kwargs:
+        stoppage_data = kwargs.pop('stoppage_data')
+        if stoppage_data.reduced_rpm == 0 and stoppage_data.duration:
+            time_stopped_at_sea += stoppage_data.duration
 
     if 'planned_operations' in kwargs:
         planned_operations = kwargs.pop('planned_operations')

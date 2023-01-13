@@ -194,6 +194,11 @@ class VoyageLegData(BaseModel):
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))],
         null=True)
+    time_stopped_at_sea = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.00"))],
+        null=True)
     distance_standby_to_cosp = models.DecimalField(
         max_digits=3,
         decimal_places=0,
@@ -210,6 +215,8 @@ class VoyageLegData(BaseModel):
         validators=[MinValueValidator(Decimal("0.0"))],
         null=True)
     revolution_count = models.IntegerField(
+        validators=[MinValueValidator(0)], null=True)
+    revolution_count_standby_to_cosp = models.IntegerField(
         validators=[MinValueValidator(0)], null=True)
     distance_to_go = models.DecimalField(
         max_digits=5,
