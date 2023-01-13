@@ -113,7 +113,7 @@ class VoyageLegWithVoyageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VoyageLeg
-        fields = ['uuid', 'voyage', 'leg_num']
+        fields = ['uuid', 'voyage', 'leg_num', 'load_condition']
         read_only_fields = ['uuid', 'voyage']
 
 
