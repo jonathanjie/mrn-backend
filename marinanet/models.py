@@ -186,8 +186,8 @@ class VoyageLegData(BaseModel):
 
     total_hours = models.DecimalField(
         max_digits=5,
-        decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))],
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.00"))],
         null=True)
     time_standby_to_cosp = models.DecimalField(
         max_digits=4,
@@ -341,8 +341,8 @@ class HeavyWeatherData(ReportDataBaseModel):
     weather_notation = models.CharField(max_length=2, choices=Weather.choices)
     total_hours = models.DecimalField(
         max_digits=3,
-        decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.00"))])
     observed_distance = models.DecimalField(
         max_digits=4,
         decimal_places=1,
@@ -368,15 +368,15 @@ class HeavyWeatherData(ReportDataBaseModel):
 
 class DistanceTimeData(ReportDataBaseModel):
     hours_since_last = models.DecimalField(
-        max_digits=3,
-        decimal_places=1,
+        max_digits=4,
+        decimal_places=2,
         validators=[
-            MinValueValidator(Decimal("0.0")),
+            MinValueValidator(Decimal("0.00")),
             MaxValueValidator(Decimal("48"))])
     hours_total = models.DecimalField(
-        max_digits=5,
-        decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.00"))])
     distance_to_go = models.DecimalField(
         max_digits=5,
         decimal_places=0,
@@ -550,8 +550,8 @@ class StoppageData(ReportDataBaseModel):
     end_date = models.DateTimeField(null=True, blank=True)
     duration = models.DecimalField(
         max_digits=5,
-        decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))],
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.00"))],
         null=True,
         blank=True)
     reduced_rpm = models.DecimalField(
@@ -573,7 +573,10 @@ class CargoOperation(ReportDataBaseModel):
     loading = models.PositiveIntegerField()
     unloading = models.PositiveIntegerField()
     total = models.PositiveIntegerField()
-    time = models.PositiveSmallIntegerField()
+    time = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.00"))])
 
     class Meta:
         db_table = "cargo_operations"

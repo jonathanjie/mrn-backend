@@ -107,6 +107,9 @@ class VoyageLegSerializer(serializers.ModelSerializer):
 
 class VoyageLegWithVoyageSerializer(serializers.ModelSerializer):
     voyage = VoyageSerializer()
+    load_condition = serializers.CharField(
+        max_length=16,
+        source='voyagelegdata.load_condition')
 
     class Meta:
         model = VoyageLeg
