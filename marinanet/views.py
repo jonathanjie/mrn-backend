@@ -110,15 +110,15 @@ class ShipOverviewList(generics.ListAPIView):
         user = self.request.user
         queryset = VoyageLeg.objects.filter(
             voyage__ship__assigned_users=user
-            ).order_by(
-                'voyage__ship',
-                '-modified_at'
-            ).distinct(
-                'voyage__ship'
-            ).select_related(
-                'voyage__ship__shipspecs',
-                'voyagelegdata',
-            )
+        ).order_by(
+            'voyage__ship',
+            '-modified_at'
+        ).distinct(
+            'voyage__ship'
+        ).select_related(
+            'voyage__ship__shipspecs',
+            'voyagelegdata',
+        )
         return queryset
 
 
@@ -264,6 +264,11 @@ class ReportsList(generics.ListCreateAPIView):
         # Get the report type from the request data
         report_type = request.data.get('report_type')
 
+        # Get serializer class based on report type
+        serializer_class = get_serializer_from_report_type(report_type)
+        serializer = serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         # Temporary logic for creating new VoyageLeg
         # TODO: Creation of VoyageLeg should be separate API
         if report_type == ReportType.DEP_SBY:
@@ -276,13 +281,10 @@ class ReportsList(generics.ListCreateAPIView):
             voyage_leg_data = request.data.pop('voyage_leg')
             voyage_leg = VoyageLeg.objects.get(uuid=voyage_leg_data['uuid'])
 
-        # Get serializer class based on report type
-        serializer_class = get_serializer_from_report_type(report_type)
-        serializer = serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
         # Save the newly created report header
-        serializer.save(voyage_leg=voyage_leg)
+        if (serializer.is_valid()):
+            serializer.save(voyage_leg=voyage_leg)
+            
         headers = self.get_success_headers(serializer.data)
 
         return Response(
