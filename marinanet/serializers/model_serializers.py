@@ -193,7 +193,7 @@ class VoyageLegWithReportsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VoyageLeg
-        exclude = ['uuid', 'created_at', 'modified_at']
+        exclude = ['created_at', 'modified_at']
         read_only_fields = ['uuid', 'voyage']
 
 
@@ -203,7 +203,7 @@ class VoyageWithVoyageLegsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Voyage
-        exclude = ['uuid', 'created_at', 'modified_at']
+        exclude = ['created_at', 'modified_at']
         read_only_fields = ['uuid', 'ship']
 
 
