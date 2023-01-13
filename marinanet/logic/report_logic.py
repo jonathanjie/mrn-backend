@@ -38,7 +38,7 @@ def update_leg_data(report_header, **kwargs):
     if 'consumption_condition_data' in kwargs:
         ccdata = kwargs.pop('consumption_condition_data')
         leg_fo_robs = leg_data.fuel_oil_robs
-        leg_fo_cons_port_to_port = leg_data.fuel_oil_cons_port_to_port8
+        leg_fo_cons_port_to_port = leg_data.fuel_oil_cons_port_to_port
         leg_fo_cons_pilot_to_pilot = leg_data.fuel_oil_cons_pilot_to_pilot
         leg_fo_cons_in_harbour_port = leg_data.fuel_oil_cons_in_harbour_port
 
