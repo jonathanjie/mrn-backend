@@ -199,7 +199,12 @@ class VoyageLegData(BaseModel):
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.00"))],
         null=True)
-    distance_standby_to_cosp = models.DecimalField(
+    distance_obs_standby_to_cosp = models.DecimalField(
+        max_digits=3,
+        decimal_places=0,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True)
+    distance_eng_standby_to_cosp = models.DecimalField(
         max_digits=3,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))],
@@ -247,9 +252,27 @@ class VoyageLegData(BaseModel):
         default=dict, encoder=DjangoJSONEncoder)
     fuel_oil_cons_in_harbour_port = models.JSONField(
         default=dict, encoder=DjangoJSONEncoder)
+    fuel_oil_receipt_in_harbour_port = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
+    fuel_oil_debunker_in_harbour_port = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
     lube_oil_robs = models.JSONField(
         default=dict, encoder=DjangoJSONEncoder)
+    lube_oil_cons_in_harbour_port = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
+    lube_oil_receipt_in_harbour_port = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
+    lube_oil_debunker_in_harbour_port = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
     freshwater_rob = models.PositiveIntegerField(null=True)
+    freshwater_cons_in_harbour_port = models.PositiveIntegerField(
+        null=True, default=0)
+    freshwater_gen_in_harbour_port = models.PositiveIntegerField(
+        null=True, default=0)
+    freshwater_receipt_in_harbour_port = models.PositiveIntegerField(
+        null=True, default=0)
+    freshwater_discharge_in_harbour_port = models.PositiveIntegerField(
+        null=True, default=0)
 
     planned_operations = models.JSONField(
         default=dict, encoder=DjangoJSONEncoder)
@@ -735,7 +758,7 @@ class ActualPerformanceData(ReportDataBaseModel):
     sailing_time = models.DecimalField(
         max_digits=6,
         decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.00"))])
+        validators=[MinValueValidator(Decimal("0.0"))])
     displacement = models.DecimalField(
         max_digits=7,
         decimal_places=1,
@@ -902,10 +925,6 @@ class BDNData(ReportDataBaseModel):
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))])
     density_15 = models.DecimalField(
-        max_digits=7,
-        decimal_places=4,
-        validators=[MinValueValidator(Decimal("0.0"))])
-    specific_gravity_15 = models.DecimalField(
         max_digits=7,
         decimal_places=4,
         validators=[MinValueValidator(Decimal("0.0"))])

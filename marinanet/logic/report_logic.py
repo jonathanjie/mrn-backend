@@ -52,26 +52,72 @@ def update_leg_data(report_header, **kwargs):
                                              ReportType.ARR_SBY,
                                              ReportType.ARR_FWE):
                 # Update values for Port to Port consumption
-                _update_fo_consumption(fo_type, cons_breakdown, leg_fo_cons_port_to_port)
+                _update_fo_consumption(
+                    fo_type,
+                    cons_breakdown,
+                    leg_fo_cons_port_to_port)
 
             if report_header.report_type in (ReportType.NOON,
                                              ReportType.ARR_SBY):
                 # Update values for Pilot to Pilot consumption
-                _update_fo_consumption(fo_type, cons_breakdown, leg_fo_cons_pilot_to_pilot)
+                _update_fo_consumption(
+                    fo_type,
+                    cons_breakdown,
+                    leg_fo_cons_pilot_to_pilot)
 
             if report_header.report_type in (ReportType.EVENT_HARBOUR,
                                              ReportType.EVENT_PORT,
                                              ReportType.NOON_HARBOUR,
                                              ReportType.NOON_PORT):
                 # Update values for In Harbour / Port consumption
-                _update_fo_consumption(fo_type, cons_breakdown, leg_fo_cons_in_harbour_port)
+                _update_fo_consumption(
+                    fo_type,
+                    cons_breakdown,
+                    leg_fo_cons_in_harbour_port)
+                _update_oil_dict(
+                    fo_type,
+                    fuel_oil_data.receipt,
+                    leg_data.fuel_oil_receipt_in_harbour_port)
+                _update_oil_dict(
+                    fo_type,
+                    fuel_oil_data.debunkering,
+                    leg_data.fuel_oil_debunker_in_harbour_port)
 
         leg_lo_robs = leg_data.lube_oil_robs
         for lube_oil_data in ccdata.lubricatingoildata_set.all():
             lo_type = lube_oil_data.lubricating_oil_type
             leg_lo_robs[lo_type] = lube_oil_data.rob
 
+            if report_header.report_type in (ReportType.EVENT_HARBOUR,
+                                             ReportType.EVENT_PORT,
+                                             ReportType.NOON_HARBOUR,
+                                             ReportType.NOON_PORT):
+                _update_oil_dict(
+                    lo_type,
+                    lube_oil_data.total_consumption,
+                    leg_data.lube_oil_cons_in_harbour_port)
+                _update_oil_dict(
+                    lo_type,
+                    lube_oil_data.receipt,
+                    leg_data.lube_oil_receipt_in_harbour_port)
+                _update_oil_dict(
+                    lo_type,
+                    lube_oil_data.debunkering,
+                    leg_data.lube_oil_debunker_in_harbour_port)
+
         leg_data.freshwater_rob = ccdata.freshwaterdata.rob
+        if report_header.report_type in (ReportType.EVENT_HARBOUR,
+                                         ReportType.EVENT_PORT,
+                                         ReportType.NOON_HARBOUR,
+                                         ReportType.NOON_PORT):
+            leg_data.freshwater_cons_in_harbour_port = \
+                ccdata.freshwaterdata.consumed
+            leg_data.freshwater_gen_in_harbour_port = \
+                ccdata.freshwaterdata.generated
+            leg_data.freshwater_receipt_in_harbour_port = \
+                ccdata.freshwaterdata.received
+            leg_data.freshwater_discharge_in_harbour_port = \
+                ccdata.freshwaterdata.discharged
 
     # if 'total_consumption_data' in kwargs:
     #     pass
@@ -94,8 +140,10 @@ def update_leg_data(report_header, **kwargs):
         leg_data.distance_to_go = dt_data.distance_to_go
 
         if report_header.report_type == ReportType.DEP_COSP:
-            leg_data.distance_standby_to_cosp = \
+            leg_data.distance_obs_standby_to_cosp = \
                 dt_data.distance_observed_since_last
+            leg_data.distance_eng_standby_to_cosp = \
+                dt_data.distance_engine_since_last
             leg_data.time_standby_to_cosp = dt_data.hours_since_last
             leg_data.revolution_count_standby_to_cosp = \
                 dt_data.revolution_count
@@ -166,3 +214,12 @@ def _update_fo_consumption(fo_type, cons_breakdown_dict, leg_fo_cons_dict):
                     Decimal(leg_fo_cons_for_type[eng_type]) + Decimal(val)
             else:
                 leg_fo_cons_for_type[eng_type] = val
+
+
+def _update_oil_dict(oil_type, new_val, update_dict):
+    if oil_type in update_dict:
+        curr_val = update_dict[oil_type]
+        update_dict[oil_type] = Decimal(curr_val) + new_val
+    else:
+        update_dict[oil_type] = new_val
+    return update_dict
