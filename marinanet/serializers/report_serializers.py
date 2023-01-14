@@ -449,6 +449,7 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
 
 
 class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
+    reportroute = ReportRouteSerializer()
     arrivalfwetimeandposition = ArrivalFWETimeandPositionSerializer()
     plannedoperations = PlannedOperationsSerializer()
     arrivalpilotstation = ArrivalPilotStationSerializer(
@@ -463,6 +464,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
+        reportroute = validated_data.pop('reportroute')
         arrivalfwetimeandposition = validated_data.pop(
             'arrivalfwetimeandposition')
         plannedoperations = validated_data.pop('plannedoperations')
@@ -475,6 +477,8 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
 
         with transaction.atomic():
             header = ReportHeader.objects.create(**validated_data)
+            report_route = ReportRoute.objects.create(
+                report_header=header, **reportroute)
             ArrivalFWETimeAndPosition.objects.create(
                 report_header=header, **arrivalfwetimeandposition)
             planned_operations = PlannedOperations.objects.create(
