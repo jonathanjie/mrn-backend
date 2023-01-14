@@ -146,14 +146,15 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
             FreshWaterData.objects.create(ccdata=ccdata, **freshwaterdata)
 
             leg_data_dict = {
+                'report_header': header,
                 'report_route': report_route,
                 'distance_time_data': distance_time_data,
                 'performance_data': performance_data,
                 'consumption_condition_data': ccdata,
             }
             if stoppagedata:
-                leg_data_dict['stoppage_data'] = stoppagedata
-            leg_data = update_leg_data(header, leg_data_dict)
+                leg_data_dict['stoppage_data'] = stoppage_data
+            leg_data = update_leg_data(leg_data_dict)
 
         return header
 
