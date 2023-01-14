@@ -172,7 +172,7 @@ def update_leg_data(report_header, **kwargs):
         if stoppage_data.reduced_rpm == 0 and stoppage_data.duration:
             if leg_data.time_stopped_at_sea:
                 leg_data.time_stopped_at_sea += stoppage_data.duration
-            else
+            else:
                 leg_data.time_stopped_at_sea = stoppage_data.duration
 
     if 'planned_operations' in kwargs:
