@@ -725,7 +725,10 @@ class ActualPerformanceData(ReportDataBaseModel):
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))])
-    sailing_time = models.PositiveIntegerField()
+    sailing_time = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.00"))])
     displacement = models.DecimalField(
         max_digits=7,
         decimal_places=1,
