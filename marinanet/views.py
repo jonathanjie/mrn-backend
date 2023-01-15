@@ -243,7 +243,7 @@ class ShipReportsList(generics.ListAPIView):
     def get_queryset(self):
         imo_reg = self.kwargs['imo_reg']
         ship = Ship.objects.get(imo_reg=imo_reg)
-        queryset = Voyage.objects.filter(ship=ship)
+        queryset = Voyage.objects.filter(ship=ship).order_by("-created_at")
         return queryset
 
 
