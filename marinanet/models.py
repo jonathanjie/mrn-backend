@@ -191,7 +191,7 @@ class VoyageLegData(BaseModel):
         null=True)
     time_standby_to_cosp = models.DecimalField(
         max_digits=4,
-        decimal_places=1,
+        decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))],
         null=True)
     time_stopped_at_sea = models.DecimalField(
