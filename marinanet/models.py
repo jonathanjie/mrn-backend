@@ -182,7 +182,7 @@ class VoyageLegData(BaseModel):
         choices=LoadCondition.choices,
         null=True)
     propeller_pitch = models.DecimalField(
-        max_digits=3, decimal_places=1, null=True)
+        max_digits=5, decimal_places=4, null=True)
 
     total_hours = models.DecimalField(
         max_digits=5,
