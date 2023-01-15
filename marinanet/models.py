@@ -919,7 +919,7 @@ class BDNData(ReportDataBaseModel):
     is_before_arrival = models.BooleanField(null=True)
     bunkering_port = models.CharField(max_length=6)
     bunkering_date = models.DateTimeField()
-    bdn_file = ArrayField(models.URLField(max_length=1500))
+    bdn_file = ArrayField(models.URLField(max_length=3000))
     delivered_oil_type = models.CharField(max_length=64)
     delivered_quantity = models.DecimalField(
         max_digits=7,
