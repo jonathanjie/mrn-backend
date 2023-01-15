@@ -110,14 +110,10 @@ def update_leg_data(report_header, **kwargs):
                                          ReportType.EVENT_PORT,
                                          ReportType.NOON_HARBOUR,
                                          ReportType.NOON_PORT):
-            leg_data.freshwater_cons_in_harbour_port += \
-                ccdata.freshwaterdata.consumed
-            leg_data.freshwater_gen_in_harbour_port += \
-                ccdata.freshwaterdata.generated
-            leg_data.freshwater_receipt_in_harbour_port += \
-                ccdata.freshwaterdata.received
-            leg_data.freshwater_discharge_in_harbour_port += \
-                ccdata.freshwaterdata.discharged
+            leg_data.freshwater_cons_in_harbour_port += ccdata.freshwaterdata.consumed
+            leg_data.freshwater_gen_in_harbour_port += ccdata.freshwaterdata.generated
+            leg_data.freshwater_receipt_in_harbour_port += ccdata.freshwaterdata.received
+            leg_data.freshwater_discharge_in_harbour_port += ccdata.freshwaterdata.discharged
 
     # if 'total_consumption_data' in kwargs:
     #     pass
