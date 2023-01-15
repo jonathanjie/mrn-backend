@@ -916,7 +916,7 @@ class EventData(TimeAndPositionBaseModel):
 
 
 class BDNData(ReportDataBaseModel):
-    is_before_arrival = models.BooleanField()
+    is_before_arrival = models.BooleanField(null=True)
     bunkering_port = models.CharField(max_length=6)
     bunkering_date = models.DateTimeField()
     bdn_file = ArrayField(models.URLField(max_length=1500))
