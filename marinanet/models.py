@@ -264,15 +264,15 @@ class VoyageLegData(BaseModel):
         default=dict, encoder=DjangoJSONEncoder)
     lube_oil_debunker_in_harbour_port = models.JSONField(
         default=dict, encoder=DjangoJSONEncoder)
-    freshwater_rob = models.PositiveIntegerField(null=True)
+    freshwater_rob = models.PositiveIntegerField(default=0)
     freshwater_cons_in_harbour_port = models.PositiveIntegerField(
-        null=True, default=0)
+        default=0)
     freshwater_gen_in_harbour_port = models.PositiveIntegerField(
-        null=True, default=0)
+        default=0)
     freshwater_receipt_in_harbour_port = models.PositiveIntegerField(
-        null=True, default=0)
+        default=0)
     freshwater_discharge_in_harbour_port = models.PositiveIntegerField(
-        null=True, default=0)
+        default=0)
 
     planned_operations = models.JSONField(
         default=dict, encoder=DjangoJSONEncoder)
