@@ -1,6 +1,15 @@
 # Deployment Guide
 ___
-This guide has been tested on Ubuntu 22.04.
+This guide is for deployment of the Django Backend on an AWS EC2 instance running Ubuntu 22.04.
+A PostgreSQL 14 database should also be set up to run on AWS RDS.
+
+___
+## Logging into EC2
+1. Make sure you have the private key to log into EC2. It should end in `.pem`.
+2. Using the private key, SSH into the EC2 instance.
+```
+$ ssh -i .ssh/mctech.pem ubuntu@<EC2 instance Public IPv4 DNS>
+```
 
 ___
 ## Update Packages
@@ -26,48 +35,38 @@ $ git config pull.rebase false
 ```
 
 ___
-## Install and setup PostgreSQL and PostGIS
-1. Import the PostgreSQL repository key, and add the repository.
+## Connect to PostgreSQL on AWS RDS
+1. Install the PostgreSQL 14 client.
 ```
-$ sudo apt install curl ca-certificates gnupg
-$ curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null
-$ echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-$ sudo apt update
+$ sudo apt install postgresql-client-common postgresql-client-14
 ```
-2. Install PostgreSQL 14.
+2. Log in as the Postgres superuser. Get the DB Host details from the AWS RDS console.
 ```
-$ sudo apt install postgresql-14 postgresql-client-14
+$ psql --host=<DB Host> --port=5432 --username=postgres
 ```
-3. Install PostGIS 3.
-```
-$ sudo apt install postgis postgresql-14-postgis-3
-```
-4. Install required control packages.
-```
-$ sudo apt-get install postgresql-14-postgis-3-scripts
-```
-5. Log in as the Postgres superuser.
-```
-$ sudo su - postgres
-```
-6. Start the Postgres interactive terminal:
-```
-$ psql postgres
-```
-7. Create a database called `marinanet` on Postgres, then create a user and grant it privileges to modify and write to the database:
+3. Create a database called `marinanet` on Postgres, then create a user and grant it privileges to modify and write to the database:
 ```
 # CREATE DATABASE marinanet;
 # CREATE USER marinanetuser WITH PASSWORD 'correcthorsebatterystaple';
-# GRANT ALL PRIVILEGES ON DATABASE marinanet TO 'marinanetuser';
+# GRANT rds_superuser TO mnetadmin;
+# GRANT ALL PRIVILEGES ON DATABASE marinanet TO marinanetuser;
 ```
-8. `CTRL-D` to exit the Postgres shell.
-9. Enable PostGIS functionality on Postgres:
+4. `CTRL-D` to exit the Postgres shell.
+5. Enable PostGIS functionality on Postgres:
 ```
-$ psql marinanet
+$ $ psql --host=<DB Host> --port=5432 --username=marinanetuser
 # CREATE EXTENSION postgis;
 ```
-10. `CTRL-D` to exit the Postgres shell.
-11. `CTRL-D` to logout of the Postgres superuser.
+6. `CTRL-D` to exit the Postgres shell.
+7. `CTRL-D` to logout of the Postgres superuser.
+
+If you are unable to log in as `marinanetuser`:
+```
+$ psql --host=<DB Host> --port=5432 --username=postgres
+# ALTER ROLE marinanetuser WITH LOGIN;
+```
+`CTRL-D` to logout of the Postgres superuser.
+
 
 ___
 ## Install Geospatial Libraries
@@ -90,24 +89,19 @@ $ sudo apt install gdal-bin
 
 ___
 ## Create a Virtual Environment and install requirements
-1. In your home directory, create a directory for the project:
-```
-$ cd
-$ mkdir marinachain
-```
-2. Create a [Python Virtual Environment](https://docs.python.org/3/library/venv.html):
+1. In your home directory, create a [Python Virtual Environment](https://docs.python.org/3/library/venv.html):
 ```
 $ python3 -m venv env
 ```
-3. Activate the Virtual Environment:
+2. Activate the Virtual Environment:
 ```
 $ source env/bin/activate
 ```
-4. Clone the repository:
+3. Clone the repository: (You may need to setup your SSH keys before cloning)
 ```
 $ git clone ssh://git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/marinanet-backend
 ```
-5. Intall the required packages:
+4. Intall the required packages:
 ```
 $ cd marinanet-backend
 $ pip install -r requirements.txt
@@ -167,14 +161,14 @@ Requires=gunicorn.socket
 After=network.target
 
 [Service]
-User=cloudsigma
+User=ubuntu
 Group=www-data
-WorkingDirectory=/home/bobby/marinachain/marinanet-backet
-ExecStart=/home/bobby/marinachain/bin/gunicorn \
+WorkingDirectory=/home/ubuntu/marinanet-backend
+ExecStart=/home/unbuntu/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/gunicorn.sock \
-          viktor_project.wsgi:application
+          marinachain.wsgi:application
 
 [Install]
 WantedBy=multi-user.target
@@ -184,7 +178,7 @@ WantedBy=multi-user.target
 sudo systemctl start gunicorn.socket
 sudo systemctl enable gunicorn.socket
 ```
-9. Configure Nginx using [DigitalOcean's Nginx Configuration Tool](https://www.digitalocean.com/community/tools/nginx). Select the appropriate settings, download the configuration files, and execute the commands as given. This should get you setup for https on the chosen domain.
+9. Configure Nginx using [DigitalOcean's Nginx Configuration Tool](https://www.digitalocean.com/community/tools/nginx). Select the appropriate settings (Domain, User, Gunicorn instead of uWSGI), download the configuration files, and execute the commands as given. This should get you setup for https on the chosen domain.
 
 Note:
 - If you make any changes to the Gunicorn service file, you will need to reload the service.
@@ -202,7 +196,9 @@ ___
 - [PostgreSQL Ubuntu Download](https://www.postgresql.org/download/linux/ubuntu/)
 - [PostgreSQL Apt Repository](https://wiki.postgresql.org/wiki/Apt)
 - [PostGIS Installation](https://www.vultr.com/docs/install-the-postgis-extension-for-postgresql-on-ubuntu-linux/)
+- [Setting Up PostGIS on AWS RDS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.PostGIS.html)
 - [GeoDjango Installation](https://kitcharoenp.github.io/gis/2018/06/12/geodjango_installation.html)
 - [Gunicorn and Nginx Setup (DigitalOcean)](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04)
 - [Gunicorn and Nginx Setup (CloudSigma)](https://www.cloudsigma.com/setting-up-django-with-postgresql-nginx-and-gunicorn-on-ubuntu-20-04/)
 - [DigitalOcean's Nginx Configuration Tool](https://www.digitalocean.com/community/tools/nginx)
+- [Setting Up SSH Connections to AWS CodeCommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-ssh-unixes.html)
