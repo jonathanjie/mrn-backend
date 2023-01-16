@@ -733,6 +733,7 @@ class ArrivalStandbyTimeAndPosition(TimeAndPositionBaseModel):
 
 
 class PlannedOperations(ReportDataBaseModel):
+    waiting = models.BooleanField(default=False)
     cargo_operation_berth = models.BooleanField()
     cargo_operation_stsstb = models.BooleanField()
     bunkering_debunkering = models.BooleanField()
