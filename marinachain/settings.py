@@ -23,10 +23,12 @@ from marinachain.secrets import (
     DB_PASSWORD,
     DB_PORT,
     JWT_AUDIENCE,
-    JWT_ISSUER)
+    JWT_ISSUER,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 
 # Quick-start development settings - unsuitable for production
@@ -38,7 +40,8 @@ SECRET_KEY = DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["testapi.marinachain.io", "194.233.91.95", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["testapi.marinachain.io",
+                 "194.233.91.95", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -52,13 +55,17 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "rest_framework",
+    "corsheaders",
+    "phonenumber_field",
     "auth0",
-    "marinanet",
+    "marinanet"
+    # "drf_yasg"
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -72,7 +79,7 @@ ROOT_URLCONF = "marinachain.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [TEMPLATES_DIR],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -138,24 +145,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = 'auth0.User'
+AUTH_USER_MODEL = "auth0.User"
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_jwt.authentication.JSONWebTokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
-    )
+    ),
 }
 
 
@@ -167,18 +172,44 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 JWT_AUTH = {
-    "JWT_PAYLOAD_GET_USERNAME_HANDLER":
-        "auth0.utils.jwt_get_username_from_payload_handler",
-    "JWT_DECODE_HANDLER":
-        "auth0.utils.jwt_decode_token",
+    "JWT_PAYLOAD_GET_USERNAME_HANDLER": "auth0.utils.jwt_get_username_from_payload_handler",
+    "JWT_DECODE_HANDLER": "auth0.utils.jwt_decode_token",
     "JWT_ALGORITHM": "RS256",
     "JWT_AUDIENCE": JWT_AUDIENCE,
     "JWT_ISSUER": JWT_ISSUER,
     "JWT_AUTH_HEADER_PREFIX": "Bearer",
 }
 
+# Add path for GDAL
+# GDAL_LIBRARY_PATH = "/opt/homebrew/opt/gdal/lib/libgdal.dylib"
+# GEOS_LIBRARY_PATH = "/opt/homebrew/opt/geos/lib/libgeos_c.dylib"
 
-SILENCED_SYSTEM_CHECKS = ['fields.E300', 'fields.E307']
 
-GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
-GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
+SILENCED_SYSTEM_CHECKS = ["fields.E300", "fields.E307"]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+    },
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOWED_ORIGINS = ["http://localhost:8080", "https://localhost:8080"]
+
+CORS_ORIGIN_WHITELIST = ["http://localhost:8080", "https://localhost:8080"]
