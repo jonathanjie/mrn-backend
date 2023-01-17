@@ -188,8 +188,9 @@ def update_leg_data(report_header, **kwargs):
     # if 'arrival_standby_time_and_position' in kwargs:
     #     pass
 
-    # if 'arrival_fwe_time_and_position' in kwargs:
-    #     pass
+    if 'arrival_fwe_time_and_position' in kwargs:
+        arrfwe_data = kwargs.pop('arrival_fwe_time_and_position')
+        leg_data.parking_status = arrfwe_data.parking_status
 
     if 'event_data' in kwargs:
         event_data = kwargs.pop('event_data')

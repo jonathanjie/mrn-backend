@@ -479,7 +479,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
             header = ReportHeader.objects.create(**validated_data)
             report_route = ReportRoute.objects.create(
                 report_header=header, **reportroute)
-            ArrivalFWETimeAndPosition.objects.create(
+            arrival_fwe = ArrivalFWETimeAndPosition.objects.create(
                 report_header=header, **arrivalfwetimeandposition)
             planned_operations = PlannedOperations.objects.create(
                 report_header=header, **plannedoperations)
@@ -537,6 +537,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
 
             leg_data = update_leg_data(
                 report_header=header,
+                arrival_fwe_time_and_position=arrival_fwe,
                 planned_operations=planned_operations,
                 consumption_condition_data=ccdata,
                 distance_time_data=distance_time_data,
