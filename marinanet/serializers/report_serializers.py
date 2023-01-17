@@ -538,6 +538,8 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
             leg_data = update_leg_data(
                 report_header=header,
                 arrival_fwe_time_and_position=arrival_fwe,
+                event_data={
+                    "parking_status": arrivalfwetimeandposition.parking_status},
                 planned_operations=planned_operations,
                 consumption_condition_data=ccdata,
                 distance_time_data=distance_time_data,
@@ -596,6 +598,7 @@ class EventReportViewSerialiazer(BaseReportViewSerializer):
 
             leg_data = update_leg_data(
                 report_header=header,
+                event_data=eventdata,
                 planned_operations=planned_operations,
                 consumption_condition_data=ccdata,
             )
