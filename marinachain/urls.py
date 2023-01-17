@@ -20,8 +20,8 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("admin1/", admin.site.urls),
-    path("", include("auth0.urls")),
-    path("", include("marinanet.urls")),
+    path("api/", include("auth0.urls")),
+    path("api/", include("marinanet.urls")),
     # path('swagger-ui/', TemplateView.as_view(
     #     template_name='swagger-ui.html',
     #     extra_context={'schema_url':'openapi-schema'}
