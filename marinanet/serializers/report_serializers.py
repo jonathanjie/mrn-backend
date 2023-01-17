@@ -597,7 +597,7 @@ class EventReportViewSerialiazer(BaseReportViewSerializer):
 
             leg_data = update_leg_data(
                 report_header=header,
-                eventdata=eventdata,
+                event_data=eventdata,
                 planned_operations=planned_operations,
                 consumption_condition_data=ccdata,
             )
