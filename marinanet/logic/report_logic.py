@@ -193,7 +193,7 @@ def update_leg_data(report_header, **kwargs):
 
     if 'event_data' in kwargs:
         event_data = kwargs.pop('event_data')
-        leg_data.parking_status = event_data.parking_status
+        leg_data.parking_status = event_data['parking_status']
 
     # if 'bdn_data' in kwargs:
     #     pass
