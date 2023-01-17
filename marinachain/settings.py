@@ -40,7 +40,7 @@ SECRET_KEY = DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["testapi.marinachain.io",
+ALLOWED_HOSTS = ["staging.marinachain.io", "testapi.marinachain.io",
                  "194.233.91.95", "localhost", "127.0.0.1"]
 
 
@@ -100,12 +100,12 @@ WSGI_APPLICATION = "marinachain.wsgi.application"
 
 DATABASES = {
     "default": {
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": DB_NAME,
         "USER": DB_USER,
         "PASSWORD": DB_PASSWORD,
-        "HOST": DB_HOST,
-        "PORT": DB_PORT,
     }
 }
 
