@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.forms.models import model_to_dict
 
 from marinanet.enums import ReportType
-from marinanet.models import VoyageLegData
+from marinanet.models.report_models import VoyageLegData
 
 
 def update_leg_data(report_header, **kwargs):

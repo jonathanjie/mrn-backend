@@ -20,7 +20,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("admin1/", admin.site.urls),
-    path("api/", include("auth0.urls")),
+    path("api/", include("core.urls")),
     path("api/", include("marinanet.urls")),
     # path('swagger-ui/', TemplateView.as_view(
     #     template_name='swagger-ui.html',

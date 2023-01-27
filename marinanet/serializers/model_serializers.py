@@ -1,13 +1,15 @@
 from rest_framework import serializers
 
-from marinanet.models import (
+from core.models import (
+    Company,
+)
+from marinanet.models.report_models import (
     ActualPerformanceData,
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
     BDNData,
     CargoOperation,
-    Company,
     ConsumptionConditionData,
     DeparturePilotStation,
     DepartureRunUp,
@@ -31,9 +33,6 @@ from marinanet.models import (
     ReportHeader,
     ReportRoute,
     SailingPlan,
-    Ship,
-    ShipSpecs,
-    ShipUser,
     StoppageData,
     TotalConsumptionData,
     UserProfile,
@@ -41,6 +40,11 @@ from marinanet.models import (
     VoyageLeg,
     VoyageLegData,
     WeatherData,
+)
+from marinanet.models.ship_models import (
+    Ship,
+    ShipSpecs,
+    ShipUser,
 )
 
 

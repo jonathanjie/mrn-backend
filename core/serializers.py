@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from auth0.models import User
+from core.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):

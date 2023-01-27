@@ -1,14 +1,13 @@
 from django.contrib import admin
 
 # Register your models here.
-from marinanet.models import (
+from marinanet.models.report_models import (
     ActualPerformanceData,
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
     BDNData,
     CargoOperation,
-    Company,
     ConsumptionConditionData,
     DeparturePilotStation,
     DepartureRunUp,
@@ -33,21 +32,18 @@ from marinanet.models import (
     ReportHeader,
     ReportRoute,
     SailingPlan,
-    Ship,
-    ShipSpecs,
-    ShipUser,
     StoppageData,
     TotalConsumptionData,
-    UserProfile,
     Voyage,
     VoyageLeg,
     VoyageLegData,
     WeatherData
 )
-
-
-class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+from marinanet.models.ship_models import (
+    Ship,
+    ShipSpecs,
+    ShipUser,
+)
 
 
 class ShipAdmin(admin.ModelAdmin):
@@ -55,8 +51,6 @@ class ShipAdmin(admin.ModelAdmin):
 
 
 # User and Company models
-admin.site.register(Company, CompanyAdmin)
-admin.site.register(UserProfile)
 admin.site.register(Ship, ShipAdmin)
 admin.site.register(ShipSpecs)
 admin.site.register(ShipUser)

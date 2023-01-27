@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from marinanet.models import (
+from marinanet.models.report_models import (
     ActualPerformanceData,
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,

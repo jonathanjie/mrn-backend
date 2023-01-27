@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "phonenumber_field",
-    "auth0",
+    "core",
     "marinanet"
     # "drf_yasg"
 ]
@@ -152,7 +152,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = "auth0.User"
+AUTH_USER_MODEL = "core.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
@@ -172,8 +172,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 JWT_AUTH = {
-    "JWT_PAYLOAD_GET_USERNAME_HANDLER": "auth0.utils.jwt_get_username_from_payload_handler",
-    "JWT_DECODE_HANDLER": "auth0.utils.jwt_decode_token",
+    "JWT_PAYLOAD_GET_USERNAME_HANDLER": "core.utils.jwt_get_username_from_payload_handler",
+    "JWT_DECODE_HANDLER": "core.utils.jwt_decode_token",
     "JWT_ALGORITHM": "RS256",
     "JWT_AUDIENCE": JWT_AUDIENCE,
     "JWT_ISSUER": JWT_ISSUER,

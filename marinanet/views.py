@@ -13,16 +13,20 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.views import APIView
 from rest_framework import status
 
+from core.models import (
+    UserProfile,
+)
 from marinanet.enums import ReportType
-from marinanet.models import (
+from marinanet.models.report_models import (
     ReportHeader,
     ReportRoute,
-    Ship,
-    ShipSpecs,
-    UserProfile,
     Voyage,
     VoyageLeg,
     VoyageLegData,
+)
+from marinanet.models.ship_models import (
+    Ship,
+    ShipSpecs,
 )
 from marinanet.permissions import (
     IsShipUser

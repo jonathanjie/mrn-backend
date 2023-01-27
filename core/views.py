@@ -8,7 +8,7 @@ from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
-from auth0.serializers import UserSerializer
+from core.serializers import UserSerializer
 
 
 """ The following 2 functions are adopted from Auth0's Quickstart
