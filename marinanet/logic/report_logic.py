@@ -1,12 +1,814 @@
+from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
+from django.contrib.gis.geos import Point
+from django.db import transaction
 from django.forms.models import model_to_dict
 
 from marinanet.enums import ReportType
-from marinanet.models.report_models import VoyageLegData
+from marinanet.models.report_models import (
+    ActualPerformanceData,
+    ArrivalFWETimeAndPosition,
+    ArrivalPilotStation,
+    ArrivalStandbyTimeAndPosition,
+    BDNData,
+    CargoOperation,
+    ConsumptionConditionData,
+    DepartureVesselCondition,
+    DeparturePilotStation,
+    DepartureRunUp,
+    DistanceTimeData,
+    EventData,
+    FreshWaterData,
+    FreshWaterTotalConsumptionData,
+    FuelOilData,
+    FuelOilDataCorrection,
+    FuelOilTotalConsumptionData,
+    FuelOilTotalConsumptionDataCorrection,
+    HeavyWeatherData,
+    LubricatingOilData,
+    LubricatingOilDataCorrection,
+    LubricatingOilTotalConsumptionData,
+    LubricatingOilTotalConsumptionDataCorrection,
+    NoonReportTimeAndPosition,
+    PerformanceData,
+    PlannedOperations,
+    ReportHeader,
+    ReportRoute,
+    SailingPlan,
+    StoppageData,
+    TotalConsumptionData,
+    VoyageLeg,
+    VoyageLegData,
+    WeatherData,
+)
+
+
+@transaction.atomic
+def create_report_header(
+    voyage_leg: VoyageLeg,
+    report_type: str,
+    report_num: int,
+    report_date: datetime,
+    report_tz: float,
+) -> ReportHeader:
+    """
+    Creates a Report Header object
+    * Functions should be written in a similar way to allow for testability
+    """
+    report_header = ReportHeader.objects.create(
+        voyage_leg=voyage_leg,
+        report_type=report_type,
+        report_num=report_num,
+        report_date=report_date,
+        report_tz=report_tz,
+    )
+    return report_header
+
+
+@transaction.atomic
+def create_report_route(
+    report_header: ReportHeader,
+    departure_port: str,
+    departure_date: datetime,
+    departure_tz: float,
+    arrival_port: str,
+    arrival_date: datetime,
+    arrival_tz: float,
+) -> ReportRoute:
+    report_route = ReportRoute.objects.create(
+        report_header=report_header,
+        departure_port=departure_port,
+        departure_date=departure_date,
+        departure_tz=departure_tz,
+        arrival_port=arrival_port,
+        arrival_date=arrival_date,
+        arrival_tz=arrival_tz,
+    )
+    return report_route
+
+
+@transaction.atomic
+def create_departure_vessel_condition(
+    report_header: ReportHeader,
+    draft_fwd: Decimal,
+    draft_mid: Decimal,
+    draft_aft: Decimal,
+    constant: Decimal,
+    gm: Decimal,
+    ballast: Decimal,
+    displacement: Decimal,
+) -> DepartureVesselCondition:
+    departure_vessel_condition = DepartureVesselCondition.objects.create(
+        report_header=report_header,
+        draft_fwd=draft_fwd,
+        draft_mid=draft_mid,
+        draft_aft=draft_aft,
+        constant=constant,
+        gm=gm,
+        ballast=ballast,
+        displacement=displacement,
+    )
+    return departure_vessel_condition
+
+
+@transaction.atomic
+def create_departure_pilot_station(
+    report_header: ReportHeader,
+    name: str,
+    date: datetime,
+    position: Point,
+) -> DeparturePilotStation:
+    departure_pilot_station = DeparturePilotStation.objects.create(
+        report_header=report_header,
+        name=name,
+        date=date,
+        position=position,
+    )
+    return departure_pilot_station
+
+
+@transaction.atomic
+def create_arrival_pilot_station(
+    report_header: ReportHeader,
+    name: str,
+    date: datetime,
+    position: Point,
+    draft_fwd: Decimal,
+    draft_mid: Decimal,
+    draft_aft: Decimal,
+) -> ArrivalPilotStation:
+    arrival_pilot_station = ArrivalPilotStation.objects.create(
+        report_header=report_header,
+        name=name,
+        date=date,
+        position=position,
+        draft_fwd=draft_fwd,
+        draft_mid=draft_mid,
+        draft_aft=draft_aft,
+    )
+    return arrival_pilot_station
+
+
+@transaction.atomic
+def create_consumption_condition_data(
+    report_header: ReportHeader,
+    consumption_type: str,
+) -> ConsumptionConditionData:
+    ccdata = ConsumptionConditionData.objects.create(
+        report_header=report_header,
+        consumption_type=consumption_type,
+    )
+    return ccdata
+
+
+@transaction.atomic
+def create_fuel_oil_data(
+    ccdata: ConsumptionConditionData,
+    fuel_oil_type: str,
+    total_consumption: Decimal,
+    receipt: Decimal,
+    debunkering: Decimal,
+    rob: Decimal,
+    breakdown: dict[str, Decimal],  # This is a JSON
+) -> FuelOilData:
+    fo_data = FuelOilData.objects.create(
+        ccdata=ccdata,
+        fuel_oil_type=fuel_oil_type,
+        total_consumption=total_consumption,
+        receipt=receipt,
+        debunkering=debunkering,
+        rob=rob,
+        breakdown=breakdown,
+    )
+    return fo_data
+
+
+@transaction.atomic
+def create_fuel_oil_data_correction(
+    fuel_oil_data: FuelOilData,
+    correction: Decimal,
+    remarks: str,
+) -> FuelOilDataCorrection:
+    fo_data_correction = FuelOilDataCorrection.objects.create(
+        fuel_oil_data=fuel_oil_data,
+        correction=correction,
+        remarks=remarks,
+    )
+    return fo_data_correction
+
+
+@transaction.atomic
+def process_fuel_oil_data_set(
+    ccdata: ConsumptionConditionData,
+    fueloildata_set,
+) -> None:
+    """
+    Processes a Set Fuel Oil Data and its corrections
+    """
+    for fueloildata in fueloildata_set:
+        fueloildatacorrection = fueloildata.pop(
+            'fueloildatacorrection', None)
+        fo_data = create_fuel_oil_data(
+            ccdata=ccdata,
+            **fueloildata,
+        )
+        if fueloildatacorrection:
+            create_fuel_oil_data_correction(
+                fuel_oil_data=fo_data,
+                **fueloildatacorrection,
+            )
+
+
+@transaction.atomic
+def create_lubricating_oil_data(
+    ccdata: ConsumptionConditionData,
+    lubricating_oil_type: str,
+    total_consumption: Decimal,
+    receipt: Decimal,
+    debunkering: Decimal,
+    rob: Decimal,
+) -> LubricatingOilData:
+    lo_data = LubricatingOilData.objects.create(
+        ccdata=ccdata,
+        lubricating_oil_type=lubricating_oil_type,
+        total_consumption=total_consumption,
+        receipt=receipt,
+        debunkering=debunkering,
+        rob=rob,
+    )
+    return lo_data
+
+
+@transaction.atomic
+def create_lubricating_oil_data_correction(
+    lubricating_oil_data: LubricatingOilData,
+    correction: Decimal,
+    remarks: str,
+) -> LubricatingOilDataCorrection:
+    lo_data_correction = LubricatingOilDataCorrection.objects.create(
+        lubricating_oil_data=lubricating_oil_data,
+        correction=correction,
+        remarks=remarks,
+    )
+    return lo_data_correction
+
+
+@transaction.atomic
+def process_lubricating_oil_data_set(
+    ccdata: ConsumptionConditionData,
+    lubricatingoildata_set,
+) -> None:
+    for lubricatingoildata in lubricatingoildata_set:
+        lubricatingoildatacorrection = lubricatingoildata.pop(
+            'lubricatingoildatacorrection', None)
+        lo_data = create_lubricating_oil_data(
+            ccdata=ccdata,
+            **lubricatingoildata,
+        )
+        if lubricatingoildatacorrection:
+            create_lubricating_oil_data_correction(
+                lubricating_oil_data=lo_data,
+                **lubricatingoildatacorrection,
+            )
+
+
+@transaction.atomic
+def create_fresh_water_data(
+    ccdata: ConsumptionConditionData,
+    consumed: int,
+    generated: int,
+    received: int,
+    discharged: int,
+) -> FreshWaterData:
+    fw_data = FreshWaterData.objects.create(
+        ccdata=ccdata,
+        consumed=consumed,
+        generated=generated,
+        received=received,
+        discharged=discharged,
+    )
+    return fw_data
+
+
+@transaction.atomic
+def create_noon_report_time_and_position(
+    report_header: ReportHeader,
+    time: datetime,
+    timezone: float,
+    position: Point,
+):
+    noon_report_time_and_position = NoonReportTimeAndPosition.objects.create(
+        report_header=report_header,
+        time=time,
+        timezone=timezone,
+        position=position,
+    )
+    return noon_report_time_and_position
+
+
+@transaction.atomic
+def create_weather_data(
+    report_header: ReportHeader,
+    weather_notation: str,
+    visibility: int,
+    wind_direction: str,
+    wind_speed: Decimal,
+    sea_direction: str,
+    sea_state: int,
+    swell_direction: str,
+    swell_scale: int,
+    air_pressure: int,
+    air_temperature_dry: Decimal,
+    air_temperature_wet: Decimal,
+    sea_temperature: Decimal,
+    ice_condition: str,
+) -> WeatherData:
+    weather_data = WeatherData.objects.create(
+        report_header=report_header,
+        weather_notation=weather_notation,
+        visibility=visibility,
+        wind_direction=wind_direction,
+        wind_speed=wind_speed,
+        sea_direction=sea_direction,
+        sea_state=sea_state,
+        swell_direction=swell_direction,
+        swell_scale=swell_scale,
+        air_pressure=air_pressure,
+        air_temperature_dry=air_temperature_dry,
+        air_temperature_wet=air_temperature_wet,
+        sea_temperature=sea_temperature,
+        ice_condition=ice_condition,
+    )
+    return weather_data
+
+
+@transaction.atomic
+def create_heavy_weather_data(
+    report_header: ReportHeader,
+    weather_notation: str,
+    total_hours: Decimal,
+    observed_distance: Decimal,
+    fuel_consumption: Decimal,
+    wind_direction: str,
+    wind_speed: Decimal,
+    sea_direction: str,
+    sea_state: int,
+    remarks: Optional[str],
+) -> HeavyWeatherData:
+    heavy_weather_data = HeavyWeatherData.objects.create(
+        report_header=report_header,
+        weather_notation=weather_notation,
+        total_hours=total_hours,
+        observed_distance=observed_distance,
+        fuel_consumption=fuel_consumption,
+        wind_direction=wind_direction,
+        wind_speed=wind_speed,
+        sea_direction=sea_direction,
+        sea_state=sea_state,
+        remarks=remarks,
+    )
+    return heavy_weather_data
+
+
+@transaction.atomic
+def create_distance_time_data(
+    report_header: ReportHeader,
+    hours_since_last: Decimal,
+    hours_total: Decimal,
+    distance_to_go: Decimal,
+    remarks_for_changes: str,
+    distance_observed_since_last: Decimal,
+    distance_observed_total: Decimal,
+    distance_engine_since_last: Decimal,
+    distance_engine_total: Decimal,
+    revolution_count: int,
+    set_rpm: Optional[Decimal],
+) -> DistanceTimeData:
+    distance_time_data = DistanceTimeData.objects.create(
+        report_header=report_header,
+        hours_since_last=hours_since_last,
+        hours_total=hours_total,
+        distance_to_go=distance_to_go,
+        remarks_for_changes=remarks_for_changes,
+        distance_observed_since_last=distance_observed_since_last,
+        distance_observed_total=distance_engine_total,
+        distance_engine_since_last=distance_engine_since_last,
+        distance_engine_total=distance_engine_total,
+        revolution_count=revolution_count,
+        set_rpm=set_rpm,
+    )
+    return distance_time_data
+
+
+@transaction.atomic
+def create_performance_data(
+    report_header: ReportHeader,
+    speed_since_last: Decimal,
+    rpm_since_last: Decimal,
+    slip_since_last: Decimal,
+    speed_average: Decimal,
+    rpm_average: Decimal,
+    slip_average: Decimal,
+) -> PerformanceData:
+    performance_data = PerformanceData.objects.create(
+        report_header=report_header,
+        speed_since_last=speed_since_last,
+        rpm_since_last=rpm_since_last,
+        slip_since_last=speed_since_last,
+        speed_average=speed_average,
+        rpm_average=rpm_average,
+        slip_average=slip_average,
+    )
+    return performance_data
+
+
+@transaction.atomic
+def create_stoppage_data(
+    report_header: ReportHeader,
+    start_date: datetime,
+    reduced_rpm: Decimal,
+    position: Point,
+    reason: str,
+    remarks: str,
+    end_date: Optional[datetime] = None,
+    duration: Optional[Decimal] = None,
+) -> StoppageData:
+    stoppage_data = StoppageData.objects.create(
+        report_header=report_header,
+        start_date=start_date,
+        end_date=end_date,
+        duration=duration,
+        reduced_rpm=reduced_rpm,
+        position=position,
+        reason=reason,
+        remarks=remarks,
+    )
+    return stoppage_data
+
+
+@transaction.atomic
+def create_cargo_operation(
+    report_header: ReportHeader,
+    load_condition: str,
+    loading: int,
+    unloading: int,
+    total: int,
+    time: Decimal,
+) -> CargoOperation:
+    cargo_operation = CargoOperation.objects.create(
+        report_header=report_header,
+        load_condition=load_condition,
+        loading=loading,
+        unloading=unloading,
+        total=total,
+        time=time,
+    )
+    return cargo_operation
+
+
+@transaction.atomic
+def create_departure_run_up(
+    report_header: ReportHeader,
+    time: datetime,
+    timezone: float,
+    position: Point,
+) -> DepartureRunUp:
+    depature_run_up = DepartureRunUp.objects.create(
+        report_header=report_header,
+        time=time,
+        timezone=timezone,
+        position=position,
+    )
+    return depature_run_up
+
+
+@transaction.atomic
+def create_sailing_plan(
+    report_header: ReportHeader,
+    distance_to_go: Decimal,
+    speed: Decimal,
+    me_daily_fo_consumption: Decimal,
+    me_rpm: Decimal,
+) -> SailingPlan:
+    sailing_plan = SailingPlan.objects.create(
+        report_header=report_header,
+        distance_to_go=distance_to_go,
+        speed=speed,
+        me_daily_fo_consumption=me_daily_fo_consumption,
+        me_rpm=me_rpm,
+    )
+    return sailing_plan
+
+
+@transaction.atomic
+def create_arrival_standby_time_and_position(
+    report_header: ReportHeader,
+    time: datetime,
+    timezone: float,
+    position: Point,
+) -> ArrivalStandbyTimeAndPosition:
+    arrival_standby = ArrivalStandbyTimeAndPosition.objects.create(
+        report_header=report_header,
+        time=time,
+        timezone=timezone,
+        position=position,
+    )
+    return arrival_standby
+
+
+@transaction.atomic
+def create_planned_operations(
+    report_header: ReportHeader,
+    cargo_operation_berth: bool,
+    cargo_operation_stsstb: bool,
+    bunkering_debunkering: bool,
+    dry_docking: bool,
+    crew_change: bool,
+    receiving_provisions_spares: bool,
+    surveying: bool,
+    others: bool,
+    waiting: Optional[bool] = False,
+    planned_operations_othersdetails: Optional[str] = None,
+) -> PlannedOperations:
+    planned_operations = PlannedOperations.objects.create(
+        report_header=report_header,
+        waiting=waiting,
+        cargo_operation_berth=cargo_operation_berth,
+        cargo_operation_stsstb=cargo_operation_stsstb,
+        bunkering_debunkering=bunkering_debunkering,
+        dry_docking=dry_docking,
+        crew_change=crew_change,
+        receiving_provisions_spares=receiving_provisions_spares,
+        surveying=surveying,
+        others=others,
+        planned_operations_othersdetails=planned_operations_othersdetails,
+    )
+    return planned_operations
+
+
+@transaction.atomic
+def create_actual_performance_data(
+    report_header: ReportHeader,
+    actual_performance_type: str,
+    distance_obs_total: Decimal,
+    sailing_time: Decimal,
+    displacement: Decimal,
+    speed_average: Decimal,
+    rpm_average: Decimal,
+    me_average_daily_fo_consumption: Decimal,
+) -> ActualPerformanceData:
+    actual_performance_data = ActualPerformanceData.objects.create(
+        report_header=report_header,
+        actual_performance_type=actual_performance_type,
+        distance_obs_total=distance_obs_total,
+        sailing_time=sailing_time,
+        displacement=displacement,
+        speed_average=speed_average,
+        rpm_average=rpm_average,
+        me_average_daily_fo_consumption=me_average_daily_fo_consumption,
+    )
+    return actual_performance_data
+
+
+@transaction.atomic
+def create_arrival_fwe_time_and_position(
+    report_header: ReportHeader,
+    time: datetime,
+    timezone: float,
+    position: Point,
+    parking_status: str
+) -> ArrivalFWETimeAndPosition:
+    arrival_fwe = ArrivalFWETimeAndPosition.objects.create(
+        report_header=report_header,
+        time=time,
+        timezone=timezone,
+        position=position,
+        parking_status=parking_status,
+    )
+    return arrival_fwe
+
+
+@transaction.atomic
+def create_event_data(
+    report_header: ReportHeader,
+    time: datetime,
+    timezone: float,
+    position: Point,
+    distance_travelled: int,
+    parking_status: str,
+) -> EventData:
+    event_data = EventData.objects.create(
+        report_header=report_header,
+        time=time,
+        timezone=timezone,
+        position=position,
+        distance_travelled=distance_travelled,
+        parking_status=parking_status,
+    )
+    return event_data
+
+
+@transaction.atomic
+def create_bdn_data(
+    report_header: ReportHeader,
+    is_before_arrival: bool,
+    bunkering_port: str,
+    bunkering_date: datetime,
+    bdn_file: list[str],
+    delivered_oil_type: str,
+    delivered_quantity: Decimal,
+    density_15: Decimal,
+    viscosity_value: Decimal,
+    viscosity_temperature: Decimal,
+    flash_point: Decimal,
+    sulfur_content: Decimal,
+    sample_sealing_marpol: str,
+    sample_sealing_ship: str,
+    sample_sealing_barge: str,
+    alongside_date: datetime,
+    hose_connection_date: datetime,
+    pump_start_date: datetime,
+    pump_stop_date: datetime,
+    hose_disconnection_date: datetime,
+    slipoff_date: datetime,
+    purchaser: str,
+    barge_name: str,
+    supplier_name: str,
+    supplier_address: str,
+    supplier_contact: str,
+) -> BDNData:
+    bdb_data = BDNData.objects.create(
+        report_header=report_header,
+        is_before_arrival=is_before_arrival,
+        bunkering_port=bunkering_port,
+        bunkering_date=bunkering_date,
+        bdn_file=bdn_file,
+        delivered_oil_type=delivered_oil_type,
+        delivered_quantity=delivered_quantity,
+        density_15=density_15,
+        viscosity_value=viscosity_value,
+        viscosity_temperature=viscosity_temperature,
+        flash_point=flash_point,
+        sulfur_content=sulfur_content,
+        sample_sealing_marpol=sample_sealing_marpol,
+        sample_sealing_ship=sample_sealing_ship,
+        sample_sealing_barge=sample_sealing_barge,
+        alongside_date=alongside_date,
+        hose_connection_date=hose_connection_date,
+        pump_start_date=pump_start_date,
+        pump_stop_date=pump_stop_date,
+        hose_disconnection_date=hose_disconnection_date,
+        slipoff_date=slipoff_date,
+        purchaser=purchaser,
+        barge_name=barge_name,
+        supplier_name=supplier_name,
+        supplier_address=supplier_address,
+        supplier_contact=supplier_contact,
+    )
+    return bdb_data
+
+
+@transaction.atomic
+def create_total_consumption_data(
+    report_header: ReportHeader,
+    consumption_type: str,
+) -> TotalConsumptionData:
+    tcdata = TotalConsumptionData.objects.create(
+        report_header=report_header,
+        consumption_type=consumption_type,
+    )
+    return tcdata
+
+
+@transaction.atomic
+def create_fuel_oil_total_consumption_data(
+    tcdata: TotalConsumptionData,
+    fuel_oil_type: str,
+    total_consumption: Decimal,
+    receipt: Decimal,
+    debunkering: Decimal,
+    rob: Decimal,
+    breakdown: dict[str, Decimal],  # This is a JSON
+) -> FuelOilTotalConsumptionData:
+    fo_tc_data = FuelOilTotalConsumptionData.objects.create(
+        tcdata=tcdata,
+        fuel_oil_type=fuel_oil_type,
+        total_consumption=total_consumption,
+        receipt=receipt,
+        debunkering=debunkering,
+        rob=rob,
+        breakdown=breakdown,
+    )
+    return fo_tc_data
+
+
+@transaction.atomic
+def create_fuel_oil_total_consumption_data_correction(
+    fuel_oil_tcdata: FuelOilTotalConsumptionData,
+    correction: Decimal,
+    remarks: str,
+) -> FuelOilTotalConsumptionDataCorrection:
+    fo_tc_data_correction = FuelOilTotalConsumptionDataCorrection.objects.create(
+        fuel_oil_tcdata=fuel_oil_tcdata,
+        correction=correction,
+        remarks=remarks,
+    )
+    return fo_tc_data_correction
+
+
+@transaction.atomic
+def process_fuel_oil_total_consumption_data_set(
+    tcdata: TotalConsumptionData,
+    fueloiltotalconsumptiondata_set,
+) -> None:
+    for fueloiltotalconsumptiondata in fueloiltotalconsumptiondata_set:
+        fueloiltotalconsumptiondatacorrection = fueloiltotalconsumptiondata.pop(
+            'fueloiltotalconsumptiondatacorrection', None)
+        fo_tcdata = create_fuel_oil_total_consumption_data(
+            tcdata=tcdata,
+            **fueloiltotalconsumptiondata
+        )
+        if fueloiltotalconsumptiondatacorrection:
+            create_fuel_oil_total_consumption_data_correction(
+                fuel_oil_tcdata=fo_tcdata,
+                **fueloiltotalconsumptiondatacorrection
+            )
+
+
+@transaction.atomic
+def create_lubricating_oil_total_consumption_data(
+    tcdata: TotalConsumptionData,
+    lubricating_oil_type: str,
+    total_consumption: Decimal,
+    receipt: Decimal,
+    debunkering: Decimal,
+    rob: Decimal,
+) -> LubricatingOilTotalConsumptionData:
+    lo_tc_data = LubricatingOilTotalConsumptionData.objects.create(
+        tcdata=tcdata,
+        lubricating_oil_type=lubricating_oil_type,
+        total_consumption=total_consumption,
+        receipt=receipt,
+        debunkering=debunkering,
+        rob=rob,
+    )
+    return lo_tc_data
+
+
+@transaction.atomic
+def create_lubricating_oil_total_consumption_data_correction(
+    lubricating_oil_tcdata: LubricatingOilTotalConsumptionData,
+    correction: Decimal,
+    remarks: str,
+) -> LubricatingOilTotalConsumptionDataCorrection:
+    lo_tc_data_correction = LubricatingOilTotalConsumptionDataCorrection.objects.create(
+        lubricating_oil_tcdata=lubricating_oil_tcdata,
+        correction=correction,
+        remarks=remarks,
+    )
+    return lo_tc_data_correction
+
+
+@transaction.atomic
+def process_lubricating_oil_total_consumption_data_set(
+    tcdata: TotalConsumptionData,
+    lubricatingoiltotalconsumptiondata_set,
+) -> None:
+    for lubricatingoiltotalconsumptiondata in lubricatingoiltotalconsumptiondata_set:
+        lubricatingoiltotalconsumptiondatacorrection = lubricatingoiltotalconsumptiondata.pop(
+            'lubricatingoiltotalconsumptiondatacorrection', None)
+        lo_tcdata = create_lubricating_oil_total_consumption_data(
+            tcdata=tcdata, **lubricatingoiltotalconsumptiondata)
+        if lubricatingoiltotalconsumptiondatacorrection:
+            create_lubricating_oil_total_consumption_data_correction(
+                lubricating_oil_tcdata=lo_tcdata,
+                **lubricatingoiltotalconsumptiondatacorrection)
+
+
+@transaction.atomic
+def create_fresh_water_total_consumption_data(
+    tcdata: TotalConsumptionData,
+    consumed: int,
+    generated: int,
+    received: int,
+    discharged: int,
+) -> FreshWaterTotalConsumptionData:
+    fw_tc_data = FreshWaterTotalConsumptionData.objects.create(
+        tcdata=tcdata,
+        consumed=consumed,
+        generated=generated,
+        received=received,
+        discharged=discharged,
+    )
+    return fw_tc_data
 
 
 def update_leg_data(report_header, **kwargs):
+    """
+    This function updates data that is carried over from report to report
+    """
     voyage_leg = report_header.voyage_leg
     leg_data, created = VoyageLegData.objects.get_or_create(
         voyage_leg=voyage_leg)
