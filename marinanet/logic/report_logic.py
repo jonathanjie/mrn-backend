@@ -281,6 +281,7 @@ def create_fresh_water_data(
     generated: int,
     received: int,
     discharged: int,
+    rob: int,
 ) -> FreshWaterData:
     fw_data = FreshWaterData.objects.create(
         ccdata=ccdata,
@@ -288,6 +289,7 @@ def create_fresh_water_data(
         generated=generated,
         received=received,
         discharged=discharged,
+        rob=rob,
     )
     return fw_data
 
@@ -805,6 +807,7 @@ def create_fresh_water_total_consumption_data(
     return fw_tc_data
 
 
+@transaction.atomic
 def update_leg_data(report_header, **kwargs):
     """
     This function updates data that is carried over from report to report
@@ -1025,3 +1028,345 @@ def _update_oil_dict(oil_type, new_val, update_dict):
     else:
         update_dict[oil_type] = new_val
     return update_dict
+
+
+@transaction.atomic
+def create_noon_report(
+    reportheader,
+    reportroute,
+    noonreporttimeandposition,
+    weatherdata,
+    distancetimedata,
+    performancedata,
+    consumptionconditiondata,
+    heavyweatherdata=None,
+    stoppagedata=None
+) -> ReportHeader:
+    header = create_report_header(**reportheader)
+    report_route = create_report_route(
+        report_header=header, **reportroute)
+    noon_report_time_and_position = create_noon_report_time_and_position(
+        report_header=header, **noonreporttimeandposition)
+    create_weather_data(report_header=header, **weatherdata)
+    if heavyweatherdata:
+        create_heavy_weather_data(
+            report_header=header, **heavyweatherdata)
+    distance_time_data = create_distance_time_data(
+        report_header=header, **distancetimedata)
+    performance_data = create_performance_data(
+        report_header=header, **performancedata)
+    if stoppagedata:
+        stoppage_data = create_stoppage_data(
+            report_header=header, **stoppagedata)
+
+    fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+    lubricatingoildata_set = consumptionconditiondata.pop(
+        'lubricatingoildata_set')
+    freshwaterdata = consumptionconditiondata.pop(
+        'freshwaterdata')
+
+    ccdata = create_consumption_condition_data(
+        report_header=header, **consumptionconditiondata)
+    process_fuel_oil_data_set(ccdata, fueloildata_set)
+    process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
+    create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
+
+    leg_data_dict = {
+        'report_route': report_route,
+        'distance_time_data': distance_time_data,
+        'performance_data': performance_data,
+        'consumption_condition_data': ccdata,
+    }
+    if stoppagedata:
+        leg_data_dict['stoppage_data'] = stoppage_data
+    leg_data = update_leg_data(header, **leg_data_dict)
+    return header
+
+
+@transaction.atomic
+def create_departure_standby_report(
+    reportheader,
+    reportroute,
+    cargooperation,
+    departurevesselcondition,
+    consumptionconditiondata,
+    totalconsumptiondata,
+    departurepilotstation=None,
+) -> ReportHeader:
+    header = create_report_header(**reportheader)
+    report_route = create_report_route(
+        report_header=header, **reportroute)
+    cargo_operation = create_cargo_operation(
+        report_header=header, **cargooperation)
+    departure_condition = create_departure_vessel_condition(
+        report_header=header, **departurevesselcondition)
+    if departurepilotstation:
+        create_departure_pilot_station(
+            report_header=header, **departurepilotstation)
+
+    fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+    lubricatingoildata_set = consumptionconditiondata.pop(
+        'lubricatingoildata_set')
+    freshwaterdata = consumptionconditiondata.pop(
+        'freshwaterdata')
+    ccdata = create_consumption_condition_data(
+        report_header=header, **consumptionconditiondata)
+    process_fuel_oil_data_set(ccdata, fueloildata_set)
+    process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
+    create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
+
+    fueloiltotalconsumptiondata_set = totalconsumptiondata.pop(
+        'fueloiltotalconsumptiondata_set')
+    lubricatingoiltotalconsumptiondata_set = totalconsumptiondata.pop(
+        'lubricatingoiltotalconsumptiondata_set')
+    freshwatertotalconsumptiondata = totalconsumptiondata.pop(
+        'freshwatertotalconsumptiondata')
+
+    tcdata = create_total_consumption_data(
+        report_header=header, **totalconsumptiondata)
+    process_fuel_oil_total_consumption_data_set(
+        tcdata, fueloiltotalconsumptiondata_set)
+    process_lubricating_oil_total_consumption_data_set(
+        tcdata, lubricatingoiltotalconsumptiondata_set)
+    create_fresh_water_total_consumption_data(
+        tcdata=tcdata, **freshwatertotalconsumptiondata)
+
+    leg_data = update_leg_data(
+        report_header=header,
+        report_route=report_route,
+        cargo_operation=cargo_operation,
+        departure_condition=departure_condition,
+        consumption_condition_data=ccdata,
+    )
+    return header
+
+
+@transaction.atomic
+def create_departure_cosp_report(
+    reportheader,
+    reportroute,
+    departurerunup,
+    distancetimedata,
+    sailingplan,
+    consumptionconditiondata,
+    departurepilotstation=None,
+    arrivalpilotstation=None,
+) -> ReportHeader:
+    header = create_report_header(**reportheader)
+    report_route = create_report_route(
+        report_header=header, **reportroute)
+    if departurepilotstation:
+        create_departure_pilot_station(
+            report_header=header, **departurepilotstation)
+    if arrivalpilotstation:
+        create_arrival_pilot_station(
+            report_header=header, **arrivalpilotstation)
+    create_departure_run_up(
+        report_header=header, **departurerunup)
+    distance_time_data = create_distance_time_data(
+        report_header=header, **distancetimedata)
+    sailing_plan = create_sailing_plan(
+        report_header=header, **sailingplan)
+
+    fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+    lubricatingoildata_set = consumptionconditiondata.pop(
+        'lubricatingoildata_set')
+    freshwaterdata = consumptionconditiondata.pop(
+        'freshwaterdata')
+
+    ccdata = create_consumption_condition_data(
+        report_header=header, **consumptionconditiondata)
+    process_fuel_oil_data_set(ccdata, fueloildata_set)
+    process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
+    create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
+
+    leg_data = update_leg_data(
+        report_header=header,
+        report_route=report_route,
+        distance_time_data=distance_time_data,
+        sailing_plan=sailing_plan,
+        consumption_condition_data=ccdata,
+    )
+    return header
+
+
+@transaction.atomic
+def create_arrival_standby_report(
+    reportheader,
+    reportroute,
+    arrivalstandbytimeandposition,
+    weatherdata,
+    distancetimedata,
+    performancedata,
+    consumptionconditiondata,
+    actualperformancedata,
+    totalconsumptiondata,
+    arrivalpilotstation=None,
+) -> ReportHeader:
+    header = create_report_header(**reportheader)
+    report_route = create_report_route(
+        report_header=header, **reportroute)
+    planned_operations = create_planned_operations(
+        report_header=header, **plannedoperations)
+    create_arrival_standby_time_and_position(
+        report_header=header, **arrivalstandbytimeandposition)
+    create_weather_data(report_header=header, **weatherdata)
+    distance_time_data = create_distance_time_data(
+        report_header=header, **distancetimedata)
+    performance_data = create_performance_data(
+        report_header=header, **performancedata)
+    if arrivalpilotstation:
+        create_arrival_pilot_station(
+            report_header=header, **arrivalpilotstation)
+
+    fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+    lubricatingoildata_set = consumptionconditiondata.pop(
+        'lubricatingoildata_set')
+    freshwaterdata = consumptionconditiondata.pop(
+        'freshwaterdata')
+
+    ccdata = create_consumption_condition_data(
+        report_header=header, **consumptionconditiondata)
+    process_fuel_oil_data_set(ccdata, fueloildata_set)
+    process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
+    create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
+
+    create_actual_performance_data(
+        report_header=header, **actualperformancedata)
+
+    fueloiltotalconsumptiondata_set = totalconsumptiondata.pop(
+        'fueloiltotalconsumptiondata_set')
+
+    # Arrival Standby Total Consumption should not have
+    # lubricating oil or freshwater
+    lubricatingoiltotalconsumptiondata_set = totalconsumptiondata.pop(
+        'lubricatingoiltotalconsumptiondata_set', None)
+    freshwatertotalconsumptiondata = totalconsumptiondata.pop(
+        'freshwatertotalconsumptiondata', None)
+
+    tcdata = create_total_consumption_data(
+        report_header=header, **totalconsumptiondata)
+    process_fuel_oil_total_consumption_data_set(
+        tcdata, fueloiltotalconsumptiondata_set)
+
+    leg_data = update_leg_data(
+        report_header=header,
+        report_route=report_route,
+        planned_operations=planned_operations,
+        distance_time_data=distance_time_data,
+        performance_data=performance_data,
+        consumption_condition_data=ccdata,
+    )
+    return header
+
+
+@transaction.atomic
+def create_arrival_fwe_report(
+    reportheader,
+    reportroute,
+    arrivalfwetimeandposition,
+    plannedoperations,
+    distancetimedata,
+    consumptionconditiondata,
+    actualperformancedata,
+    totalconsumptiondata,
+    arrivalpilotstation=None,
+) -> ReportHeader:
+    header = create_report_header(**reportheader)
+    report_route = create_report_route(
+        report_header=header, **reportroute)
+    arrival_fwe = create_arrival_fwe_time_and_position(
+        report_header=header, **arrivalfwetimeandposition)
+    planned_operations = create_planned_operations(
+        report_header=header, **plannedoperations)
+    if arrivalpilotstation:
+        create_arrival_pilot_station(
+            report_header=header, **arrivalpilotstation)
+    distance_time_data = create_distance_time_data(
+        report_header=header, **distancetimedata)
+
+    fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+    lubricatingoildata_set = consumptionconditiondata.pop(
+        'lubricatingoildata_set')
+    freshwaterdata = consumptionconditiondata.pop(
+        'freshwaterdata')
+
+    ccdata = create_consumption_condition_data(
+        report_header=header, **consumptionconditiondata)
+    process_fuel_oil_data_set(ccdata, fueloildata_set)
+    process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
+    create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
+
+    create_actual_performance_data(
+        report_header=header, **actualperformancedata)
+
+    fueloiltotalconsumptiondata_set = totalconsumptiondata.pop(
+        'fueloiltotalconsumptiondata_set')
+
+    # Arrival FWE Total Consumption should not have
+    # lubricating oil or freshwater
+    lubricatingoiltotalconsumptiondata_set = totalconsumptiondata.pop(
+        'lubricatingoiltotalconsumptiondata_set', None)
+    freshwatertotalconsumptiondata = totalconsumptiondata.pop(
+        'freshwatertotalconsumptiondata', None)
+
+    tcdata = create_total_consumption_data(
+        report_header=header, **totalconsumptiondata)
+    process_fuel_oil_total_consumption_data_set(
+        tcdata, fueloiltotalconsumptiondata_set)
+
+    leg_data = update_leg_data(
+        report_header=header,
+        arrival_fwe_time_and_position=arrival_fwe,
+        planned_operations=planned_operations,
+        consumption_condition_data=ccdata,
+        distance_time_data=distance_time_data,
+    )
+    return header
+
+
+@transaction.atomic
+def create_event_report(
+    reportheader,
+    eventdata,
+    plannedoperations,
+    consumptionconditiondata,
+) -> ReportHeader:
+    header = create_report_header(**reportheader)
+    create_event_data(report_header=header, **eventdata)
+    planned_operations = create_planned_operations(
+        report_header=header, **plannedoperations)
+
+    fueloildata_set = consumptionconditiondata.pop('fueloildata_set')
+    lubricatingoildata_set = consumptionconditiondata.pop(
+        'lubricatingoildata_set')
+    freshwaterdata = consumptionconditiondata.pop(
+        'freshwaterdata')
+
+    ccdata = create_consumption_condition_data(
+        report_header=header, **consumptionconditiondata)
+    process_fuel_oil_data_set(ccdata, fueloildata_set)
+    process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
+    create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
+
+    leg_data = update_leg_data(
+        report_header=header,
+        event_data=eventdata,
+        planned_operations=planned_operations,
+        consumption_condition_data=ccdata,
+    )
+    return header
+
+
+@transaction.atomic
+def create_bdn_report(
+    reportheader,
+    bdndata,
+) -> ReportHeader:
+    header = create_report_header(**reportheader)
+    create_bdn_data(report_header=header, **bdndata)
+
+    leg_data = update_leg_data(
+        report_header=header,
+    )
+    return header
