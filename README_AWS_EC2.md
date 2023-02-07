@@ -168,7 +168,7 @@ ExecStart=/home/unbuntu/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/gunicorn.sock \
-          marinachain.wsgi:application
+          marinanet.wsgi:application
 
 [Install]
 WantedBy=multi-user.target

@@ -94,6 +94,7 @@ ___
 ```
 $ cd
 $ mkdir marinachain
+$ cd marinachain
 ```
 2. Create a [Python Virtual Environment](https://docs.python.org/3/library/venv.html):
 ```
@@ -174,7 +175,7 @@ ExecStart=/home/bobby/marinachain/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/gunicorn.sock \
-          marinachain.wsgi:application
+          marinanet.wsgi:application
 
 [Install]
 WantedBy=multi-user.target

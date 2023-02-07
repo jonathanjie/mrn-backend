@@ -1,7 +1,7 @@
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Content, Email, Mail, Subject, To
 
-from marinachain.secrets import SENDGRID_API_KEY
+from marinanet.secrets import SENDGRID_API_KEY
 
 DEFAULT_FROM = "tech@marinachain.io"
 

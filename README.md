@@ -5,6 +5,7 @@ ___
 1. Create a directory for the project:
 ```
 $ mkdir marinachain
+$ cd marinachain
 ```
 2. Create a [Python Virtual Environment](https://docs.python.org/3/library/venv.html):
 ```
@@ -20,7 +21,7 @@ $ git clone ssh://git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/marinanet
 ```
 5. Intall the required packages:
 ```
-$ cd marinachain
+$ cd marinanet-backend
 $ pip install -r requirements.txt
 ```
 

@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 import jwt
 import requests
 
-from marinachain.secrets import JWT_AUDIENCE, JWT_ISSUER
+from marinanet.secrets import JWT_AUDIENCE, JWT_ISSUER
 
 
 def jwt_get_username_from_payload_handler(payload):
