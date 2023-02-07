@@ -16,22 +16,22 @@ from rest_framework import status
 from core.models import (
     UserProfile,
 )
-from marinanet.enums import ReportType
-from marinanet.models.report_models import (
+from vesselreporting.enums import ReportType
+from vesselreporting.models.report_models import (
     ReportHeader,
     ReportRoute,
     Voyage,
     VoyageLeg,
     VoyageLegData,
 )
-from marinanet.models.ship_models import (
+from vesselreporting.models.ship_models import (
     Ship,
     ShipSpecs,
 )
-from marinanet.permissions import (
+from vesselreporting.permissions import (
     IsShipUser
 )
-from marinanet.serializers.model_serializers import (
+from vesselreporting.serializers.model_serializers import (
     ReportHeaderSerializer,
     ReportHeaderWithLegSerializer,
     ShipSerializer,
@@ -43,11 +43,11 @@ from marinanet.serializers.model_serializers import (
     VoyageSerializer,
     VoyageWithVoyageLegsSerializer,
 )
-from marinanet.serializers.stats_serializers import (
+from vesselreporting.serializers.stats_serializers import (
     DailyStatSerializer,
     VesselListDetailSerializer,
 )
-from marinanet.logic.serializer_map import get_serializer_from_report_type
+from vesselreporting.logic.serializer_map import get_serializer_from_report_type
 
 import logging
 

@@ -8,7 +8,7 @@ from core.models import (
     Company,
     User,
 )
-from marinanet.enums import (
+from vesselreporting.enums import (
     FuelType,
     ShipAccessPrivilege,
     ShipType,

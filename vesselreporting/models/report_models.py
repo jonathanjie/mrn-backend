@@ -13,7 +13,7 @@ from core.models import (
     User,
     UserProfile,
 )
-from marinanet.enums import (
+from vesselreporting.enums import (
     ActualPerformanceType,
     Cardinal_8,
     Cardinal_16,
@@ -32,7 +32,7 @@ from marinanet.enums import (
     TotalConsumptionType,
     Weather,
 )
-from marinanet.models.ship_models import (
+from vesselreporting.models.ship_models import (
     Ship,
 )
 

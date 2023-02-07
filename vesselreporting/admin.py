@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from marinanet.models.report_models import (
+from vesselreporting.models.report_models import (
     ActualPerformanceData,
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
@@ -39,7 +39,7 @@ from marinanet.models.report_models import (
     VoyageLegData,
     WeatherData
 )
-from marinanet.models.ship_models import (
+from vesselreporting.models.ship_models import (
     Ship,
     ShipSpecs,
     ShipUser,

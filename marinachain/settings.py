@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "phonenumber_field",
     "core",
-    "marinanet"
+    "vesselreporting"
     # "drf_yasg"
 ]
 

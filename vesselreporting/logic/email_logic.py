@@ -1,6 +1,6 @@
 from django.template.loader import render_to_string
 
-from marinanet.models import ReportHeader
+from vesselreporting.models import ReportHeader
 from utils import sendgrid_utils
 
 

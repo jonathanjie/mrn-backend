@@ -6,8 +6,8 @@ from django.contrib.gis.geos import Point
 from django.db import transaction
 from django.forms.models import model_to_dict
 
-from marinanet.enums import ReportType
-from marinanet.models.report_models import (
+from vesselreporting.enums import ReportType
+from vesselreporting.models.report_models import (
     ActualPerformanceData,
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,

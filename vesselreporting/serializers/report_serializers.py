@@ -1,8 +1,8 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from marinanet.models.report_models import ReportHeader
-from marinanet.serializers.model_serializers import (
+from vesselreporting.models.report_models import ReportHeader
+from vesselreporting.serializers.model_serializers import (
     ActualPerformanceDataSerializer,
     ArrivalFWETimeandPositionSerializer,
     ArrivalPilotStationSerializer,
@@ -27,7 +27,7 @@ from marinanet.serializers.model_serializers import (
     VoyageLegWithVoyageSerializer,
     WeatherDataSerializer,
 )
-from marinanet.logic.report_logic import (
+from vesselreporting.logic.report_logic import (
     create_arrival_fwe_report,
     create_arrival_standby_report,
     create_bdn_report,

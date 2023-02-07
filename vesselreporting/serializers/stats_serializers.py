@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from marinanet.models.report_models import (
+from vesselreporting.models.report_models import (
     FuelOilData,
     ReportHeader,
     VoyageLeg,
