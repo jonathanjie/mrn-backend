@@ -14,6 +14,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from core.models import (
+    Ship,
+    ShipSpecs,
     UserProfile,
 )
 from vesselreporting.enums import ReportType
@@ -23,10 +25,6 @@ from vesselreporting.models.report_models import (
     Voyage,
     VoyageLeg,
     VoyageLegData,
-)
-from vesselreporting.models.ship_models import (
-    Ship,
-    ShipSpecs,
 )
 from vesselreporting.permissions import (
     IsShipUser

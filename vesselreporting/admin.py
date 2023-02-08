@@ -39,21 +39,7 @@ from vesselreporting.models.report_models import (
     VoyageLegData,
     WeatherData
 )
-from vesselreporting.models.ship_models import (
-    Ship,
-    ShipSpecs,
-    ShipUser,
-)
 
-
-class ShipAdmin(admin.ModelAdmin):
-    list_display = ('company', 'name', 'imo_reg')
-
-
-# User and Company models
-admin.site.register(Ship, ShipAdmin)
-admin.site.register(ShipSpecs)
-admin.site.register(ShipUser)
 
 # Report Models
 admin.site.register(Voyage)

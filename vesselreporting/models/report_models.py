@@ -7,9 +7,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 # from timezone_field import TimeZoneField
 
+from core.enums import (
+    FuelType,
+    Status,
+)
 from core.models import (
     BaseModel,
     Company,
+    Ship,
     User,
     UserProfile,
 )
@@ -19,21 +24,14 @@ from vesselreporting.enums import (
     Cardinal_16,
     ConsumptionType,
     DouglasScale,
-    FuelType,
     GlacierIceCondition,
     LoadCondition,
     ParkingStatus,
     ReportType,
-    ShipAccessPrivilege,
-    ShipType,
-    Status,
     StoppageReason,
     SwellScale,
     TotalConsumptionType,
     Weather,
-)
-from vesselreporting.models.ship_models import (
-    Ship,
 )
 
 
