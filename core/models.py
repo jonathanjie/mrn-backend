@@ -30,6 +30,16 @@ class BaseModel(models.Model):
         abstract = True
 
 
+class BaseS3FileModel(BaseModel):
+    """Base Model for files stored on S3"""
+    file_name = models.CharField(max_length=127)
+    s3_file_path = models.CharField(max_length=255)
+    deleted = models.BooleanField()
+
+    class Meta:
+        abstract = True
+
+
 class Company(BaseModel):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     name = models.CharField(max_length=255)

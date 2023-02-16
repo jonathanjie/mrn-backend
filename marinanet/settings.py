@@ -16,6 +16,8 @@ import os
 import glob
 
 from marinanet.secrets import (
+    AWS_ACCESS_KEY,
+    AWS_SECRET_ACCESS_KEY,
     DJANGO_SECRET_KEY,
     DB_HOST,
     DB_NAME,
@@ -30,6 +32,10 @@ from marinanet.secrets import (
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+AWS_S3_ACCESS_KEY_ID = AWS_ACCESS_KEY
+AWS_S3_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET_NAME = "marinanet-uploads"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
