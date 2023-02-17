@@ -6,6 +6,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from core.enums import (
+    CargoUnits,
     FuelType,
     ShipAccessPrivilege,
     ShipType,
@@ -95,8 +96,17 @@ class Ship(BaseModel):
 class ShipSpecs(models.Model):
     ship = models.OneToOneField(Ship, on_delete=models.PROTECT)
     flag = models.CharField(max_length=127)
+    call_sign = models.CharField(max_length=7)
+    mmsi = models.PositiveIntegerField()
+
+    delivery_date = models.DateField()
+    class_society = models.CharField(max_length=31)
+    gross_tonnage = models.DecimalField(max_digits=10, decimal_places=2)
     deadweight_tonnage = models.DecimalField(max_digits=10, decimal_places=2)
-    cargo_unit = models.CharField(max_length=50)
+    net_tonnage = models.DecimalField(max_digits=10, decimal_places=2)
+    cargo_unit = models.CharField(max_length=4, choices=CargoUnits.choices)
+    cargo_capacity = models.DecimalField(max_digits=10, decimal_places=2)
+
     fuel_options = ArrayField(
         models.CharField(
             max_length=4,
@@ -134,13 +144,12 @@ class ShipUser(BaseModel):
 #     commercial_manager = models.CharField(max_length=127)
 #     technical_manager = models.CharField(max_length=127)
 #     yard = models.CharField(max_length=127)
-#     delivery_date = models.DateField()
 #     flag = models.CharField(max_length=127)
 #     registry_port = models.CharField(max_length=127)
 #     call_sign = models.CharField(max_length=15)
 #     mmsi = models.CharField(max_length=15)
 #     hull_no = models.CharField(max_length=15)
-#     class_society = models.CharField(max_length=31)
+#
 #     next_drydock_date = models.DateField()
 #     loa = models.DecimalField(max_digits=5, decimal_places=2)
 #     dimensions = models.JSONField()

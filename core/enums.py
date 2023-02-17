@@ -37,3 +37,10 @@ class FuelType(models.TextChoices):
     METHANOL = "METH", _("Methanol")
     ETHANOL = "ETH", _("Ethanol")
     LNG = "LNG", _("LNG")
+
+
+class CargoUnits(models.TextChoices):
+    M3 = "M3", _("Cubic Meter")
+    MT = "MT", _("Metric Ton")
+    TEU = "TEU", _("TEU")
+    CEU = "CEU", _("CEU")
