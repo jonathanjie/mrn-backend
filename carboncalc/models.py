@@ -12,7 +12,11 @@ from carboncalc.enums import (
     MRVMethod,
     TrialCII,
 )
-from core.models import BaseModel, Ship
+from core.models import (
+    BaseModel,
+    BaseS3FileModel,
+    Ship,
+)
 
 
 class CIIConfig(BaseModel):
@@ -91,6 +95,11 @@ class CalculatedCII(BaseModel):
 class CIIRawData(BaseModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     year = models.PositiveSmallIntegerField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    distance_sailed = models.PositiveIntegerField()
+    fuel_oil_burned = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)
 
     class Meta:
         db_table = "cii_raw_data"
@@ -98,5 +107,37 @@ class CIIRawData(BaseModel):
             models.UniqueConstraint(
                 fields=('ship', 'year'),
                 name='ciirawdata_ship_year'
+            ),
+        ]
+
+
+class CIIShipYearBoundaries(BaseModel):
+    ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
+    year = models.PositiveSmallIntegerField()
+    boundary_a = models.DecimalField(max_digits=6, decimal_places=3)
+    boundary_b = models.DecimalField(max_digits=6, decimal_places=3)
+    boundary_c = models.DecimalField(max_digits=6, decimal_places=3)
+    boundary_d = models.DecimalField(max_digits=6, decimal_places=3)
+
+    class Meta:
+        db_table = "cii_ship_year_boundaries"
+        constraints = [
+            models.UniqueConstraint(
+                fields=('ship', 'year'),
+                name='ciishipyearboundaries_ship_year'
+            ),
+        ]
+
+
+class StandardizedDataReportingFile(BaseS3FileModel):
+    ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
+    year = models.PositiveSmallIntegerField()
+
+    class Meta:
+        db_table = "standardized_data_reporting_file"
+        constraints = [
+            models.UniqueConstraint(
+                fields=('ship', 'year'),
+                name='standardizeddatareportingfile_ship_year'
             ),
         ]
