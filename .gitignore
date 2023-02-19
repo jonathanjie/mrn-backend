@@ -192,3 +192,4 @@ cython_debug/
 
 # Project Specific
 marinanet/secrets.py
+*.rdb
