@@ -59,7 +59,7 @@ AER_TYPES = (
     ShipType.CONTAINER,
     ShipType.GAS_TANKER,
     ShipType.GENERAL_CARGO,
-    ShipType.LNG_CARRIER
+    ShipType.LNG_CARRIER,
     ShipType.OIL_TANKER,
     ShipType.REFRIGERATED_CARGO,
     ShipType.RORO,
@@ -68,7 +68,7 @@ AER_TYPES = (
 CGDIST_TYPES = (
     ShipType.CRUISE_PASSENGER_SHIP,
     ShipType.RORO_PASSENGER_SHIP,
-    ShipType.RORO_VEHICLE_CARRIER
+    ShipType.RORO_VEHICLE_CARRIER,
 )
 
 def get_applicable_cii(

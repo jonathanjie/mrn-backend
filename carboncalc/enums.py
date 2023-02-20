@@ -10,7 +10,7 @@ class EnergyEfficiencyIndexType(models.TextChoices):
 class CIIShipType(models.TextChoices):
     CONTAINER = "CNTR", _("Container Ship")
     BULK_CARRIER_GTE_279000 = "BULK_GTE_279000", _("Bulk Carrier (DWT >= 279000)")
-    BULK_CARRIER_LT_279000 = "BULK_LT27900", _("Bulk Carrier (DWT < 279000)")
+    BULK_CARRIER_LT_279000 = "BULK_LT_27900", _("Bulk Carrier (DWT < 279000)")
     OIL_TANKER = "OIL", _("Oil Tanker")
     GAS_TANKER_GTE_65000 = "GAS_GTE_65000", _("Gas/LNG Tanker (DWT >= 65000)")
     GAS_TANKER_LT_65000 = "GAS_LT_65000", _("Gas/LNG Tanker (DWT < 65000)")
@@ -58,3 +58,9 @@ class CIIGrade(models.TextChoices):
     C = "C", _("CII Grade A")
     D = "D", _("CII Grade A")
     E = "E", _("CII Grade A")
+
+
+class FileAcceptanceStatus(models.TextChoices):
+    ACCEPTED = "ACCEPTED", _("Accepted")
+    PROCESSING = "PROCESSING", _("Processing")
+    ERROR = "ERROR", _("Error")
