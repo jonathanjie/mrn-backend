@@ -91,7 +91,3 @@ def calculate_cii_ship_year_boundaries_for_ship(
 
     )
     return cii_ship_year_boundaries
-
-
-
-
