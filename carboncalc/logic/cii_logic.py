@@ -1,4 +1,4 @@
-from decimal imprt Decimal
+from decimal import Decimal
 
 from carboncalc.constants import (
     CONVERSION_FACTORS,
@@ -11,7 +11,11 @@ from carboncalc.enums import (
     CIIGrade,
     DCSMethod,
 )
-from carboncalc.models import CIIConfig
+from carboncalc.models import (
+    CIIConfig,
+    CIIShipYearBoundaries,
+)
+from carboncalc.utils import cii_utils
 from core.models import Ship, ShipSpecs
 
 
@@ -53,3 +57,41 @@ def calculate_cii_rating_boundaries(
     }
 
     return limits
+
+
+def calculate_cii_ship_year_boundaries_for_ship(
+    ship: Ship,
+    year: int
+) -> CIIShipYearBoundaries:
+    cii_ship_type = cii_utils.get_cii_ship_type(ship)
+    capacity = cii_utils.get_ship_capacity_value(ship)
+
+    ref_line = calculate_cii_reference_line(
+        cii_ship_type=cii_ship_type,
+        capacity=capacity,
+    )
+    required_cii = calculate_required_cii(
+        cii_reference_line=ref_line,
+        year=year,
+    )
+    cii_rating_boundaries = calculate_cii_rating_boundaries(
+        cii_ship_type = cii_ship_type,
+        required_cii=required_cii,
+        year=year,
+    )
+    cii_ship_year_boundaries, _ = CIIShipYearBoundaries.objects.update_or_create(
+        ship=ship,
+        year=year,
+        defaults={
+            'boundary_a': cii_rating_boundaries[CIIGrade.A],
+            'boundary_b': cii_rating_boundaries[CIIGrade.B],
+            'boundary_c': cii_rating_boundaries[CIIGrade.C],
+            'boundary_d': cii_rating_boundaries[CIIGrade.D],
+        }
+
+    )
+    return cii_ship_year_boundaries
+
+
+
+

@@ -132,6 +132,8 @@ class CIIShipYearBoundaries(BaseModel):
 class StandardizedDataReportingFile(BaseS3FileModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     year = models.PositiveSmallIntegerField()
+    acceptance_status = models.CharField()
+    error_message = models.TextField()
 
     class Meta:
         db_table = "standardized_data_reporting_file"
