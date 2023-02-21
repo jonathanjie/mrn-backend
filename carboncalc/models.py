@@ -4,11 +4,13 @@ from django.db import models
 from django.db.models import Q
 
 from carboncalc.enums import (
+    ApplicableCII,
     EnergyEfficiencyIndexType,
+    CIIFuelType,
     CIIGrade,
     CIIShipType,
-    ApplicableCII,
     DCSMethod,
+    FileAcceptanceStatus,
     MRVMethod,
     TrialCII,
 )
@@ -42,6 +44,12 @@ class CIIConfig(BaseModel):
         max_length=8, choices=ApplicableCII.choices)
     trial_cii_types = ArrayField(
         models.CharField(max_length=8, choices=TrialCII.choices),
+        default=list)
+
+    fuel_options = ArrayField(
+        models.CharField(
+            max_length=4,
+            choices=CIIFuelType.choices),
         default=list)
 
     class Meta:
@@ -132,7 +140,8 @@ class CIIShipYearBoundaries(BaseModel):
 class StandardizedDataReportingFile(BaseS3FileModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     year = models.PositiveSmallIntegerField()
-    acceptance_status = models.CharField()
+    acceptance_status = models.CharField(
+        max_length=15, choices=FileAcceptanceStatus.choices, default=FileAcceptanceStatus.PROCESSING)
     error_message = models.TextField()
 
     class Meta:
@@ -143,3 +152,17 @@ class StandardizedDataReportingFile(BaseS3FileModel):
                 name='standardizeddatareportingfile_ship_year'
             ),
         ]
+
+
+class StandardizedDataReportingData(BaseModel):
+    reporting_file = models.ForeignKey(StandardizedDataReportingFile, on_delete=models.PROTECT)
+    ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
+    year = models.PositiveSmallIntegerField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    gross_tonnage = models.DecimalField(max_digits=10, decimal_places=2)
+    deadweight_tonnage = models.DecimalField(max_digits=10, decimal_places=2)
+    total_hours = models.DecimalField(max_digits=7, decimal_places=3)
+    total_distance = models.DecimalField(max_digits=8, decimal_places=2)
+    fuel_oil_burned = models.JSONField(
+        default=dict, encoder=DjangoJSONEncoder)

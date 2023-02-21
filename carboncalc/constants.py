@@ -1,16 +1,14 @@
-from core.enums import FuelType
-from carboncalc.enums import CIIShipType
+from carboncalc.enums import CIIFuelType, CIIShipType
 
 CONVERSION_FACTORS = {
-    FuelType.MDO: 3.206,
-    FuelType.MGO: 3.206,
-    FuelType.LSFO: 3.151,
-    FuelType.HFO: 3.114,
-    FuelType.LPG_PROPANE: 3.000,
-    FuelType.LPG_BUTANE: 3.030,
-    FuelType.LNG: 2.750,
-    FuelType.METHANOL: 1.375,
-    FuelType.ETHANOL: 1.913,
+    CIIFuelType.MDGO: 3.206,
+    CIIFuelType.LSFO: 3.151,
+    CIIFuelType.HFO: 3.114,
+    CIIFuelType.LPG_PROPANE: 3.000,
+    CIIFuelType.LPG_BUTANE: 3.030,
+    CIIFuelType.LNG: 2.750,
+    CIIFuelType.METHANOL: 1.375,
+    CIIFuelType.ETHANOL: 1.913,
 }
 
 

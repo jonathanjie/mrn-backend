@@ -27,6 +27,17 @@ class CIIShipType(models.TextChoices):
     CRUISE_PASSENGER_SHIP = "CRUZ", _("Cruise Passenger Ship")
 
 
+class CIIFuelType(models.TextChoices):
+    HFO = "HFO", _("HFO")
+    LSFO = "LSFO", _("LSFO")
+    MDGO = "MDGO", _("MDO/MGO")
+    LPG_PROPANE = "LPGP", _("LPG (Propane)")
+    LPG_BUTANE = "LPGB", _("LPG (Butane")
+    METHANOL = "METH", _("Methanol")
+    ETHANOL = "ETH", _("Ethanol")
+    LNG = "LNG", _("LNG")
+
+
 class ApplicableCII(models.TextChoices):
     AER = "AER", _("AER")
     CGDIST = "CGDIST", _("cgDIST")
