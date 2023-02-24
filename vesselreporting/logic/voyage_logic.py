@@ -28,7 +28,7 @@ def create_new_voyage(
         # CASE: Previous voyage is empty
         raise ValidationError("Previous voyage is empty!")
 
-    if not previous_voyage_leg.legprogress.arrival_fwe:
+    if not previous_voyage_leg.voyagelegprogress.arrival_fwe:
         # CASE: Previous Voyage leg is incomplete
         raise ValidationError("Previous leg is not complete!")
 
@@ -46,10 +46,10 @@ def create_new_voyage_leg(
     try:
         last_leg = VoyageLeg.objects.filter(
             voyage=voyage,
-        ).latest(
-            '-created_at'
         ).select_related(
             'voyagelegprogress'
+        ).latest(
+            '-created_at'
         )
     except VoyageLeg.DoesNotExist:
         # CASE: Voyage has no legs
@@ -57,7 +57,7 @@ def create_new_voyage_leg(
         VoyageLegProgress.objects.create(voyage_leg=leg, )
         return leg
 
-    if not last_leg.arrival_fwe:
+    if not last_leg.voyagelegprogress.arrival_fwe:
         # CASE: Last leg is incomplete
         raise ValidationError("😤")
 

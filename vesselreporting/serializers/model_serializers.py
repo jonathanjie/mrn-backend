@@ -66,8 +66,8 @@ class VoyageSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data) -> Voyage:
         voyage = create_new_voyage(
-            ship=ship,
-            voyage_num=voyage_num,
+            ship=validated_data.pop('ship'),
+            voyage_num=validated_data.pop('voyage_num'),
         )
         return voyage
 
@@ -80,8 +80,8 @@ class VoyageLegSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data) -> VoyageLeg:
         leg = create_new_voyage_leg(
-            voyage=voyage,
-            leg_num=leg_num,
+            voyage=validated_data.pop('voyage'),
+            leg_num=validated_data.pop('leg_num'),
         )
         return leg
 

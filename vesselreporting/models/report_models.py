@@ -872,17 +872,40 @@ class VoyageLegProgress(BaseModel):
     voyage_leg = models.OneToOneField(
         VoyageLeg, on_delete=models.PROTECT, primary_key=True)
     departure_standby = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.DEP_SBY},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
     departure_cosp = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.DEP_COSP},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
     latest_noon = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.NOON},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
     arrival_eosp = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.ARR_SBY},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
     arrival_fwe = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.ARR_FWE},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
     latest_report = models.ForeignKey(
-        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
+        ReportHeader,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
 
     class Meta:
         db_table = "voyage_leg_progresses"
@@ -890,9 +913,9 @@ class VoyageLegProgress(BaseModel):
 
 class ReportEdge(models.Model):
     previous_report = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='report_edge_previous')
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='report_edge_forward')
     next_report = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='report_edge_next')
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='report_edge_backward')
 
     class Meta:
         db_table = "report_edges"
