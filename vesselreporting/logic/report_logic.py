@@ -1038,13 +1038,15 @@ def update_leg_progress(report_header):
 
     previous_report = leg_progress.latest_report
     if not previous_report:
-        last_leg = VoyageLegProgress.objects.filter(
+        # CASE: This report is first in the voyage
+        last_legs = VoyageLegProgress.objects.filter(
             ship = report_header.voyage_leg.voyage.ship
         ).order_by('-created_at')[:2]
-        previous_report = last_leg.voyagelegprogress.latest_report
+        if last_legs:
+            previous_report = last_leg[1].voyagelegprogress.latest_report
 
     ReportEdge.objects.update_or_create(
-        previous_report=leg_progress.latest_report,
+        previous_report=previous_report,
         defaults={'next_report': report_header},
     )
 
@@ -1113,6 +1115,7 @@ def create_noon_report(
     if stoppagedata:
         leg_data_dict['stoppage_data'] = stoppage_data
     leg_data = update_leg_data(header, **leg_data_dict)
+    update_leg_progress(header)
     return header
 
 
@@ -1171,6 +1174,7 @@ def create_departure_standby_report(
         departure_condition=departure_condition,
         consumption_condition_data=ccdata,
     )
+    update_leg_progress(header)
     return header
 
 
@@ -1220,6 +1224,7 @@ def create_departure_cosp_report(
         sailing_plan=sailing_plan,
         consumption_condition_data=ccdata,
     )
+    update_leg_progress(header)
     return header
 
 
@@ -1290,6 +1295,7 @@ def create_arrival_standby_report(
         performance_data=performance_data,
         consumption_condition_data=ccdata,
     )
+    update_leg_progress(header)
     return header
 
 
@@ -1355,6 +1361,7 @@ def create_arrival_fwe_report(
         consumption_condition_data=ccdata,
         distance_time_data=distance_time_data,
     )
+    update_leg_progress(header)
     return header
 
 
@@ -1388,6 +1395,7 @@ def create_event_report(
         planned_operations=planned_operations,
         consumption_condition_data=ccdata,
     )
+    update_leg_progress(header)
     return header
 
 
@@ -1402,4 +1410,5 @@ def create_bdn_report(
     leg_data = update_leg_data(
         report_header=header,
     )
+    update_leg_progress(header)
     return header
