@@ -34,6 +34,7 @@ from vesselreporting.models.report_models import (
     NoonReportTimeAndPosition,
     PerformanceData,
     PlannedOperations,
+    ReportEdge,
     ReportHeader,
     ReportRoute,
     SailingPlan,
@@ -41,6 +42,7 @@ from vesselreporting.models.report_models import (
     TotalConsumptionData,
     VoyageLeg,
     VoyageLegData,
+    VoyageLegProgress,
     WeatherData,
 )
 
@@ -1028,6 +1030,37 @@ def _update_oil_dict(oil_type, new_val, update_dict):
     else:
         update_dict[oil_type] = new_val
     return update_dict
+
+
+@transaction.atomic
+def update_leg_progress(report_header):
+    leg_progress = report_header.voyage_leg.voyagelegprogress
+
+    previous_report = leg_progress.latest_report
+    if not previous_report:
+        last_leg = VoyageLegProgress.objects.filter(
+            ship = report_header.voyage_leg.voyage.ship
+        ).order_by('-created_at')[:2]
+        previous_report = last_leg.voyagelegprogress.latest_report
+
+    ReportEdge.objects.update_or_create(
+        previous_report=leg_progress.latest_report,
+        defaults={'next_report': report_header},
+    )
+
+    leg_progress.latest_report = report_header
+    if report_header.report_type == ReportType.DEP_SBY:
+        leg_progress.departure_standby = report_header
+    elif report_header.report_type == ReportType.DEP_COSP:
+        leg_progress.depature_cosp = report_header
+    elif report_header.report_type == ReportType.NOON:
+        leg_progress.latest_noon = report_header
+    elif report_header.report_type == ReportType.ARR_SBY:
+        leg_progress.arrival_eosp = report_header
+    elif report_header.report_type == ReportType.ARR_FWE:
+        leg_progress.arrival_fwe = report_header
+    leg_progress.save()
+
 
 
 @transaction.atomic

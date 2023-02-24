@@ -859,6 +859,9 @@ class BDNData(ReportDataBaseModel):
     supplier_address = models.TextField()
     supplier_contact = PhoneNumberField()
 
+    class Meta:
+        db_table = "bdn_data"
+
 
 class VoyageLegProgress(BaseModel):
     """
@@ -869,60 +872,27 @@ class VoyageLegProgress(BaseModel):
     voyage_leg = models.OneToOneField(
         VoyageLeg, on_delete=PROTECT, primary_key=True)
     departure_standy = models.OneToOneField(
-        ReportHeader, on_delete=models.PROTECT, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True)
     departure_cosp = models.OneToOneField(
-        ReportHeader, on_delete=models.PROTECT, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True)
     latest_noon = models.OneToOneField(
-        ReportHeader, on_delete=models.PROTECT, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True)
     arrival_eosp = models.OneToOneField(
-        ReportHeader, on_delete=models.PROTECT, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True)
     arrival_fwe = models.OneToOneField(
-        ReportHeader, on_delete=models.PROTECT, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True)
+    latest_report = models.ForeignKey(
+        ReportHeader, on_delete=models.SET_NULL, null=True)
 
-    total_hours = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.00"))],
-        null=True)
-    time_stopped_at_sea = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.00"))],
-        null=True)
-    distance_observed_total = models.DecimalField(
-        max_digits=5,
-        decimal_places=0,
-        validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
-    distance_engine_total = models.DecimalField(
-        max_digits=5,
-        decimal_places=0,
-        validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
-    revolution_count = models.IntegerField(
-        validators=[MinValueValidator(0)], null=True)
-    distance_to_go = models.DecimalField(
-        max_digits=5,
-        decimal_places=0,
-        validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+    class Meta:
+        db_table = "voyage_leg_progresses"
 
 
-class VoyageLegFuelConsumption(BaseModel):
-    fuel_oil_type = models.CharField(max_length=4, choices=FuelType.choices)
-    rob = models.DecimalField(
-        max_digits=7,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.0"))])
-    cons_port_to_port = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.0"))])
-    cons_pilot_to_pilot = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.0"))])
-    cons_in_harbour_port = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.0"))])
+class ReportEdge(models.Model):
+    previous_report = models.OneToOneField(
+        ReportHeader, on_delete=SET_NULL, null=True)
+    next_report = models.OneToOneField(
+        ReportHeader, on_delete=SET_NULL, null=True)
+
+    class Meta:
+        db_table = "report_edges"
