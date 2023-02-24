@@ -23,6 +23,7 @@ urlpatterns = [
     path('marinanet/voyages/<uuid:uuid>/', views.VoyageDetail.as_view()), # Unused
     path('marinanet/voyages/<uuid:uuid>/reports/', # Unused
          views.VoyageReportsList.as_view()),
+    path('marinanet/voyagelegs/', views.VoyageLegList.as_view()),
     path('marinanet/reports/', views.ReportsList.as_view()), # Unused
     path('marinanet/reports/<uuid:uuid>/', views.ReportDetail.as_view()),
     path('marinanet/ships/<int:imo_reg>/stats/',

@@ -249,6 +249,24 @@ class ShipReportsList(generics.ListAPIView):
         return queryset
 
 
+class VoyageLegList(generics.ListCreateAPIView):
+    serializer_class = VoyageLegSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = VoyageLeg.objects.filter(voyage__ship__assigned_users=user)
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        voyage = get_object_or_404(Voyage, uuid=request.data.pop('voyage'))
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(voyage=voyage)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
+
 class ReportsList(generics.ListCreateAPIView):
     """
     Lists all reports that a user can view

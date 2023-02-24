@@ -870,19 +870,19 @@ class VoyageLegProgress(BaseModel):
     This model should eventually reply VoyageLegData
     """
     voyage_leg = models.OneToOneField(
-        VoyageLeg, on_delete=PROTECT, primary_key=True)
-    departure_standy = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True)
+        VoyageLeg, on_delete=models.PROTECT, primary_key=True)
+    departure_standby = models.OneToOneField(
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
     departure_cosp = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
     latest_noon = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
     arrival_eosp = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
     arrival_fwe = models.OneToOneField(
-        ReportHeader, on_delete=models.SET_NULL, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
     latest_report = models.ForeignKey(
-        ReportHeader, on_delete=models.SET_NULL, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='+')
 
     class Meta:
         db_table = "voyage_leg_progresses"
@@ -890,9 +890,9 @@ class VoyageLegProgress(BaseModel):
 
 class ReportEdge(models.Model):
     previous_report = models.OneToOneField(
-        ReportHeader, on_delete=SET_NULL, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='report_edge_previous')
     next_report = models.OneToOneField(
-        ReportHeader, on_delete=SET_NULL, null=True)
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='report_edge_next')
 
     class Meta:
         db_table = "report_edges"

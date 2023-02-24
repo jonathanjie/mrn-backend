@@ -48,6 +48,10 @@ from vesselreporting.models.report_models import (
     VoyageLegData,
     WeatherData,
 )
+from vesselreporting.logic.voyage_logic import (
+    create_new_voyage,
+    create_new_voyage_leg,
+)
 
 
 # Report Model Serializers
@@ -60,12 +64,26 @@ class VoyageSerializer(serializers.ModelSerializer):
         fields = ['uuid', 'ship', 'voyage_num']
         read_only_fields = ['uuid', 'ship']
 
+    def create(self, validated_data) -> Voyage:
+        voyage = create_new_voyage(
+            ship=ship,
+            voyage_num=voyage_num,
+        )
+        return voyage
+
 
 class VoyageLegSerializer(serializers.ModelSerializer):
     class Meta:
         model = VoyageLeg
         fields = ['uuid', 'voyage', 'leg_num']
         read_only_fields = ['uuid', 'voyage']
+
+    def create(self, validated_data) -> VoyageLeg:
+        leg = create_new_voyage_leg(
+            voyage=voyage,
+            leg_num=leg_num,
+        )
+        return leg
 
 
 class VoyageLegWithVoyageSerializer(serializers.ModelSerializer):
