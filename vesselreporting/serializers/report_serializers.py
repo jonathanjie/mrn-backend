@@ -202,6 +202,7 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
             header = create_arrival_standby_report(
                 reportheader=validated_data,
                 reportroute=reportroute,
+                plannedoperations=plannedoperations,
                 arrivalstandbytimeandposition=arrivalstandbytimeandposition,
                 weatherdata=weatherdata,
                 distancetimedata=distancetimedata,
