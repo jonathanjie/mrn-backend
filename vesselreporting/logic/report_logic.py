@@ -798,6 +798,7 @@ def create_fresh_water_total_consumption_data(
     generated: int,
     received: int,
     discharged: int,
+    rob: int,
 ) -> FreshWaterTotalConsumptionData:
     fw_tc_data = FreshWaterTotalConsumptionData.objects.create(
         tcdata=tcdata,
@@ -805,6 +806,7 @@ def create_fresh_water_total_consumption_data(
         generated=generated,
         received=received,
         discharged=discharged,
+        rob=rob,
     )
     return fw_tc_data
 
