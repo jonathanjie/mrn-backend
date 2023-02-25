@@ -1058,11 +1058,11 @@ def update_leg_progress(report_header):
         leg_progress.departure_standby = report_header
     elif report_header.report_type == ReportType.DEP_COSP:
         assert(leg_progress.departure_cosp is None)
-        leg_progress.depature_cosp = report_header
+        leg_progress.departure_cosp = report_header
     elif report_header.report_type == ReportType.NOON:
         leg_progress.latest_noon = report_header
     elif report_header.report_type == ReportType.ARR_SBY:
-        assert(leg_progress.arrival_standby is None)
+        assert(leg_progress.arrival_ is None)
         leg_progress.arrival_eosp = report_header
     elif report_header.report_type == ReportType.ARR_FWE:
         assert(leg_progress.arrival_fwe is None)
