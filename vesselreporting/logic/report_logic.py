@@ -534,7 +534,7 @@ def create_planned_operations(
     surveying: bool,
     others: bool,
     waiting: Optional[bool] = False,
-    planned_operations_othersdetails: Optional[str] = None,
+    planned_operation_othersdetails: Optional[str] = None,
 ) -> PlannedOperations:
     planned_operations = PlannedOperations.objects.create(
         report_header=report_header,
@@ -547,7 +547,7 @@ def create_planned_operations(
         receiving_provisions_spares=receiving_provisions_spares,
         surveying=surveying,
         others=others,
-        planned_operations_othersdetails=planned_operations_othersdetails,
+        planned_operation_othersdetails=planned_operation_othersdetails,
     )
     return planned_operations
 
