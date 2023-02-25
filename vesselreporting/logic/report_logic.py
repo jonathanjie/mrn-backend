@@ -1238,7 +1238,7 @@ def create_departure_cosp_report(
 def create_arrival_standby_report(
     reportheader,
     reportroute,
-    planned_operations,
+    plannedoperations,
     arrivalstandbytimeandposition,
     weatherdata,
     distancetimedata,
