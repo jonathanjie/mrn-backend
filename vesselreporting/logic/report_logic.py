@@ -1042,9 +1042,9 @@ def update_leg_progress(report_header):
     if not previous_report:
         # CASE: This report is first in the voyage
         last_legs = VoyageLegProgress.objects.filter(
-            ship = report_header.voyage_leg.voyage.ship
+            voyage_leg__voyage__ship = report_header.voyage_leg.voyage.ship
         ).order_by('-created_at')[:2]
-        if last_legs:
+        if len(last_legs) == 2:
             previous_report = last_leg[1].voyagelegprogress.latest_report
 
     ReportEdge.objects.update_or_create(
@@ -1054,14 +1054,18 @@ def update_leg_progress(report_header):
 
     leg_progress.latest_report = report_header
     if report_header.report_type == ReportType.DEP_SBY:
+        assert(leg_progress.departure_standby is None)
         leg_progress.departure_standby = report_header
     elif report_header.report_type == ReportType.DEP_COSP:
+        assert(leg_progress.departure_cosp is None)
         leg_progress.depature_cosp = report_header
     elif report_header.report_type == ReportType.NOON:
         leg_progress.latest_noon = report_header
     elif report_header.report_type == ReportType.ARR_SBY:
+        assert(leg_progress.arrival_standby is None)
         leg_progress.arrival_eosp = report_header
     elif report_header.report_type == ReportType.ARR_FWE:
+        assert(leg_progress.arrival_fwe is None)
         leg_progress.arrival_fwe = report_header
     leg_progress.save()
 
