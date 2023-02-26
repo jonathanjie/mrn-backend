@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.gis.db import models
+from django.contrib.gis.db.models import CheckConstraint, Q, UniqueConstraint
 from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -52,6 +53,8 @@ class VoyageLeg(BaseModel):
 
     class Meta:
         db_table = "voyage_legs"
+        unique_together = ["voyage", "leg_num"]
+
 
 
 class VoyageLegData(BaseModel):
@@ -870,7 +873,7 @@ class VoyageLegProgress(BaseModel):
     This model should eventually reply VoyageLegData
     """
     voyage_leg = models.OneToOneField(
-        VoyageLeg, on_delete=models.PROTECT, primary_key=True)
+        VoyageLeg, on_delete=models.CASCADE, primary_key=True)
     departure_standby = models.OneToOneField(
         ReportHeader,
         limit_choices_to={'report_type': ReportType.DEP_SBY},
@@ -919,3 +922,9 @@ class ReportEdge(models.Model):
 
     class Meta:
         db_table = "report_edges"
+        constraints = [
+            UniqueConstraint(
+                fields=('previous_report', 'next_report'),
+                name="report_edge_reports_unique",
+            ),
+        ]

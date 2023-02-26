@@ -1042,7 +1042,7 @@ def update_leg_progress(report_header):
     if not previous_report:
         # CASE: This report is first in the voyage
         last_legs = VoyageLegProgress.objects.filter(
-            voyage_leg__voyage__ship = report_header.voyage_leg.voyage.ship
+            voyage_leg__voyage__ship=report_header.voyage_leg.voyage.ship,
         ).order_by('-created_at')[:2]
         if len(last_legs) == 2:
             previous_report = last_leg[1].voyagelegprogress.latest_report
