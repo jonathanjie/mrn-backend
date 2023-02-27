@@ -7,6 +7,11 @@ class EnergyEfficiencyIndexType(models.TextChoices):
     EEDI = "EEDI", _("EEDI")
 
 
+class EnginePowerLimitType(models.TextChoices):
+    EPL = "EPL", _("EPL")
+    SHAPOLI = "SPL", _("Shapoli")
+
+
 class CIIShipType(models.TextChoices):
     CONTAINER = "CNTR", _("Container Ship")
     BULK_CARRIER_GTE_279000 = "BULK_GTE_279000", _("Bulk Carrier (DWT >= 279000)")
