@@ -1041,8 +1041,10 @@ def update_leg_progress(report_header):
     previous_report = leg_progress.latest_report
     if not previous_report:
         # CASE: This report is first in the voyage
-        last_legs = VoyageLegProgress.objects.filter(
-            voyage_leg__voyage__ship=report_header.voyage_leg.voyage.ship,
+        last_legs = VoyageLeg.objects.filter(
+            voyage__ship=report_header.voyage_leg.voyage.ship,
+        ).select_related(
+            'voyagelegprogress',
         ).order_by('-created_at')[:2]
         if len(last_legs) == 2:
             previous_report = last_leg[1].voyagelegprogress.latest_report
@@ -1380,7 +1382,7 @@ def create_event_report(
     consumptionconditiondata,
 ) -> ReportHeader:
     header = create_report_header(**reportheader)
-    create_event_data(report_header=header, **eventdata)
+    event_data=create_event_data(report_header=header, **eventdata)
     planned_operations = create_planned_operations(
         report_header=header, **plannedoperations)
 
@@ -1398,7 +1400,7 @@ def create_event_report(
 
     leg_data = update_leg_data(
         report_header=header,
-        event_data=eventdata,
+        event_data=event_data,
         planned_operations=planned_operations,
         consumption_condition_data=ccdata,
     )
