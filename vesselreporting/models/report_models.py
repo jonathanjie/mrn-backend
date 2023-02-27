@@ -866,6 +866,13 @@ class BDNData(ReportDataBaseModel):
         db_table = "bdn_data"
 
 
+class AdditionalRemarks(ReportDataBaseModel):
+    remarks = models.TextField()
+
+    class Meta:
+        db_table = "report_additional_remarks"
+
+
 class VoyageLegProgress(BaseModel):
     """
     Data to track voyage progress

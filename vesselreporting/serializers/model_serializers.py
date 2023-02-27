@@ -12,6 +12,7 @@ from core.serializers import (
 )
 from vesselreporting.models.report_models import (
     ActualPerformanceData,
+    AdditionalRemarks,
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
@@ -445,5 +446,12 @@ class EventDataSerializer(serializers.ModelSerializer):
 class BDNDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = BDNData
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class AdditionalRemarksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdditionalRemarks
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']

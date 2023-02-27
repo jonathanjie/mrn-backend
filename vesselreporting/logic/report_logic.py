@@ -9,6 +9,7 @@ from django.forms.models import model_to_dict
 from vesselreporting.enums import ReportType
 from vesselreporting.models.report_models import (
     ActualPerformanceData,
+    AdditionalRemarks,
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
@@ -675,6 +676,18 @@ def create_bdn_data(
 
 
 @transaction.atomic
+def create_additional_remarks(
+    report_header:ReportHeader,
+    remarks: str,
+):
+    additional_remarks = AdditionalRemarks.objects.create(
+        report_header=report_header,
+        remarks=remarks,
+    )
+    return additional_remarks
+
+
+@transaction.atomic
 def create_total_consumption_data(
     report_header: ReportHeader,
     consumption_type: str,
@@ -1064,7 +1077,7 @@ def update_leg_progress(report_header):
     elif report_header.report_type == ReportType.NOON:
         leg_progress.latest_noon = report_header
     elif report_header.report_type == ReportType.ARR_SBY:
-        assert(leg_progress.arrival_ is None)
+        assert(leg_progress.arrival_eosp is None)
         leg_progress.arrival_eosp = report_header
     elif report_header.report_type == ReportType.ARR_FWE:
         assert(leg_progress.arrival_fwe is None)
@@ -1083,7 +1096,8 @@ def create_noon_report(
     performancedata,
     consumptionconditiondata,
     heavyweatherdata=None,
-    stoppagedata=None
+    stoppagedata=None,
+    additionalremarks=None,
 ) -> ReportHeader:
     header = create_report_header(**reportheader)
     report_route = create_report_route(
@@ -1114,6 +1128,9 @@ def create_noon_report(
     process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
     create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
 
+    if additionalremarks:
+        create_additional_remarks(report_header=header, **additionalremarks)
+
     leg_data_dict = {
         'report_route': report_route,
         'distance_time_data': distance_time_data,
@@ -1136,6 +1153,7 @@ def create_departure_standby_report(
     consumptionconditiondata,
     totalconsumptiondata,
     departurepilotstation=None,
+    additionalremarks=None,
 ) -> ReportHeader:
     header = create_report_header(**reportheader)
     report_route = create_report_route(
@@ -1175,6 +1193,9 @@ def create_departure_standby_report(
     create_fresh_water_total_consumption_data(
         tcdata=tcdata, **freshwatertotalconsumptiondata)
 
+    if additionalremarks:
+        create_additional_remarks(report_header=header, **additionalremarks)
+
     leg_data = update_leg_data(
         report_header=header,
         report_route=report_route,
@@ -1196,6 +1217,7 @@ def create_departure_cosp_report(
     consumptionconditiondata,
     departurepilotstation=None,
     arrivalpilotstation=None,
+    additionalremarks=None,
 ) -> ReportHeader:
     header = create_report_header(**reportheader)
     report_route = create_report_route(
@@ -1225,6 +1247,9 @@ def create_departure_cosp_report(
     process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
     create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
 
+    if additionalremarks:
+        create_additional_remarks(report_header=header, **additionalremarks)
+
     leg_data = update_leg_data(
         report_header=header,
         report_route=report_route,
@@ -1249,6 +1274,7 @@ def create_arrival_standby_report(
     actualperformancedata,
     totalconsumptiondata,
     arrivalpilotstation=None,
+    additionalremarks=None,
 ) -> ReportHeader:
     header = create_report_header(**reportheader)
     report_route = create_report_route(
@@ -1296,6 +1322,9 @@ def create_arrival_standby_report(
     process_fuel_oil_total_consumption_data_set(
         tcdata, fueloiltotalconsumptiondata_set)
 
+    if additionalremarks:
+        create_additional_remarks(report_header=header, **additionalremarks)
+
     leg_data = update_leg_data(
         report_header=header,
         report_route=report_route,
@@ -1319,6 +1348,7 @@ def create_arrival_fwe_report(
     actualperformancedata,
     totalconsumptiondata,
     arrivalpilotstation=None,
+    additionalremarks=None,
 ) -> ReportHeader:
     header = create_report_header(**reportheader)
     report_route = create_report_route(
@@ -1363,6 +1393,9 @@ def create_arrival_fwe_report(
     process_fuel_oil_total_consumption_data_set(
         tcdata, fueloiltotalconsumptiondata_set)
 
+    if additionalremarks:
+        create_additional_remarks(report_header=header, **additionalremarks)
+
     leg_data = update_leg_data(
         report_header=header,
         arrival_fwe_time_and_position=arrival_fwe,
@@ -1380,6 +1413,7 @@ def create_event_report(
     eventdata,
     plannedoperations,
     consumptionconditiondata,
+    additionalremarks=None,
 ) -> ReportHeader:
     header = create_report_header(**reportheader)
     event_data=create_event_data(report_header=header, **eventdata)
@@ -1398,6 +1432,9 @@ def create_event_report(
     process_lubricating_oil_data_set(ccdata, lubricatingoildata_set)
     create_fresh_water_data(ccdata=ccdata, **freshwaterdata)
 
+    if additionalremarks:
+        create_additional_remarks(report_header=header, **additionalremarks)
+
     leg_data = update_leg_data(
         report_header=header,
         event_data=event_data,
@@ -1412,6 +1449,7 @@ def create_event_report(
 def create_bdn_report(
     reportheader,
     bdndata,
+    additionalremarks=None,
 ) -> ReportHeader:
     header = create_report_header(**reportheader)
     create_bdn_data(report_header=header, **bdndata)
@@ -1419,5 +1457,9 @@ def create_bdn_report(
     leg_data = update_leg_data(
         report_header=header,
     )
+
+    if additionalremarks:
+        create_additional_remarks(report_header=header, **additionalremarks)
+
     update_leg_progress(header)
     return header
