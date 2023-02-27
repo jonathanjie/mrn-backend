@@ -1047,7 +1047,7 @@ def update_leg_progress(report_header):
             'voyagelegprogress',
         ).order_by('-created_at')[:2]
         if len(last_legs) == 2:
-            previous_report = last_leg[1].voyagelegprogress.latest_report
+            previous_report = last_legs[1].voyagelegprogress.latest_report
 
     ReportEdge.objects.update_or_create(
         previous_report=previous_report,
