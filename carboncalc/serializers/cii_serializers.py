@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from carboncalc.models import (
     CIIConfig,
+    EnergyEfficiencyTechnicalFile,
     TargetCII,
     StandardizedDataReportingFile,
 )
@@ -51,5 +52,14 @@ class StandardizedDataRerportingFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StandardizedDataReportingFile
-        fields = '__all__'
-        exclude = ['id', 'created_at', 'modified_at']
+        fields = ['uuid', 'file_name', 's3_file_path',
+                  'ship', 'year', 'acceptance_status', 'error_message']
+
+
+class EnergyEfficiencyTechnicalFileSerializer(serializers.ModelSerializer):
+    ship = ShipSerializer(read_only=True)
+
+    class Meta:
+        model = EnergyEfficiencyTechnicalFile
+        fields = ['uuid', 'file_name', 's3_file_path',
+                  'ship', 'energy_efficiency_index_type']

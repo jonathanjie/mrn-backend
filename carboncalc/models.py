@@ -6,6 +6,7 @@ from django.db.models import Q
 from carboncalc.enums import (
     ApplicableCII,
     EnergyEfficiencyIndexType,
+    EnginePowerLimitType,
     CIIFuelType,
     CIIGrade,
     CIIShipType,
@@ -24,13 +25,14 @@ from core.models import (
 class CIIConfig(BaseModel):
     ship = models.OneToOneField(Ship, on_delete=models.PROTECT)
 
-    energy_efficiency_index_type = models.TextField()
+    energy_efficiency_index_type = models.CharField(
+        max_length=4, choices=EnergyEfficiencyIndexType.choices)
     energy_efficiency_index_value = models.DecimalField(
         max_digits=6, decimal_places=3)
 
     is_engine_power_limited = models.BooleanField()
     engine_power_limit_type = models.TextField(
-        max_length=4, null=True)
+        max_length=4, choices=EnginePowerLimitType.choices, null=True)
     engine_power_limit_value = models.IntegerField(null=True)
 
     imo_dcs = models.BooleanField(default=True)
@@ -166,3 +168,9 @@ class StandardizedDataReportingData(BaseModel):
     total_distance = models.DecimalField(max_digits=8, decimal_places=2)
     fuel_oil_burned = models.JSONField(
         default=dict, encoder=DjangoJSONEncoder)
+
+
+class EnergyEfficiencyTechnicalFile(BaseS3FileModel):
+    ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
+    energy_efficiency_index_type = models.CharField(
+        max_length=4, choices=EnergyEfficiencyIndexType.choices)
