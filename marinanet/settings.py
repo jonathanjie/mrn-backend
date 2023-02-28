@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "core",
     "vesselreporting",
+    "dcsreporting",
     'carboncalc',
     # "drf_yasg"
 ]
