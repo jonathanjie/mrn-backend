@@ -10,7 +10,7 @@ from carboncalc.serializers.cii_serializers import (
 
 
 class CIIConfigView(generics.CreateAPIView):
-    serializer_class = VoyageSerializer
+    serializer_class = CIIConfigViewSerlaizer
 
     def create(self, request):
         ship = get_object_or_404(Ship, imo_reg=request.data.get('imo_reg'))

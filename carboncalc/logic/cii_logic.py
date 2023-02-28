@@ -30,15 +30,16 @@ def calculate_cii_reference_line(
     capacity: Decimal,
 ) -> Decimal:
     a, c = REFERENCE_LINE_CONSTANTS.get(cii_ship_type)
-
-    return a * (capacity)**(c)
+    a, c = Decimal(a), Decimal(c)
+    return a * ((capacity)**(-c))
 
 
 def calculate_required_cii(
-    cii_reference_line,
-    year,
+    cii_reference_line: Decimal,
+    year: int,
 ) -> Decimal:
     reduction_factor = REDUCTION_FACTORS.get(year)
+    reduction_factor = Decimal(reduction_factor)
     # TODO: Handle year out of range
     return (1 - reduction_factor) * cii_reference_line
 
@@ -49,6 +50,7 @@ def calculate_cii_rating_boundaries(
     year: int
 ) -> dict[str, Decimal]:
     d1, d2, d3, d4 = DD_VECTORS.get(cii_ship_type)
+    d1, d2, d3, d4 = Decimal(d1), Decimal(d2), Decimal(d3), Decimal(d4)
 
     a_limit = d1 * required_cii
     b_limit = d2 * required_cii
@@ -94,9 +96,18 @@ def calculate_cii_ship_year_boundaries_for_ship(
             'boundary_c': cii_rating_boundaries[CIIGrade.C],
             'boundary_d': cii_rating_boundaries[CIIGrade.D],
         }
-
     )
     return cii_ship_year_boundaries
+
+
+def populate_boundaries_for_ship(
+    ship: Ship,
+) -> None:
+    for year in REDUCTION_FACTORS.keys():
+        calculate_cii_ship_year_boundaries_for_ship(
+            ship=ship,
+            year=year,
+        )
 
 
 PDF_DATA_REPORTING_LAMBDA = "https://neapj5jo27o6a22mxs7lkb56ny0jiuzu.lambda-url.ap-southeast-1.on.aws/"
@@ -107,7 +118,7 @@ def process_standardized_data_reporting_file(
 ):
     file_extension = get_file_extension(data_report.s3_file_path)
     filepath = {
-        'filepath': 'testing/86360acf-d109-47da-87ef-3a7d7499619g/sample_kr_cii.pdf',
+        'filepath': data_report.s3_file_path,
     }
     if file_extension == ".pdf":
         response = requests.post(
