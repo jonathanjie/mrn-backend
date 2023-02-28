@@ -143,8 +143,9 @@ class StandardizedDataReportingFile(BaseS3FileModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     year = models.PositiveSmallIntegerField()
     acceptance_status = models.CharField(
-        max_length=15, choices=FileAcceptanceStatus.choices, default=FileAcceptanceStatus.PROCESSING)
-    error_message = models.TextField()
+        max_length=15, choices=FileAcceptanceStatus.choices,
+        default=FileAcceptanceStatus.PROCESSING)
+    error_message = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = "standardized_data_reporting_file"
@@ -157,7 +158,8 @@ class StandardizedDataReportingFile(BaseS3FileModel):
 
 
 class StandardizedDataReportingData(BaseModel):
-    reporting_file = models.ForeignKey(StandardizedDataReportingFile, on_delete=models.PROTECT)
+    reporting_file = models.ForeignKey(
+        StandardizedDataReportingFile, on_delete=models.CASCADE)
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     year = models.PositiveSmallIntegerField()
     start_date = models.DateField()

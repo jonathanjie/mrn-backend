@@ -83,7 +83,7 @@ def calculate_cii_ship_year_boundaries_for_ship(
         year=year,
     )
     cii_rating_boundaries = calculate_cii_rating_boundaries(
-        cii_ship_type = cii_ship_type,
+        cii_ship_type=cii_ship_type,
         required_cii=required_cii,
         year=year,
     )
@@ -186,7 +186,7 @@ def _process_fuel_types_for_pdf(
     other_cf = consumption_dict.pop("(Cf ;…..)")
     clean_dict = {}
     # TODO: Handle Other
-    for key,value in consumption_dict:
+    for key, value in consumption_dict.items():
         if value == 0:
             continue
         fuel_type = PDF_DATA_REPORTING_FUEL_MAP.get(key)
@@ -208,7 +208,7 @@ def _process_fuel_types_for_xlsx(
     consumption_dict: dict[str, float]
 ) -> dict[str, float]:
     clean_dict = {}
-    for key,value in consumption_dict:
+    for key, value in consumption_dict.items():
         if value == 0:
             continue
         if "other" in key.lower():

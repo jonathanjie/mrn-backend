@@ -47,7 +47,7 @@ class CIIConfigViewSerlaizer(CIIConfigSerializer):
         return cii_config
 
 
-class StandardizedDataRerportingFileSerializer(serializers.ModelSerializer):
+class StandardizedDataReportingFileSerializer(serializers.ModelSerializer):
     ship = ShipSerializer(read_only=True)
 
     class Meta:

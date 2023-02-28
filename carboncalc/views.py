@@ -1,12 +1,15 @@
-from django.shortcuts import render
-from rest_framework import generics
+from django.shortcuts import get_object_or_404, render
+from rest_framework import generics, status
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from carboncalc.serializers.cii_serializers import (
     CIIConfigViewSerlaizer,
     EnergyEfficiencyTechnicalFileSerializer,
-    StandardizedDataReportingFile,
+    StandardizedDataReportingFileSerializer,
 )
+from carboncalc.tasks import process_uploaded_data_report
+from core.models import Ship
 
 
 class CIIConfigView(generics.CreateAPIView):
@@ -23,14 +26,15 @@ class CIIConfigView(generics.CreateAPIView):
 
 
 class StandardizedDataReportingFile(generics.CreateAPIView):
-    serializer_class = StandardizedDataReportingFile
+    serializer_class = StandardizedDataReportingFileSerializer
 
     def create(self, request):
-        ship = get_object_or_404(Ship, imo_reg=request.data.get('imo_reg'))
+        ship = get_object_or_404(Ship, imo_reg=request.data.get('ship'))
         serializer = self.get_serializer(
             data=request.data, many=isinstance(request.data, list))
         serializer.is_valid(raise_exception=True)
-        serializer.save(ship=ship)
+        file = serializer.save(ship=ship)
+        process_uploaded_data_report.delay(file.uuid)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
