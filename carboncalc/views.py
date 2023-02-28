@@ -8,7 +8,7 @@ from carboncalc.serializers.cii_serializers import (
     EnergyEfficiencyTechnicalFileSerializer,
     StandardizedDataReportingFileSerializer,
 )
-from carboncalc.tasks import process_uploaded_data_report
+from carboncalc.tasks import process_standardized_data_reporting_file_task
 from core.models import Ship
 
 
@@ -34,7 +34,7 @@ class StandardizedDataReportingFile(generics.CreateAPIView):
             data=request.data, many=isinstance(request.data, list))
         serializer.is_valid(raise_exception=True)
         file = serializer.save(ship=ship)
-        process_uploaded_data_report.delay(file.uuid)
+        process_standardized_data_reporting_file_task.delay(file.uuid)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
