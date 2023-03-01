@@ -12,6 +12,7 @@ from core.serializers import (
 )
 from vesselreporting.models.report_models import (
     ActualPerformanceData,
+    AdditionalRemarks,
     ArrivalFWETimeAndPosition,
     ArrivalPilotStation,
     ArrivalStandbyTimeAndPosition,
@@ -48,6 +49,10 @@ from vesselreporting.models.report_models import (
     VoyageLegData,
     WeatherData,
 )
+from vesselreporting.logic.voyage_logic import (
+    create_new_voyage,
+    create_new_voyage_leg,
+)
 
 
 # Report Model Serializers
@@ -60,12 +65,26 @@ class VoyageSerializer(serializers.ModelSerializer):
         fields = ['uuid', 'ship', 'voyage_num']
         read_only_fields = ['uuid', 'ship']
 
+    def create(self, validated_data) -> Voyage:
+        voyage = create_new_voyage(
+            ship=validated_data.pop('ship'),
+            voyage_num=validated_data.pop('voyage_num'),
+        )
+        return voyage
+
 
 class VoyageLegSerializer(serializers.ModelSerializer):
     class Meta:
         model = VoyageLeg
         fields = ['uuid', 'voyage', 'leg_num']
         read_only_fields = ['uuid', 'voyage']
+
+    def create(self, validated_data) -> VoyageLeg:
+        leg = create_new_voyage_leg(
+            voyage=validated_data.pop('voyage'),
+            leg_num=validated_data.pop('leg_num'),
+        )
+        return leg
 
 
 class VoyageLegWithVoyageSerializer(serializers.ModelSerializer):
@@ -427,5 +446,12 @@ class EventDataSerializer(serializers.ModelSerializer):
 class BDNDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = BDNData
+        exclude = ['report_header', 'created_at', 'modified_at']
+        read_only_fields = ['uuid']
+
+
+class AdditionalRemarksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdditionalRemarks
         exclude = ['report_header', 'created_at', 'modified_at']
         read_only_fields = ['uuid']

@@ -124,32 +124,45 @@ class ShipOverviewList(generics.ListAPIView):
         return queryset
 
 
-class ShipSpecsCreate(APIView):
-    def post(self, request, imo_reg):
-        print("REQUEST:")
-        print((request.body).decode('utf-8'))
-        ship = get_object_or_404(Ship, imo_reg=imo_reg)
-        ship.ship_type = request.data['ship_type']
-        ship.save()
+class ShipSpecsCreateView(generics.CreateAPIView):
+    serializer_class = ShipSpecsSerializer
 
-        try:
-            ship_specs = ship.shipspecs
-        except ShipSpecs.DoesNotExist:
-            # ShipSpecs object does not exist, so create it
-            serializer = ShipSpecsSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save(ship=ship)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            # ShipSpecs object exists, so update it
-            serializer = ShipSpecsSerializer(ship_specs, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request, imo_reg):
+        ship = get_object_or_404(Ship, imo_reg=imo_reg)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(ship=ship)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
+
+
+# class ShipSpecsCreate(APIView):
+#     def post(self, request, imo_reg):
+#         print("REQUEST:")
+#         print((request.body).decode('utf-8'))
+#         ship = get_object_or_404(Ship, imo_reg=imo_reg)
+#         ship.ship_type = request.data['ship_type']
+#         ship.save()
+
+#         try:
+#             ship_specs = ship.shipspecs
+#         except ShipSpecs.DoesNotExist:
+#             # ShipSpecs object does not exist, so create it
+#             serializer = ShipSpecsSerializer(data=request.data)
+#             if serializer.is_valid():
+#                 serializer.save(ship=ship)
+#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+#             else:
+#                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         else:
+#             # ShipSpecs object exists, so update it
+#             serializer = ShipSpecsSerializer(ship_specs, data=request.data)
+#             if serializer.is_valid():
+#                 serializer.save()
+#                 return Response(serializer.data)
+#             else:
+#                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ShipVoyageList(generics.ListAPIView):
@@ -247,6 +260,24 @@ class ShipReportsList(generics.ListAPIView):
         ship = Ship.objects.get(imo_reg=imo_reg)
         queryset = Voyage.objects.filter(ship=ship).order_by("-created_at")
         return queryset
+
+
+class VoyageLegList(generics.ListCreateAPIView):
+    serializer_class = VoyageLegSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = VoyageLeg.objects.filter(voyage__ship__assigned_users=user)
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        voyage = get_object_or_404(Voyage, uuid=request.data.pop('voyage'))
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(voyage=voyage)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
 
 
 class ReportsList(generics.ListCreateAPIView):
