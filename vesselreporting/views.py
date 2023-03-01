@@ -127,8 +127,8 @@ class ShipOverviewList(generics.ListAPIView):
 class ShipSpecsCreateView(generics.CreateAPIView):
     serializer_class = ShipSpecsSerializer
 
-    def create(self, request):
-        ship = get_object_or_404(Ship, imo_reg=request.data.get('imo_reg'))
+    def create(self, request, imo_reg):
+        ship = get_object_or_404(Ship, imo_reg=imo_reg)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(ship=ship)
