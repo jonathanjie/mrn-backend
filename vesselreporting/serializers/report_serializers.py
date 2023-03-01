@@ -4,6 +4,7 @@ from rest_framework import serializers
 from vesselreporting.models.report_models import ReportHeader
 from vesselreporting.serializers.model_serializers import (
     ActualPerformanceDataSerializer,
+    AdditionalRemarksSerializer,
     ArrivalFWETimeandPositionSerializer,
     ArrivalPilotStationSerializer,
     ArrivalStandbyTimeAndPositionSerializer,
@@ -57,6 +58,7 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
     performancedata = PerformanceDataSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     stoppagedata = StoppageDataSerializer(required=False, allow_null=True)
+    additionalremarks = AdditionalRemarksSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ReportHeader
@@ -73,6 +75,7 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
         consumptionconditiondata = validated_data.pop(
             'consumptionconditiondata')
         stoppagedata = validated_data.pop('stoppagedata', None)
+        additionalremarks=validated_data.pop('additionalremarks', None)
 
         with transaction.atomic():
             header = create_noon_report(
@@ -85,6 +88,7 @@ class NoonReportViewSerializer(BaseReportViewSerializer):
                 consumptionconditiondata=consumptionconditiondata,
                 heavyweatherdata=heavyweatherdata,
                 stoppagedata=stoppagedata,
+                additionalremarks=additionalremarks,
             )
         return header
 
@@ -97,6 +101,7 @@ class DepartureStandbyReportViewSerializer(BaseReportViewSerializer):
         required=False, allow_null=True)
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     totalconsumptiondata = TotalConsumptionDataSerializer()
+    additionalremarks = AdditionalRemarksSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ReportHeader
@@ -112,6 +117,7 @@ class DepartureStandbyReportViewSerializer(BaseReportViewSerializer):
         consumptionconditiondata = validated_data.pop(
             'consumptionconditiondata')
         totalconsumptiondata = validated_data.pop('totalconsumptiondata')
+        additionalremarks=validated_data.pop('additionalremarks', None)
 
         with transaction.atomic():
             header = create_departure_standby_report(
@@ -122,6 +128,7 @@ class DepartureStandbyReportViewSerializer(BaseReportViewSerializer):
                 consumptionconditiondata=consumptionconditiondata,
                 totalconsumptiondata=totalconsumptiondata,
                 departurepilotstation=departurepilotstation,
+                additionalremarks=additionalremarks,
             )
         return header
 
@@ -136,6 +143,7 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
     distancetimedata = DistanceTimeDataSerializer()
     sailingplan = SailingPlanSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
+    additionalremarks = AdditionalRemarksSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ReportHeader
@@ -152,6 +160,7 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
         sailingplan = validated_data.pop('sailingplan')
         consumptionconditiondata = validated_data.pop(
             'consumptionconditiondata')
+        additionalremarks=validated_data.pop('additionalremarks', None)
 
         with transaction.atomic():
             header = create_departure_cosp_report(
@@ -163,6 +172,7 @@ class DepartureCOSPReportViewSerializer(BaseReportViewSerializer):
                 consumptionconditiondata=consumptionconditiondata,
                 departurepilotstation=departurepilotstation,
                 arrivalpilotstation=arrivalpilotstation,
+                additionalremarks=additionalremarks,
             )
         return header
 
@@ -179,6 +189,7 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     actualperformancedata = ActualPerformanceDataSerializer()
     totalconsumptiondata = TotalConsumptionDataSerializer()
+    additionalremarks = AdditionalRemarksSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ReportHeader
@@ -197,11 +208,13 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
             'consumptionconditiondata')
         actualperformancedata = validated_data.pop('actualperformancedata')
         totalconsumptiondata = validated_data.pop('totalconsumptiondata')
+        additionalremarks=validated_data.pop('additionalremarks', None)
 
         with transaction.atomic():
             header = create_arrival_standby_report(
                 reportheader=validated_data,
                 reportroute=reportroute,
+                plannedoperations=plannedoperations,
                 arrivalstandbytimeandposition=arrivalstandbytimeandposition,
                 weatherdata=weatherdata,
                 distancetimedata=distancetimedata,
@@ -210,6 +223,7 @@ class ArrivalStandbyReportViewSerializer(BaseReportViewSerializer):
                 actualperformancedata=actualperformancedata,
                 totalconsumptiondata=totalconsumptiondata,
                 arrivalpilotstation=arrivalpilotstation,
+                additionalremarks=additionalremarks,
             )
         return header
 
@@ -224,6 +238,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
     consumptionconditiondata = ConsumptionConditionDataSerializer()
     actualperformancedata = ActualPerformanceDataSerializer()
     totalconsumptiondata = TotalConsumptionDataSerializer()
+    additionalremarks = AdditionalRemarksSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ReportHeader
@@ -240,6 +255,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
             'consumptionconditiondata')
         actualperformancedata = validated_data.pop('actualperformancedata')
         totalconsumptiondata = validated_data.pop('totalconsumptiondata')
+        additionalremarks=validated_data.pop('additionalremarks', None)
 
         with transaction.atomic():
             header = create_arrival_fwe_report(
@@ -252,6 +268,7 @@ class ArrivalFWEReportViewSerializer(BaseReportViewSerializer):
                 actualperformancedata=actualperformancedata,
                 totalconsumptiondata=totalconsumptiondata,
                 arrivalpilotstation=arrivalpilotstation,
+                additionalremarks=additionalremarks,
             )
         return header
 
@@ -260,6 +277,7 @@ class EventReportViewSerialiazer(BaseReportViewSerializer):
     eventdata = EventDataSerializer()
     plannedoperations = PlannedOperationsSerializer()
     consumptionconditiondata = ConsumptionConditionDataSerializer()
+    additionalremarks = AdditionalRemarksSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ReportHeader
@@ -270,6 +288,7 @@ class EventReportViewSerialiazer(BaseReportViewSerializer):
         plannedoperations = validated_data.pop('plannedoperations')
         consumptionconditiondata = validated_data.pop(
             'consumptionconditiondata')
+        additionalremarks=validated_data.pop('additionalremarks', None)
 
         with transaction.atomic():
             header = create_event_report(
@@ -277,12 +296,14 @@ class EventReportViewSerialiazer(BaseReportViewSerializer):
                 eventdata=eventdata,
                 plannedoperations=plannedoperations,
                 consumptionconditiondata=consumptionconditiondata,
+                additionalremarks=additionalremarks,
             )
         return header
 
 
 class BDNReportViewSerializer(BaseReportViewSerializer):
     bdndata = BDNDataSerializer()
+    additionalremarks = AdditionalRemarksSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ReportHeader
@@ -290,10 +311,12 @@ class BDNReportViewSerializer(BaseReportViewSerializer):
 
     def create(self, validated_data) -> ReportHeader:
         bdndata = validated_data.pop('bdndata')
+        additionalremarks=validated_data.pop('additionalremarks', None)
 
         with transaction.atomic():
             header = create_bdn_report(
                 reportheader=validated_data,
                 bdndata=bdndata,
+                additionalremarks=additionalremarks,
             )
         return header

@@ -37,6 +37,7 @@ from vesselreporting.models.report_models import (
     Voyage,
     VoyageLeg,
     VoyageLegData,
+    VoyageLegProgress,
     WeatherData
 )
 
@@ -78,3 +79,4 @@ admin.site.register(PortOperations)
 admin.site.register(EventData)
 admin.site.register(BDNData)
 admin.site.register(VoyageLegData)
+admin.site.register(VoyageLegProgress)
