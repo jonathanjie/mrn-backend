@@ -56,7 +56,6 @@ class VoyageLeg(BaseModel):
         unique_together = ["voyage", "leg_num"]
 
 
-
 class VoyageLegData(BaseModel):
     voyage_leg = models.OneToOneField(
         VoyageLeg, on_delete=models.PROTECT, null=True)
@@ -241,56 +240,70 @@ class ReportRoute(ReportDataBaseModel):
 
 
 class WeatherData(ReportDataBaseModel):
-    weather_notation = models.CharField(max_length=2, choices=Weather.choices)
-    visibility = models.PositiveSmallIntegerField()
+    weather_notation = models.CharField(
+        max_length=2, choices=Weather.choices, null=True, blank=True)
+    visibility = models.PositiveSmallIntegerField(null=True, blank=True)
     wind_direction = models.CharField(
-        max_length=3, choices=Cardinal_16.choices)
+        max_length=3, choices=Cardinal_16.choices, null=True, blank=True)
     wind_speed = models.DecimalField(
         max_digits=4,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True, blank=True)
     sea_direction = models.CharField(
-        max_length=2, choices=Cardinal_8.choices)
-    sea_state = models.PositiveSmallIntegerField(choices=DouglasScale.choices)
+        max_length=2, choices=Cardinal_8.choices, null=True, blank=True)
+    sea_state = models.PositiveSmallIntegerField(
+        choices=DouglasScale.choices, null=True, blank=True)
     swell_direction = models.CharField(
-        max_length=2, choices=Cardinal_8.choices)
-    swell_scale = models.PositiveSmallIntegerField(choices=SwellScale.choices)
-    air_pressure = models.PositiveSmallIntegerField()
-    air_temperature_dry = models.DecimalField(max_digits=3, decimal_places=1)
-    air_temperature_wet = models.DecimalField(max_digits=3, decimal_places=1)
-    sea_temperature = models.DecimalField(max_digits=3, decimal_places=1)
+        max_length=2, choices=Cardinal_8.choices, null=True, blank=True)
+    swell_scale = models.PositiveSmallIntegerField(
+        choices=SwellScale.choices, null=True, blank=True)
+    air_pressure = models.PositiveSmallIntegerField(null=True, blank=True)
+    air_temperature_dry = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True)
+    air_temperature_wet = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True)
+    sea_temperature = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True)
     ice_condition = models.CharField(
         max_length=4,
         choices=GlacierIceCondition.choices,
-        default=GlacierIceCondition.NONE)
+        default=GlacierIceCondition.NONE,
+        null=True, blank=True)
 
     class Meta:
         db_table = "weather_data"
 
 
 class HeavyWeatherData(ReportDataBaseModel):
-    weather_notation = models.CharField(max_length=2, choices=Weather.choices)
+    weather_notation = models.CharField(
+        max_length=2, choices=Weather.choices, null=True, blank=True)
     total_hours = models.DecimalField(
         max_digits=3,
         decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.00"))])
+        validators=[MinValueValidator(Decimal("0.00"))],
+        null=True, blank=True)
     observed_distance = models.DecimalField(
         max_digits=4,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True, blank=True)
     fuel_consumption = models.DecimalField(
         max_digits=5,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True, blank=True)
     wind_direction = models.CharField(
-        max_length=3, choices=Cardinal_16.choices)
+        max_length=3, choices=Cardinal_16.choices, null=True, blank=True)
     wind_speed = models.DecimalField(
         max_digits=4,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True, blank=True)
     sea_direction = models.CharField(
-        max_length=2, choices=Cardinal_8.choices)
-    sea_state = models.PositiveSmallIntegerField(choices=DouglasScale.choices)
+        max_length=2, choices=Cardinal_8.choices, null=True, blank=True)
+    sea_state = models.PositiveSmallIntegerField(
+        choices=DouglasScale.choices, null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
 
     class Meta:
