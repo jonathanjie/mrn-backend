@@ -189,7 +189,7 @@ WantedBy=multi-user.target
 sudo systemctl start gunicorn.socket
 sudo systemctl enable gunicorn.socket
 ```
-9. Configure Nginx using [DigitalOcean's Nginx Configuration Tool](https://www.digitalocean.com/community/tools/nginx). Select the appropriate settings (Domain, User, Gunicorn instead of uWSGI), download the configuration files, and execute the commands as given. This should get you setup for https on the chosen domain.
+9. Configure Nginx using [DigitalOcean's Nginx Configuration Tool](https://www.digitalocean.com/community/tools/nginx). Select the appropriate settings (Domain, User, Gunicorn instead of uWSGI), download the configuration files, and execute the commands as given. This should get you setup for https on the chosen domain. For deployment on AWS EC2, this is the [recommended configuration](https://www.digitalocean.com/community/tools/nginx?domains.0.server.domain=staging.marinachain.io&domains.0.server.path=%2Fhome%2Fubuntu%2F&domains.0.php.php=false&domains.0.python.python=true&domains.0.python.djangoRules=true&domains.0.routing.root=false&global.python.pythonServer=%2Frun%2Fgunicorn.sock&global.nginx.user=ubuntu).
 
 Note:
 - If you make any changes to the Gunicorn service file, you will need to reload the service.

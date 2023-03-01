@@ -191,5 +191,5 @@ cython_debug/
 **/.DS_Store
 
 # Project Specific
-marinanet/secrets.py
+*/secrets.py
 *.rdb

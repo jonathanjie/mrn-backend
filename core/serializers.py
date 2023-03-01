@@ -34,9 +34,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class ShipSpecsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShipSpecs
-        fields = ('flag', 'deadweight_tonnage', 'cargo_unit', 'fuel_options',
-                  'lubricating_oil_options', 'machinery_options',
-                  'propeller_pitch')
+        fields = ('flag', 'call_sign', 'mmsi', 'delivery_date',
+                  'class_society', 'gross_tonnage', 'deadweight_tonnage',
+                  'net_tonnage', 'cargo_unit', 'cargo_capacity',
+                  'fuel_options', 'lubricating_oil_options',
+                  'machinery_options', 'propeller_pitch')
 
 
 class ShipSerializer(serializers.ModelSerializer):

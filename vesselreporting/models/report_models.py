@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.gis.db import models
+from django.contrib.gis.db.models import CheckConstraint, Q, UniqueConstraint
 from django.contrib.postgres.fields import ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -52,6 +53,7 @@ class VoyageLeg(BaseModel):
 
     class Meta:
         db_table = "voyage_legs"
+        unique_together = ["voyage", "leg_num"]
 
 
 class VoyageLegData(BaseModel):
@@ -238,56 +240,70 @@ class ReportRoute(ReportDataBaseModel):
 
 
 class WeatherData(ReportDataBaseModel):
-    weather_notation = models.CharField(max_length=2, choices=Weather.choices)
-    visibility = models.PositiveSmallIntegerField()
+    weather_notation = models.CharField(
+        max_length=2, choices=Weather.choices, null=True, blank=True)
+    visibility = models.PositiveSmallIntegerField(null=True, blank=True)
     wind_direction = models.CharField(
-        max_length=3, choices=Cardinal_16.choices)
+        max_length=3, choices=Cardinal_16.choices, null=True, blank=True)
     wind_speed = models.DecimalField(
         max_digits=4,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True, blank=True)
     sea_direction = models.CharField(
-        max_length=2, choices=Cardinal_8.choices)
-    sea_state = models.PositiveSmallIntegerField(choices=DouglasScale.choices)
+        max_length=2, choices=Cardinal_8.choices, null=True, blank=True)
+    sea_state = models.PositiveSmallIntegerField(
+        choices=DouglasScale.choices, null=True, blank=True)
     swell_direction = models.CharField(
-        max_length=2, choices=Cardinal_8.choices)
-    swell_scale = models.PositiveSmallIntegerField(choices=SwellScale.choices)
-    air_pressure = models.PositiveSmallIntegerField()
-    air_temperature_dry = models.DecimalField(max_digits=3, decimal_places=1)
-    air_temperature_wet = models.DecimalField(max_digits=3, decimal_places=1)
-    sea_temperature = models.DecimalField(max_digits=3, decimal_places=1)
+        max_length=2, choices=Cardinal_8.choices, null=True, blank=True)
+    swell_scale = models.PositiveSmallIntegerField(
+        choices=SwellScale.choices, null=True, blank=True)
+    air_pressure = models.PositiveSmallIntegerField(null=True, blank=True)
+    air_temperature_dry = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True)
+    air_temperature_wet = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True)
+    sea_temperature = models.DecimalField(
+        max_digits=3, decimal_places=1, null=True, blank=True)
     ice_condition = models.CharField(
         max_length=4,
         choices=GlacierIceCondition.choices,
-        default=GlacierIceCondition.NONE)
+        default=GlacierIceCondition.NONE,
+        null=True, blank=True)
 
     class Meta:
         db_table = "weather_data"
 
 
 class HeavyWeatherData(ReportDataBaseModel):
-    weather_notation = models.CharField(max_length=2, choices=Weather.choices)
+    weather_notation = models.CharField(
+        max_length=2, choices=Weather.choices, null=True, blank=True)
     total_hours = models.DecimalField(
         max_digits=3,
         decimal_places=2,
-        validators=[MinValueValidator(Decimal("0.00"))])
+        validators=[MinValueValidator(Decimal("0.00"))],
+        null=True, blank=True)
     observed_distance = models.DecimalField(
         max_digits=4,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True, blank=True)
     fuel_consumption = models.DecimalField(
         max_digits=5,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True, blank=True)
     wind_direction = models.CharField(
-        max_length=3, choices=Cardinal_16.choices)
+        max_length=3, choices=Cardinal_16.choices, null=True, blank=True)
     wind_speed = models.DecimalField(
         max_digits=4,
         decimal_places=1,
-        validators=[MinValueValidator(Decimal("0.0"))])
+        validators=[MinValueValidator(Decimal("0.0"))],
+        null=True, blank=True)
     sea_direction = models.CharField(
-        max_length=2, choices=Cardinal_8.choices)
-    sea_state = models.PositiveSmallIntegerField(choices=DouglasScale.choices)
+        max_length=2, choices=Cardinal_8.choices, null=True, blank=True)
+    sea_state = models.PositiveSmallIntegerField(
+        choices=DouglasScale.choices, null=True, blank=True)
     remarks = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -858,3 +874,77 @@ class BDNData(ReportDataBaseModel):
     supplier_name = models.CharField(max_length=128)
     supplier_address = models.TextField()
     supplier_contact = PhoneNumberField()
+
+    class Meta:
+        db_table = "bdn_data"
+
+
+class AdditionalRemarks(ReportDataBaseModel):
+    remarks = models.TextField()
+
+    class Meta:
+        db_table = "report_additional_remarks"
+
+
+class VoyageLegProgress(BaseModel):
+    """
+    Data to track voyage progress
+    Serves as a quick reference to important reports
+    This model should eventually reply VoyageLegData
+    """
+    voyage_leg = models.OneToOneField(
+        VoyageLeg, on_delete=models.CASCADE, primary_key=True)
+    departure_standby = models.OneToOneField(
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.DEP_SBY},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
+    departure_cosp = models.OneToOneField(
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.DEP_COSP},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
+    latest_noon = models.OneToOneField(
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.NOON},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
+    arrival_eosp = models.OneToOneField(
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.ARR_SBY},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
+    arrival_fwe = models.OneToOneField(
+        ReportHeader,
+        limit_choices_to={'report_type': ReportType.ARR_FWE},
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
+    latest_report = models.ForeignKey(
+        ReportHeader,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
+
+    class Meta:
+        db_table = "voyage_leg_progresses"
+
+
+class ReportEdge(models.Model):
+    previous_report = models.OneToOneField(
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='report_edge_forward')
+    next_report = models.OneToOneField(
+        ReportHeader, on_delete=models.SET_NULL, null=True, related_name='report_edge_backward')
+
+    class Meta:
+        db_table = "report_edges"
+        constraints = [
+            UniqueConstraint(
+                fields=('previous_report', 'next_report'),
+                name="report_edge_reports_unique",
+            ),
+        ]
