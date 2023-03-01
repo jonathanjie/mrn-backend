@@ -25,10 +25,11 @@ $ cd marinanet-backend
 $ pip install -r requirements.txt
 ```
 
-## Install and setup PostgreSQL and PostGIS
+## Install and setup Redis, PostgreSQL, and PostGIS
 1. If you are on MacOS, make sure you have the [Homebrew](https://brew.sh/) package manager installed.
 2. Using Homebrew, install and start Postgres:
 ```
+$ brew install redis
 $ brew install postgresql
 $ brew install postgis
 $ brew install gdal
@@ -43,7 +44,7 @@ $ psql postgres
 ```
 # CREATE DATABASE marinanet;
 # CREATE USER marinanet WITH PASSWORD 'correcthorsebatterystaple';
-# GRANT ALL PRIVILEGES ON DATABASE marinanet TO 'marinanet';
+# GRANT ALL PRIVILEGES ON DATABASE marinanet TO marinanet;
 ```
 4. `CTRL-D` to exit the Postgres shell.
 5. Enable PostGIS functionality on Postgres:
@@ -61,8 +62,18 @@ $ psql marinanet
 ```
 $ python manage.py migrate
 ```
-4. Run the local Django development server:
+4. In a separate terminal, run the Redis server:
+```
+$ source env/bin/activate
+$ redis-server
+```
+5. In a separate terminal, run Celery:
+```
+$ source env/bin/activate
+$ python -m celery -A marinanet worker
+```
+6. Run the local Django development server:
 ```
 $ python manage.py runserver
 ```
-5. Using your browser or Postman, navigate to `localhost:8000/api/public` and see if it works.
+7. Using your browser or Postman, navigate to `localhost:8000/api/public` and see if it works.

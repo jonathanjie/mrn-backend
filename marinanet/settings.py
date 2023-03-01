@@ -219,3 +219,22 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = ["http://localhost:8080", "https://localhost:8080"]
 
 CORS_ORIGIN_WHITELIST = ["http://localhost:8080", "https://localhost:8080"]
+
+
+# Cache
+# Used for caching with Redis
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://localhost:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "KEY_PREFIX": "marinanet",
+    }
+}
+
+
+# Celery Settings
+CELERY_BROKER_URL = 'redis://localhost:6379'
