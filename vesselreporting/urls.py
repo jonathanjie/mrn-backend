@@ -7,7 +7,7 @@ urlpatterns = [
     path('marinanet/ships-overview/', views.ShipOverviewList.as_view()),
     path('marinanet/ships/<int:imo_reg>/', views.ShipDetail.as_view()),
     path('marinanet/ships/<int:imo_reg>/specs/',
-         views.ShipSpecsCreate.as_view()),
+         views.ShipSpecsCreateView.as_view()),
     path('marinanet/ships/<int:imo_reg>/voyages/', # Unused
          views.ShipVoyageList.as_view()),
     path('marinanet/ships/<int:imo_reg>/latest-voyage/', # Unused
