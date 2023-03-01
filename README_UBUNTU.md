@@ -14,11 +14,15 @@ $ reboot
 ```
 $ sudo apt install python3-pip python3-venv
 ```
-3. Install Git.
+3. Install Redis.
+```
+$ sudo apt install redis
+```
+4. Install Git.
 ```
 $ sudo apt install git
 ```
-4. Configure Git.
+5. Configure Git.
 ```
 $ git config --global user.name "Bobby Tables"
 $ git config --global user.email "bobby@marinachain.io"
