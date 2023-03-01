@@ -17,7 +17,6 @@ class CIIConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = CIIConfig
         fields = '__all__'
-        exclude = ['id', 'created_at', 'modified_at']
 
 
 class TargetCIISerializer(serializers.ModelSerializer):
@@ -26,14 +25,14 @@ class TargetCIISerializer(serializers.ModelSerializer):
     class Meta:
         model = TargetCII
         fields = '__all__'
-        exclude = ['id', 'created_at', 'modified_at']
 
 
 class CIIConfigViewSerlaizer(CIIConfigSerializer):
     current_year_cii_target = TargetCIISerializer()
 
     def create(self, validated_data):
-        current_year_cii_target_data = validated_data.pop('targetcii')
+        current_year_cii_target_data = validated_data.pop(
+            'current_year_cii_target')
         ship = validated_data.pop('ship')
 
         with transaction.atomic():
@@ -43,6 +42,7 @@ class CIIConfigViewSerlaizer(CIIConfigSerializer):
             cii_config = CIIConfig.objects.create(
                 ship=ship,
                 **validated_data)
+            cii_config.current_year_cii_target = current_year_cii_target
 
         return cii_config
 

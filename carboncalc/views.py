@@ -16,7 +16,7 @@ class CIIConfigView(generics.CreateAPIView):
     serializer_class = CIIConfigViewSerlaizer
 
     def create(self, request):
-        ship = get_object_or_404(Ship, imo_reg=request.data.get('imo_reg'))
+        ship = get_object_or_404(Ship, imo_reg=request.data.get('ship'))
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(ship=ship)
