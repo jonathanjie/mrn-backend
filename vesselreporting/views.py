@@ -43,7 +43,7 @@ from vesselreporting.serializers.model_serializers import (
 )
 from vesselreporting.serializers.stats_serializers import (
     DailyStatSerializer,
-    VesselListDetailSerializer,
+    ShipOverviewSerializer,
 )
 from vesselreporting.logic.serializer_map import get_serializer_from_report_type
 
@@ -105,23 +105,39 @@ class ShipDetail(generics.RetrieveAPIView):
 #             return Response(data)
 
 
-class ShipOverviewList(generics.ListAPIView):
-    serializer_class = VesselListDetailSerializer
+class ShipsOverviewListView(generics.ListAPIView):
+    """
+    List all Ships that a user can view, with specs and latest status
+    """
+    serializer_class = ShipOverviewSerializer
 
     def get_queryset(self):
         user = self.request.user
-        queryset = VoyageLeg.objects.filter(
-            voyage__ship__assigned_users=user
-        ).order_by(
-            'voyage__ship',
-            '-modified_at'
-        ).distinct(
-            'voyage__ship'
+        ships = Ship.objects.filter(
+            assigned_users=user,
         ).select_related(
-            'voyage__ship__shipspecs',
+            'shipspecs',
+        )
+
+        # Get the latest legs for each ship in 1 query
+        legs = VoyageLeg.objects.filter(
+            voyage__ship__in=ships,
+        ).order_by(
+            'uuid',
+            '-created_at',
+        ).distinct(
+            'uuid',
+        ).select_related(
             'voyagelegdata',
         )
-        return queryset
+
+        # Map legs to respective ships
+        # Assign none if no legs have been created
+        legs_dict = {leg.voyage.ship.uuid: leg for leg in legs}
+        for ship in ships:
+            ship.latest_leg = legs_dict.get(ship.uuid, None)
+
+        return ships
 
 
 class ShipSpecsCreateView(generics.CreateAPIView):
