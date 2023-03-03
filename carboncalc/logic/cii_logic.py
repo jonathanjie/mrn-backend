@@ -12,7 +12,9 @@ from carboncalc.enums import (
     DCSMethod,
 )
 from carboncalc.models import (
+    CalculatedCII,
     CIIConfig,
+    CIIRawData,
     CIIShipYearBoundaries,
 )
 from carboncalc.utils import cii_utils
@@ -102,3 +104,70 @@ def populate_boundaries_for_ship(
             ship=ship,
             year=year,
         )
+
+
+def calcualte_co2_from_fuel_burn(
+    fuel_burn_dict: dict[str, str],
+) -> Decimal:
+    total_co2 = Decimal(0)
+    for fuel, burn in fuel_burn_dict.items():
+        cf = CONVERSION_FACTORS.get(fuel)
+        co2_for_fuel = Decimal(cf) * Decimal(burn)
+        total_co2 += co2_for_fuel
+    return total_co2
+
+
+def calculate_cii_for_ship(
+    co2_emissions: Decimal,
+    tonnage: Decimal,
+    distance_travelled: Decimal,
+) -> Decimal:
+    return co2_emissions / (tonnage * distance_travelled)
+
+
+def determine_cii_grade_for_ship(
+    ship: Ship,
+    year: int,
+    cii_value: Decimal,
+):
+    cii_boundaries = CIIShipYearBoundaries.objects.get(ship=ship, year=year)
+    if cii_value <= cii_boundaries.boundary_a:
+        grade = CIIGrade.A
+    elif cii_value <= cii_boundaries.boundary_b:
+        grade = CIIGrade.B
+    elif cii_value <= cii_boundaries.boundary_c:
+        grade = CIIGrade.C
+    elif cii_value <= cii_boundaries.boundary_d:
+        grade = CIIGrade.D
+    else:
+        grade = CIIGrade.E
+    return grade
+
+
+def process_cii_raw_data(
+    cii_raw_data: CIIRawData,
+):
+    ship = cii_raw_data.ship
+    config = ship.ciiconfig
+    if config.applicable_cii == ApplicableCII.AER:
+        tonnage = ship.shipspecs.deadweight_tonnage
+    else:
+        tonnage = ship.shipspecs.gross_tonnage
+    total_co2_emissions = calcualte_co2_from_fuel_burn(
+        cii_raw_data.fuel_oil_burned)
+    cii = calculate_cii_for_ship(
+        co2_emissions=total_co2_emissions,
+        tonnage=tonnage,
+        distance_travelled=cii_raw_data.distance_sailed)
+    grade = determine_cii_grade_for_ship(
+        ship=cii_raw_data.ship,
+        year=cii_raw_data.year,
+        cii_value=cii)
+    calculated_cii = CalculatedCII.objects.update_or_create(
+        ship=cii_raw_data.ship,
+        year=cii_raw_data.year,
+        defaults={
+            value: cii,
+            grade: grade
+        })
+    return calculated_cii
