@@ -167,7 +167,7 @@ def process_cii_raw_data(
         ship=cii_raw_data.ship,
         year=cii_raw_data.year,
         defaults={
-            value: cii,
-            grade: grade
+            'value': cii,
+            'grade': grade,
         })
     return calculated_cii
