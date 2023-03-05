@@ -91,7 +91,10 @@ class ShipOverviewCIISerializer(serializers.ModelSerializer):
                   'calculated_ciis', 'cii_config_completed']
 
     def get_cii_config_completed(self, obj):
-        return obj.ciiconfig is not None
+        config = CIIConfig.objects.filter(ship=obj)
+        if config:
+            return True
+        return False
 
 
 class CIICalculatorInputSerializer(serializers.Serializer):
