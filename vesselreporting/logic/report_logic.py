@@ -398,7 +398,7 @@ def create_distance_time_data(
         distance_to_go=distance_to_go,
         remarks_for_changes=remarks_for_changes,
         distance_observed_since_last=distance_observed_since_last,
-        distance_observed_total=distance_engine_total,
+        distance_observed_total=distance_observed_total,
         distance_engine_since_last=distance_engine_since_last,
         distance_engine_total=distance_engine_total,
         revolution_count=revolution_count,
