@@ -201,10 +201,36 @@ def process_cii_calculator(
     estimated_cii_grade = determine_cii_grade_for_ship(
         ship=ship, year=2023, cii_value=estimated_cii)
 
+    if not target_cii_grade and \
+       estimated_cii_grade != CIIGrade.D and \
+       estimated_cii_grade != CIIGrade.E:
+        return_dict = {
+            'estimated_cii_grade': estimated_cii_grade,
+            'estimated_cii_value': estimated_cii,
+        }
+        return return_dict
+
+    minimum_cii_grade = CIIGrade.C
+    minimum_cii_boundary = boundaries.get_boundary_for_grade(minimum_cii_grade)
+    minimum_emission_max = minimum_cii_boundary * (distance * tonnage)
+    minimum_emission_budget = minimum_emission_max - total_emission
+    minimum_fuel_projection = {}
+    for fuel, consumption in fuel_burn_dict.items():
+        cf = CONVERSION_FACTORS.get(fuel)
+        budget_for_fuel = (emissions[fuel] / total_emission) \
+            * minimum_emission_budget
+        projected_fuel = Decimal(fuel_burn_dict[fuel]) \
+            + budget_for_fuel / Decimal(1000000) / Decimal(cf)
+        minimum_fuel_projection[fuel] = projected_fuel
+
     if not target_cii_grade:
         return_dict = {
             'estimated_cii_grade': estimated_cii_grade,
             'estimated_cii_value': estimated_cii,
+            'minimum_cii_grade': minimum_cii_grade,
+            'minimum_cii_boundary': minimum_cii_boundary,
+            'minimum_emission_max': minimum_emission_max / 1000000,
+            'minimum_fuel_projection': minimum_fuel_projection,
         }
         return return_dict
 
@@ -214,28 +240,22 @@ def process_cii_calculator(
     target_fuel_projection = {}
     for fuel, consumption in fuel_burn_dict.items():
         cf = CONVERSION_FACTORS.get(fuel)
-        budget_for_fuel = (emissions[fuel] / total_emission) * target_emission_budget
-        target_fuel_projection[fuel] = budget_for_fuel / Decimal(1000000) / Decimal(cf)
+        budget_for_fuel = (emissions[fuel] / total_emission) \
+            * target_emission_budget
+        projected_fuel = Decimal(fuel_burn_dict[fuel]) \
+            + budget_for_fuel / Decimal(1000000) / Decimal(cf)
+        target_fuel_projection[fuel] = projected_fuel
 
-    minimum_cii_grade = CIIGrade.C
-    minimum_cii_boundary = boundaries.get_boundary_for_grade(minimum_cii_grade)
-    minimum_emission_max = minimum_cii_boundary * (distance * tonnage)
-    minimum_emission_budget = minimum_emission_max - total_emission
-    minimum_fuel_projection = {}
-    for fuel, consumption in fuel_burn_dict.items():
-        cf = CONVERSION_FACTORS.get(fuel)
-        budget_for_fuel = (emissions[fuel] / total_emission) * minimum_emission_budget
-        minimum_fuel_projection[fuel] = budget_for_fuel / Decimal(1000000) / Decimal(cf)
     return_dict = {
         'estimated_cii_grade': estimated_cii_grade,
         'estimated_cii_value': estimated_cii,
         'target_cii_grade': target_cii_grade,
         'target_cii_boundary': target_cii_boundary,
-        'target_emission_budget': target_emission_budget / 1000000,
+        'target_emission_max': target_emission_max / 1000000,
         'target_fuel_projection': target_fuel_projection,
         'minimum_cii_grade': minimum_cii_grade,
         'minimum_cii_boundary': minimum_cii_boundary,
-        'minimum_emission_budget': minimum_emission_budget / 1000000,
+        'minimum_emission_max': minimum_emission_max / 1000000,
         'minimum_fuel_projection': minimum_fuel_projection,
     }
     return return_dict

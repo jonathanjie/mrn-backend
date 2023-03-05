@@ -108,7 +108,7 @@ class CIICalculatorOutputSerializer(serializers.Serializer):
         choices=CIIGrade.choices, required=False)
     target_cii_boundary = serializers.DecimalField(
         max_digits=6, decimal_places=3, required=False)
-    target_emission_budget = serializers.DecimalField(
+    target_emission_max = serializers.DecimalField(
         max_digits=None, decimal_places=2,
         coerce_to_string=True, required=False)
     target_fuel_projection = serializers.JSONField(required=False)
@@ -117,7 +117,7 @@ class CIICalculatorOutputSerializer(serializers.Serializer):
         choices=CIIGrade.choices, required=False)
     minimum_cii_boundary = serializers.DecimalField(
         max_digits=6, decimal_places=3, required=False)
-    minimum_emission_budget = serializers.DecimalField(
+    minimum_emission_max = serializers.DecimalField(
         max_digits=None, decimal_places=2,
         coerce_to_string=True, required=False)
     minimum_fuel_projection = serializers.JSONField(required=False)
