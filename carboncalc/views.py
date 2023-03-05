@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from carboncalc.serializers.cii_serializers import (
     CIIConfigViewSerlaizer,
     EnergyEfficiencyTechnicalFileSerializer,
+    ShipOverviewCIISerializer,
     StandardizedDataReportingFileSerializer,
 )
 from carboncalc.tasks import (
@@ -57,3 +58,16 @@ class EnergyEfficiencyTechnicalFileView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED,
                         headers=headers)
+
+
+class ShipsCIIOverviewListView(generics.ListAPIView):
+    serializer_class = ShipOverviewCIISerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        ships = Ship.objects.filter(
+            assigned_users=user,
+        ).select_related(
+            'shipspecs',
+        )
+        return ships
