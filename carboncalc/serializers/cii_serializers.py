@@ -79,6 +79,7 @@ class ShipOverviewCIISerializer(serializers.ModelSerializer):
         max_digits=10, decimal_places=2, source='shipspecs.deadweight_tonnage')
     flag = serializers.CharField(max_length=127, source='shipspecs.flag')
     delivery_date = serializers.DateField(source='shipspecs.delivery_date')
+    cii_config_completed = serializers.SerializerMethodField()
     calculated_ciis = ShipNestedCalculatedCIISerializer(
         many=True,
         read_only=True,
@@ -87,7 +88,10 @@ class ShipOverviewCIISerializer(serializers.ModelSerializer):
     class Meta:
         model = Ship
         fields = ['name', 'imo_reg', 'size', 'flag', 'delivery_date',
-                  'calculated_ciis']
+                  'calculated_ciis', 'cii_config_completed']
+
+    def get_cii_config_completed(self, obj):
+        return obj.ciiconfig is not None
 
 
 class CIICalculatorInputSerializer(serializers.Serializer):
