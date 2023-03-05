@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -40,6 +40,7 @@ class StandardizedDataReportingFile(generics.CreateAPIView):
         ship = get_object_or_404(Ship, imo_reg=request.data.get('ship'))
         serializer = self.get_serializer(
             data=request.data, many=isinstance(request.data, list))
+        # TODO: Handle multiple files
         serializer.is_valid(raise_exception=True)
         file = serializer.save(ship=ship)
         process_standardized_data_reporting_file_task.delay(

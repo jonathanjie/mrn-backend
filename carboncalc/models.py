@@ -187,4 +187,6 @@ class StandardizedDataReportingData(BaseModel):
 class EnergyEfficiencyTechnicalFile(BaseS3FileModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     energy_efficiency_index_type = models.CharField(
-        max_length=4, choices=EnergyEfficiencyIndexType.choices)
+        max_length=4,
+        choices=EnergyEfficiencyIndexType.choices,
+        default=EnergyEfficiencyIndexType.EEXI)

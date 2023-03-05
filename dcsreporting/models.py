@@ -12,7 +12,9 @@ from dcsreporting.enums import DCSType
 class DCSUploadedFile(BaseS3FileModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
     year = models.PositiveSmallIntegerField()
-    dcs_type = models.PositiveSmallIntegerField(choices=DCSType.choices)
+    dcs_type = models.PositiveSmallIntegerField(
+        choices=DCSType.choices,
+        default=DCSType.TYPE_1)
 
     class Meta:
         db_table = "dcs_uploaded_files"
