@@ -206,7 +206,7 @@ class ReportHeader(BaseModel):
 class ReportDataBaseModel(BaseModel):
     """Base model for all report data models"""
     report_header = models.OneToOneField(
-        ReportHeader, on_delete=models.PROTECT, primary_key=True)
+        ReportHeader, on_delete=models.CASCADE, primary_key=True)
 
     class Meta:
         abstract = True
