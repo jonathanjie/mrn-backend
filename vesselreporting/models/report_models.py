@@ -394,7 +394,7 @@ class ConsumptionConditionData(ReportDataBaseModel):
 class ConsumptionDataBaseModel(BaseModel):
     """Base model for consumption data"""
     ccdata = models.ForeignKey(
-        ConsumptionConditionData, on_delete=models.PROTECT)
+        ConsumptionConditionData, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -435,7 +435,7 @@ class FuelOilData(ConsumptionDataBaseModel):
 
 class FuelOilDataCorrection(ConsumptionDataCorrectionBaseModel):
     fuel_oil_data = models.OneToOneField(
-        FuelOilData, on_delete=models.PROTECT, primary_key=True)
+        FuelOilData, on_delete=models.CASCADE, primary_key=True)
 
     class Meta:
         db_table = "fuel_oil_data_corrections"
@@ -470,7 +470,7 @@ class LubricatingOilData(ConsumptionDataBaseModel):
 
 class LubricatingOilDataCorrection(ConsumptionDataCorrectionBaseModel):
     lubricating_oil_data = models.OneToOneField(
-        LubricatingOilData, on_delete=models.PROTECT, primary_key=True)
+        LubricatingOilData, on_delete=models.CASCADE, primary_key=True)
 
     class Meta:
         db_table = "lubricating_oil_data_corrections"
@@ -478,7 +478,7 @@ class LubricatingOilDataCorrection(ConsumptionDataCorrectionBaseModel):
 
 class FreshWaterData(BaseModel):
     ccdata = models.OneToOneField(
-        ConsumptionConditionData, on_delete=models.PROTECT, primary_key=True)
+        ConsumptionConditionData, on_delete=models.CASCADE, primary_key=True)
     consumed = models.PositiveIntegerField()
     generated = models.PositiveIntegerField()
     received = models.PositiveIntegerField()
@@ -706,7 +706,7 @@ class TotalConsumptionData(ReportDataBaseModel):
 
 class TotalConsumptionDataBaseModel(BaseModel):
     """Base model for consumption data"""
-    tcdata = models.ForeignKey(TotalConsumptionData, on_delete=models.PROTECT)
+    tcdata = models.ForeignKey(TotalConsumptionData, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -741,7 +741,7 @@ class FuelOilTotalConsumptionData(TotalConsumptionDataBaseModel):
 class FuelOilTotalConsumptionDataCorrection(ConsumptionDataCorrectionBaseModel):
     fuel_oil_tcdata = models.OneToOneField(
         FuelOilTotalConsumptionData,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         primary_key=True)
 
     class Meta:
@@ -780,7 +780,7 @@ class LubricatingOilTotalConsumptionData(TotalConsumptionDataBaseModel):
 class LubricatingOilTotalConsumptionDataCorrection(ConsumptionDataCorrectionBaseModel):
     lubricating_oil_tcdata = models.OneToOneField(
         LubricatingOilTotalConsumptionData,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         primary_key=True)
 
     class Meta:
@@ -789,7 +789,7 @@ class LubricatingOilTotalConsumptionDataCorrection(ConsumptionDataCorrectionBase
 
 class FreshWaterTotalConsumptionData(BaseModel):
     tcdata = models.OneToOneField(
-        TotalConsumptionData, on_delete=models.PROTECT, primary_key=True)
+        TotalConsumptionData, on_delete=models.CASCADE, primary_key=True)
     consumed = models.PositiveIntegerField()
     generated = models.PositiveIntegerField()
     received = models.PositiveIntegerField()
