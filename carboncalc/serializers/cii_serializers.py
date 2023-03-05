@@ -86,7 +86,8 @@ class ShipOverviewCIISerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ship
-        fields = ['name', 'size', 'flag', 'delivery_date', 'calculated_ciis']
+        fields = ['name', 'imo_reg', 'size', 'flag', 'delivery_date',
+                  'calculated_ciis']
 
 
 class CIICalculatorInputSerializer(serializers.Serializer):
