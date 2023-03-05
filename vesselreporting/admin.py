@@ -29,6 +29,7 @@ from vesselreporting.models.report_models import (
     PerformanceData,
     PortOperations,
     PlannedOperations,
+    ReportEdge,
     ReportHeader,
     ReportRoute,
     SailingPlan,
@@ -80,3 +81,4 @@ admin.site.register(EventData)
 admin.site.register(BDNData)
 admin.site.register(VoyageLegData)
 admin.site.register(VoyageLegProgress)
+admin.site.register(ReportEdge)
