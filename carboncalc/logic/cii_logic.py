@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 
 from carboncalc.constants import (
     CONVERSION_FACTORS,
@@ -177,7 +178,7 @@ def process_cii_calculator(
     ship: Ship,
     distance: Decimal,
     fuel_burn_dict: dict[str, str],
-    target_cii_grade: str
+    target_cii_grade: Optional[str],
 ):
     config = ship.ciiconfig
     if config.applicable_cii == ApplicableCII.AER:
@@ -200,6 +201,13 @@ def process_cii_calculator(
     estimated_cii_grade = determine_cii_grade_for_ship(
         ship=ship, year=2023, cii_value=estimated_cii)
 
+    if not target_cii_grade:
+        return_dict = {
+            'estimated_cii_grade': estimated_cii_grade,
+            'estimated_cii_value': estimated_cii,
+        }
+        return return_dict
+
     target_cii_boundary = boundaries.get_boundary_for_grade(target_cii_grade)
     target_emission_max = target_cii_boundary * (distance * tonnage)
     target_emission_budget = target_emission_max - total_emission
@@ -220,6 +228,7 @@ def process_cii_calculator(
         minimum_fuel_projection[fuel] = budget_for_fuel / Decimal(1000000) / Decimal(cf)
     return_dict = {
         'estimated_cii_grade': estimated_cii_grade,
+        'estimated_cii_value': estimated_cii,
         'target_cii_grade': target_cii_grade,
         'target_cii_boundary': target_cii_boundary,
         'target_emission_budget': target_emission_budget / 1000,

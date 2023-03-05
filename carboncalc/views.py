@@ -90,5 +90,3 @@ class CIICalculatorView(APIView):
         )
         output_serializer = CIICalculatorOutputSerializer(calculations)
         return Response(output_serializer.data)
-
-

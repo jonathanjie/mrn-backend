@@ -1,3 +1,4 @@
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from rest_framework import serializers
 
@@ -93,22 +94,29 @@ class CIICalculatorInputSerializer(serializers.Serializer):
     end_date = serializers.DateField()
     distance_in_period = serializers.IntegerField()
     fuel_consumption = serializers.JSONField()
-    target_cii_grade = serializers.ChoiceField(choices=CIIGrade.choices)
+    target_cii_grade = serializers.ChoiceField(
+        choices=CIIGrade.choices, allow_null=True)
 
 
 class CIICalculatorOutputSerializer(serializers.Serializer):
     estimated_cii_grade = serializers.ChoiceField(choices=CIIGrade.choices)
+    estimated_cii_value = serializers.DecimalField(
+        max_digits=None, decimal_places=2)
 
-    target_cii_grade = serializers.ChoiceField(choices=CIIGrade.choices)
+    target_cii_grade = serializers.ChoiceField(
+        choices=CIIGrade.choices, required=False)
     target_cii_boundary = serializers.DecimalField(
-        max_digits=6, decimal_places=3)
+        max_digits=6, decimal_places=3, required=False)
     target_emission_budget = serializers.DecimalField(
-        max_digits=9, decimal_places=2)
-    target_fuel_projection = serializers.JSONField()
+        max_digits=None, decimal_places=2,
+        coerce_to_string=True, required=False)
+    target_fuel_projection = serializers.JSONField(required=False)
 
-    minimum_cii_grade = serializers.ChoiceField(choices=CIIGrade.choices)
+    minimum_cii_grade = serializers.ChoiceField(
+        choices=CIIGrade.choices, required=False)
     minimum_cii_boundary = serializers.DecimalField(
-        max_digits=6, decimal_places=3)
+        max_digits=6, decimal_places=3, required=False)
     minimum_emission_budget = serializers.DecimalField(
-        max_digits=9, decimal_places=2)
-    minimum_fuel_projection = serializers.JSONField()
+        max_digits=None, decimal_places=2,
+        coerce_to_string=True, required=False)
+    minimum_fuel_projection = serializers.JSONField(required=False)
