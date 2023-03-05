@@ -106,13 +106,13 @@ def populate_boundaries_for_ship(
         )
 
 
-def calcualte_co2_from_fuel_burn(
+def calculate_co2_from_fuel_burn(
     fuel_burn_dict: dict[str, str],
 ) -> Decimal:
     total_co2 = Decimal(0)
     for fuel, burn in fuel_burn_dict.items():
         cf = CONVERSION_FACTORS.get(fuel)
-        co2_for_fuel = Decimal(cf) * Decimal(burn)
+        co2_for_fuel = Decimal(cf) * Decimal(burn) * Decimal(1000000)
         total_co2 += co2_for_fuel
     return total_co2
 
@@ -153,7 +153,7 @@ def process_cii_raw_data(
         tonnage = ship.shipspecs.deadweight_tonnage
     else:
         tonnage = ship.shipspecs.gross_tonnage
-    total_co2_emissions = calcualte_co2_from_fuel_burn(
+    total_co2_emissions = calculate_co2_from_fuel_burn(
         cii_raw_data.fuel_oil_burned)
     cii = calculate_cii_for_ship(
         co2_emissions=total_co2_emissions,
@@ -163,7 +163,7 @@ def process_cii_raw_data(
         ship=cii_raw_data.ship,
         year=cii_raw_data.year,
         cii_value=cii)
-    calculated_cii = CalculatedCII.objects.update_or_create(
+    calculated_cii, _ = CalculatedCII.objects.update_or_create(
         ship=cii_raw_data.ship,
         year=cii_raw_data.year,
         defaults={
