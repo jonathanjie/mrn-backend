@@ -58,91 +58,91 @@ class VoyageLeg(BaseModel):
 
 class VoyageLegData(BaseModel):
     voyage_leg = models.OneToOneField(
-        VoyageLeg, on_delete=models.PROTECT, null=True)
+        VoyageLeg, on_delete=models.PROTECT, null=True, blank=True)
     last_report_type = models.CharField(
-        max_length=4, choices=ReportType.choices, null=True)
-    last_report_date = models.DateTimeField(null=True)
-    last_report_tz = models.FloatField(null=True)
+        max_length=4, choices=ReportType.choices, null=True, blank=True)
+    last_report_date = models.DateTimeField(null=True, blank=True)
+    last_report_tz = models.FloatField(null=True, blank=True)
 
-    departure_port = models.CharField(max_length=6, null=True)  # TODO: LOCODE
-    departure_date = models.DateTimeField(null=True)
-    departure_tz = models.FloatField(null=True)
-    arrival_port = models.CharField(max_length=6, null=True)  # TODO: LOCODE
-    arrival_date = models.DateTimeField(null=True)
-    arrival_tz = models.FloatField(null=True)
+    departure_port = models.CharField(max_length=6, null=True, blank=True)  # TODO: LOCODE
+    departure_date = models.DateTimeField(null=True, blank=True)
+    departure_tz = models.FloatField(null=True, blank=True)
+    arrival_port = models.CharField(max_length=6, null=True, blank=True)  # TODO: LOCODE
+    arrival_date = models.DateTimeField(null=True, blank=True)
+    arrival_tz = models.FloatField(null=True, blank=True)
 
     displacement_at_departure = models.DecimalField(
         max_digits=7,
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
-    cargo_total_at_departure = models.PositiveIntegerField(null=True)
+        null=True, blank=True)
+    cargo_total_at_departure = models.PositiveIntegerField(null=True, blank=True)
     load_condition = models.CharField(
         max_length=16,
         choices=LoadCondition.choices,
-        null=True)
+        null=True, blank=True)
     propeller_pitch = models.DecimalField(
-        max_digits=5, decimal_places=4, null=True)
+        max_digits=5, decimal_places=4, null=True, blank=True)
 
     total_hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.00"))],
-        null=True)
+        null=True, blank=True)
     time_standby_to_cosp = models.DecimalField(
         max_digits=4,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
     time_stopped_at_sea = models.DecimalField(
         max_digits=5,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.00"))],
-        null=True)
+        null=True, blank=True)
     distance_obs_standby_to_cosp = models.DecimalField(
         max_digits=3,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
     distance_eng_standby_to_cosp = models.DecimalField(
         max_digits=3,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
     distance_observed_total = models.DecimalField(
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
     distance_engine_total = models.DecimalField(
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
     revolution_count = models.IntegerField(
-        validators=[MinValueValidator(0)], null=True)
+        validators=[MinValueValidator(0)], null=True, blank=True)
     revolution_count_standby_to_cosp = models.IntegerField(
-        validators=[MinValueValidator(0)], null=True)
+        validators=[MinValueValidator(0)], null=True, blank=True)
     distance_to_go = models.DecimalField(
         max_digits=5,
         decimal_places=0,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
     speed_average = models.DecimalField(
         max_digits=4,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
     rpm_average = models.DecimalField(
         max_digits=4,
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
     slip_average = models.DecimalField(
         max_digits=4,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
 
     fuel_oil_robs = models.JSONField(
         default=dict, encoder=DjangoJSONEncoder)
@@ -181,7 +181,7 @@ class VoyageLegData(BaseModel):
     parking_status = models.CharField(
         max_length=32,
         choices=ParkingStatus.choices,
-        null=True)
+        null=True, blank=True)
 
     class Meta:
         db_table = "voyage_leg_data"
@@ -348,7 +348,7 @@ class DistanceTimeData(ReportDataBaseModel):
         max_digits=4,
         decimal_places=1,
         validators=[MinValueValidator(Decimal("0.0"))],
-        null=True)
+        null=True, blank=True)
 
     class Meta:
         db_table = "distance_time_data"
