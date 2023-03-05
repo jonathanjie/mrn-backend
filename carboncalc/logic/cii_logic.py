@@ -231,11 +231,11 @@ def process_cii_calculator(
         'estimated_cii_value': estimated_cii,
         'target_cii_grade': target_cii_grade,
         'target_cii_boundary': target_cii_boundary,
-        'target_emission_budget': target_emission_budget / 1000,
+        'target_emission_budget': target_emission_budget / 1000000,
         'target_fuel_projection': target_fuel_projection,
         'minimum_cii_grade': minimum_cii_grade,
         'minimum_cii_boundary': minimum_cii_boundary,
-        'minimum_emission_budget': minimum_emission_budget / 1000,
+        'minimum_emission_budget': minimum_emission_budget / 1000000,
         'minimum_fuel_projection': minimum_fuel_projection,
     }
     return return_dict
