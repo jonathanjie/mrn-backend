@@ -1,6 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 
+from carboncalc.enums import CIIGrade
 from carboncalc.models import (
     CalculatedCII,
     CIIConfig,
@@ -85,3 +86,29 @@ class ShipOverviewCIISerializer(serializers.ModelSerializer):
     class Meta:
         model = Ship
         fields = ['name', 'size', 'flag', 'delivery_date', 'calculated_ciis']
+
+
+class CIICalculatorInputSerializer(serializers.Serializer):
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    distance_in_period = serializers.IntegerField()
+    fuel_consumption = serializers.JSONField()
+    target_cii_grade = serializers.ChoiceField(choices=CIIGrade.choices)
+
+
+class CIICalculatorOutputSerializer(serializers.Serializer):
+    estimated_cii_grade = serializers.ChoiceField(choices=CIIGrade.choices)
+
+    target_cii_grade = serializers.ChoiceField(choices=CIIGrade.choices)
+    target_cii_boundary = serializers.DecimalField(
+        max_digits=6, decimal_places=3)
+    target_emission_budget = serializers.DecimalField(
+        max_digits=9, decimal_places=2)
+    target_fuel_projection = serializers.JSONField()
+
+    minimum_cii_grade = serializers.ChoiceField(choices=CIIGrade.choices)
+    minimum_cii_boundary = serializers.DecimalField(
+        max_digits=6, decimal_places=3)
+    minimum_emission_budget = serializers.DecimalField(
+        max_digits=9, decimal_places=2)
+    minimum_fuel_projection = serializers.JSONField()

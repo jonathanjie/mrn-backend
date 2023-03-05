@@ -4,11 +4,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from carboncalc.serializers.cii_serializers import (
+    CIICalculatorInputSerializer,
+    CIICalculatorOutputSerializer,
     CIIConfigViewSerlaizer,
     EnergyEfficiencyTechnicalFileSerializer,
     ShipOverviewCIISerializer,
     StandardizedDataReportingFileSerializer,
 )
+from carboncalc.logic.cii_logic import process_cii_calculator
 from carboncalc.tasks import (
     populate_cii_boundaries_for_ship_task,
     process_standardized_data_reporting_file_task,
@@ -71,3 +74,20 @@ class ShipsCIIOverviewListView(generics.ListAPIView):
             'shipspecs',
         )
         return ships
+
+
+class CIICalculatorView(APIView):
+    def post(self, request):
+        ship = get_object_or_404(Ship, imo_reg=request.data.pop('ship'))
+        input_serializer = CIICalculatorInputSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        calculations = process_cii_calculator(
+            ship=ship,
+            distance=input_serializer.validated_data.get('distance_in_period'),
+            fuel_burn_dict=input_serializer.validated_data.get('fuel_consumption'),
+            target_cii_grade=input_serializer.validated_data.get('target_cii_grade')
+        )
+        output_serializer = CIICalculatorOutputSerializer(calculations)
+        return Response(output_serializer.data)
+
+

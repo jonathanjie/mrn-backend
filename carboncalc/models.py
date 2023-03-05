@@ -138,6 +138,18 @@ class CIIShipYearBoundaries(BaseModel):
             ),
         ]
 
+    def get_boundary_for_grade(self, grade: str) -> str:
+        if grade == CIIGrade.A:
+            return self.boundary_a
+        elif grade == CIIGrade.B:
+            return self.boundary_b
+        elif grade == CIIGrade.C:
+            return self.boundary_c
+        elif grade == CIIGrade.D:
+            return self.boundary_d
+        else:
+            return Decimal("Infinity")
+
 
 class StandardizedDataReportingFile(BaseS3FileModel):
     ship = models.ForeignKey(Ship, on_delete=models.PROTECT)
