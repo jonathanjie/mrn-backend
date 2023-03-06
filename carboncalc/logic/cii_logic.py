@@ -174,18 +174,33 @@ def process_cii_raw_data(
     return calculated_cii
 
 
+def get_cii_boundaries_for_ship_year(
+    ship: Ship,
+    year: int
+) -> CIIShipYearBoundaries:
+    try:
+        boundaries = CIIShipYearBoundaries.objects.get(
+            ship=ship, year=year)
+    except CIIShipYearBoundaries.DoesNotExist:
+        populate_boundaries_for_ship(ship)
+        boundaries = CIIShipYearBoundaries.objects.get(
+            ship=ship, year=year)
+    return boundaries
+
+
 def process_cii_calculator(
     ship: Ship,
     distance: Decimal,
     fuel_burn_dict: dict[str, str],
     target_cii_grade: Optional[str],
 ):
+    year=2023
     config = ship.ciiconfig
     if config.applicable_cii == ApplicableCII.AER:
         tonnage = ship.shipspecs.deadweight_tonnage
     else:
         tonnage = ship.shipspecs.gross_tonnage
-    boundaries = CIIShipYearBoundaries.objects.get(ship=ship, year=2023)
+    boundaries = get_cii_boundaries_for_ship_year(ship=ship, year=year)
 
     emissions = {}
     total_emission = Decimal(0)
@@ -199,7 +214,7 @@ def process_cii_calculator(
         tonnage=tonnage,
         distance_travelled=distance)
     estimated_cii_grade = determine_cii_grade_for_ship(
-        ship=ship, year=2023, cii_value=estimated_cii)
+        ship=ship, year=year, cii_value=estimated_cii)
 
     if not target_cii_grade and \
        estimated_cii_grade != CIIGrade.D and \
@@ -259,6 +274,3 @@ def process_cii_calculator(
         'minimum_fuel_projection': minimum_fuel_projection,
     }
     return return_dict
-
-
-
