@@ -70,10 +70,10 @@ class MRVMethod(models.TextChoices):
 
 class CIIGrade(models.TextChoices):
     A = "A", _("CII Grade A")
-    B = "B", _("CII Grade A")
-    C = "C", _("CII Grade A")
-    D = "D", _("CII Grade A")
-    E = "E", _("CII Grade A")
+    B = "B", _("CII Grade B")
+    C = "C", _("CII Grade C")
+    D = "D", _("CII Grade D")
+    E = "E", _("CII Grade E")
 
 
 class FileAcceptanceStatus(models.TextChoices):

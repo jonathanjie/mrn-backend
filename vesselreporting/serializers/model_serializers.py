@@ -111,7 +111,7 @@ class VoyageLegWithPortsSerializer(serializers.ModelSerializer):
     arrival_date = serializers.DateTimeField(
         source='voyagelegdata.arrival_date')
     arrival_tz = serializers.FloatField(
-        source='voyagelegdata.departure_tz')
+        source='voyagelegdata.arrival_tz')
 
     class Meta:
         model = VoyageLeg

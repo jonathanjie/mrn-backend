@@ -402,7 +402,7 @@ class ShipLegsList(generics.ListAPIView):
         ).select_related(
             'voyagelegdata',
         ).order_by(
-            'created_at',
+            '-created_at',
         )
         return queryset
 
