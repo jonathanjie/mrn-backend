@@ -838,6 +838,7 @@ def update_leg_data(report_header, **kwargs):
 
     leg_data.last_report_type = report_header.report_type
     leg_data.last_report_date = report_header.report_date
+    leg_data.last_report_tz = report_header.report_tz
 
     if 'report_route' in kwargs:
         route = kwargs.pop('report_route')
